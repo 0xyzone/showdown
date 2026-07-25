@@ -27,8 +27,12 @@ class TournamentsTable
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
-                TextColumn::make('gameTitle.name')
+                TextColumn::make('gameTitles.name')
                     ->label('Game Title')
+                    ->listWithLineBreaks()
+                    ->badge()
+                    ->limitList(3)
+                    ->expandableLimitedList()
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('status')

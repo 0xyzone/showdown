@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'logo_path',
     'banner_path',
     'description',
+    'hero_headline',
+    'hero_subheadline',
     'rules_doc_link',
     'challonge_url',
     'challonge_embed_url',
@@ -28,7 +30,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'registration_end',
     'status',
     'is_active',
+    'theme_color',
     'prize_pool_total',
+    'entry_fee',
 ])]
 class Tournament extends Model
 {
@@ -43,6 +47,7 @@ class Tournament extends Model
             'registration_start' => 'datetime',
             'registration_end' => 'datetime',
             'prize_pool_total' => 'decimal:2',
+            'entry_fee' => 'decimal:2',
             'is_active' => 'boolean',
         ];
     }

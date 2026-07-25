@@ -54,10 +54,14 @@ class EsportsTournamentSeeder extends Seeder
         $t1 = Tournament::firstOrCreate(['slug' => 'outlaw-showdown-2026-vol-1'], [
             'name' => 'Outlaw Showdown 2026 Vol-I',
             'season_version' => '2026 Vol-I',
+            'hero_headline' => 'UNLEASH THE LEGEND, CLAIM YOUR GLORY',
+            'hero_subheadline' => "Nepal's premier national esports championship stage is live! Register your squad for multi-game title disciplines and follow live brackets on Challonge.com.",
             'description' => 'Nepal premier national esports championship featuring Rs 500,000 Total Prize Pool across 6 major gaming disciplines.',
             'status' => 'registration_open',
             'is_active' => true,
             'prize_pool_total' => 500000.00,
+            'entry_fee' => 100.00,
+            'theme_color' => '#10b981',
             'registration_start' => now()->subDays(5),
             'registration_end' => now()->addDays(14),
             'start_date' => now()->addDays(15),
@@ -66,6 +70,13 @@ class EsportsTournamentSeeder extends Seeder
             'challonge_embed_url' => 'https://challonge.com/outlaw_showdown_2026/module',
             'discord_server_url' => 'https://discord.gg/outlawshowdown',
             'rules_doc_link' => 'https://outlawshowdown.com/rules.pdf',
+        ]);
+
+        $t1->update([
+            'hero_headline' => 'UNLEASH THE LEGEND, CLAIM YOUR GLORY',
+            'hero_subheadline' => "Nepal's premier national esports championship stage is live! Register your squad for multi-game title disciplines and follow live brackets on Challonge.com.",
+            'entry_fee' => 100.00,
+            'is_active' => true,
         ]);
 
         $t1->gameTitles()->syncWithoutDetaching([
@@ -81,10 +92,14 @@ class EsportsTournamentSeeder extends Seeder
         $t2 = Tournament::firstOrCreate(['slug' => 'outlaw-winter-showdown-2026'], [
             'name' => 'Outlaw Winter Showdown 2026',
             'season_version' => '2026 Winter Ed.',
+            'hero_headline' => 'WINTER ARENA CHAMPIONSHIP 2026',
+            'hero_subheadline' => 'The battleground shifts to the winter arena! Top tactical FPS and mobile legends assemble for the ultimate winter trophy.',
             'description' => 'Winter arena edition for top mobile and tactical FPS contenders in South Asia.',
             'status' => 'draft',
             'is_active' => false,
             'prize_pool_total' => 250000.00,
+            'entry_fee' => 150.00,
+            'theme_color' => '#06b6d4',
             'registration_start' => now()->addDays(30),
             'registration_end' => now()->addDays(45),
             'start_date' => now()->addDays(46),

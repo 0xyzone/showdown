@@ -2,11 +2,10 @@
 
 namespace App\Filament\Mukhyadwar\Resources;
 
-use App\Filament\Mukhyadwar\Resources\Pages\CreateTeam;
-use App\Filament\Mukhyadwar\Resources\Pages\EditTeam;
-use App\Filament\Mukhyadwar\Resources\Pages\ListTeams;
+use App\Filament\Mukhyadwar\Resources\TeamResource\Pages\CreateTeam;
+use App\Filament\Mukhyadwar\Resources\TeamResource\Pages\EditTeam;
+use App\Filament\Mukhyadwar\Resources\TeamResource\Pages\ListTeams;
 use App\Models\Team;
-use BackedEnum;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
@@ -17,43 +16,43 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class TeamResource extends Resource
 {
     protected static ?string $model = Team::class;
 
-    protected static ?string $navigationLabel = 'My Teams';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationLabel = 'My Teams';
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->where('manager_id', auth('participant')->id());
+        return parent::getEloquentQuery()->where('manager_id', Auth::id());
     }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Section::make('Team Identity')
-                    ->description('Create or edit your esports team profile.')
+                Section::make('Esports Squad Profile')
+                    ->description('Create or edit your team squad identity.')
                     ->schema([
                         Grid::make(2)->schema([
                             TextInput::make('name')
                                 ->label('Team Name')
-                                ->required()
-                                ->maxLength(255),
+                                ->placeholder('e.g. Outlaw Clan')
+                                ->required(),
                             TextInput::make('tag')
-                                ->label('Team Tag / Abbreviation')
+                                ->label('Team Tag / Prefix')
                                 ->placeholder('e.g. OTL')
-                                ->maxLength(10),
+                                ->required(),
                             TextInput::make('country')
-                                ->label('Country')
+                                ->label('Country / Location')
                                 ->default('Nepal')
                                 ->required(),
                             FileUpload::make('logo_path')
-                                ->label('Team Logo')
+                                ->label('Team Crest / Logo')
                                 ->image()
                                 ->disk('public')
                                 ->directory('teams')
@@ -73,15 +72,15 @@ class TeamResource extends Resource
                     ->square(),
                 TextColumn::make('name')
                     ->label('Team Name')
-                    ->searchable()
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->searchable(),
                 TextColumn::make('tag')
                     ->label('Tag')
                     ->badge(),
                 TextColumn::make('country')
                     ->label('Country'),
                 TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label('Created On')
                     ->dateTime('M d, Y'),
             ]);
     }
