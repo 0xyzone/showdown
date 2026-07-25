@@ -2,7 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Mail\SponsorQueryReceived;
 use App\Models\SponsorQuery;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
 class SponsorQueryForm extends Component
@@ -31,7 +33,7 @@ class SponsorQueryForm extends Component
     {
         $this->validate();
 
-        SponsorQuery::create([
+        $query = SponsorQuery::create([
             'name' => $this->name,
             'company_name' => $this->company_name,
             'email' => $this->email,
@@ -39,6 +41,12 @@ class SponsorQueryForm extends Component
             'details' => $this->details,
             'status' => 'pending',
         ]);
+
+        try {
+            Mail::to($query->email)->send(new SponsorQueryReceived($query));
+        } catch (\Throwable $e) {
+            // Mail fail-safe log handling
+        }
 
         $this->isSubmitted = true;
     }

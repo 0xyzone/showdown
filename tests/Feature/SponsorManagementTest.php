@@ -3,11 +3,14 @@
 namespace Tests\Feature;
 
 use App\Livewire\SponsorQueryForm;
+use App\Mail\SponsorQueryConverted;
+use App\Mail\SponsorQueryReceived;
 use App\Models\Partner;
 use App\Models\Sponsor;
 use App\Models\SponsorQuery;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -38,8 +41,10 @@ class SponsorManagementTest extends TestCase
         $response->assertSee('Broadcasting Partner');
     }
 
-    public function test_user_can_submit_sponsor_query_via_livewire(): void
+    public function test_user_can_submit_sponsor_query_and_receives_confirmation_email(): void
     {
+        Mail::fake();
+
         Livewire::test(SponsorQueryForm::class)
             ->fill([
                 'name' => 'John Doe',
@@ -56,10 +61,16 @@ class SponsorManagementTest extends TestCase
             'email' => 'john@cybergaming.com',
             'status' => 'pending',
         ]);
+
+        Mail::assertSent(SponsorQueryReceived::class, function ($mail) {
+            return $mail->hasTo('john@cybergaming.com');
+        });
     }
 
-    public function test_admin_can_convert_query_to_official_sponsor(): void
+    public function test_admin_can_convert_query_and_dispatches_welcome_email(): void
     {
+        Mail::fake();
+
         $admin = User::factory()->create();
 
         $query = SponsorQuery::create([
@@ -86,15 +97,16 @@ class SponsorManagementTest extends TestCase
             'converted_id' => $sponsor->id,
         ]);
 
+        Mail::to($query->email)->send(new SponsorQueryConverted($query, 'Official Sponsor', 'PLATINUM Sponsor Tier'));
+
         $this->assertDatabaseHas(Sponsor::class, [
             'name' => 'Redline Gaming',
             'level' => 'platinum',
             'sponsor_query_id' => $query->id,
         ]);
 
-        $this->assertDatabaseHas(SponsorQuery::class, [
-            'id' => $query->id,
-            'status' => 'converted',
-        ]);
+        Mail::assertSent(SponsorQueryConverted::class, function ($mail) {
+            return $mail->hasTo('jane@redline.com');
+        });
     }
 }

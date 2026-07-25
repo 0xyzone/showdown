@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\SponsorQueries\Tables;
 
+use App\Mail\SponsorQueryAcknowledged;
+use App\Mail\SponsorQueryConverted;
 use App\Models\Partner;
 use App\Models\Sponsor;
 use App\Models\SponsorQuery;
@@ -11,12 +13,14 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Mail;
 
 class SponsorQueriesTable
 {
@@ -63,6 +67,30 @@ class SponsorQueriesTable
                     ]),
             ])
             ->actions([
+                Action::make('acknowledge')
+                    ->label('Follow Up')
+                    ->icon('heroicon-o-paper-airplane')
+                    ->color('info')
+                    ->schema([
+                        Textarea::make('message')
+                            ->label('Custom Follow-up Email Message')
+                            ->placeholder('Enter custom note or next steps for the prospect...')
+                            ->rows(4),
+                    ])
+                    ->action(function (array $data, SponsorQuery $record): void {
+                        $record->update(['status' => 'contacted']);
+
+                        try {
+                            Mail::to($record->email)->send(new SponsorQueryAcknowledged($record, $data['message'] ?? ''));
+                        } catch (\Throwable $e) {
+                        }
+
+                        Notification::make()
+                            ->success()
+                            ->title('Follow-up email sent to '.$record->email)
+                            ->send();
+                    }),
+
                 Action::make('convert')
                     ->label('Convert')
                     ->icon('heroicon-o-arrows-right-left')
@@ -134,9 +162,18 @@ class SponsorQueriesTable
                                 'converted_id' => $sponsor->id,
                             ]);
 
+                            try {
+                                Mail::to($record->email)->send(new SponsorQueryConverted(
+                                    $record,
+                                    'Official Sponsor',
+                                    strtoupper($data['sponsor_level']).' Sponsor Tier'
+                                ));
+                            } catch (\Throwable $e) {
+                            }
+
                             Notification::make()
                                 ->success()
-                                ->title('Query converted to Official Sponsor!')
+                                ->title('Query converted & confirmation email sent to sponsor!')
                                 ->send();
                         } elseif ($data['target_type'] === 'partner') {
                             $partner = Partner::create([
@@ -155,9 +192,18 @@ class SponsorQueriesTable
                                 'converted_id' => $partner->id,
                             ]);
 
+                            try {
+                                Mail::to($record->email)->send(new SponsorQueryConverted(
+                                    $record,
+                                    'Official Partner',
+                                    $data['partner_title']
+                                ));
+                            } catch (\Throwable $e) {
+                            }
+
                             Notification::make()
                                 ->success()
-                                ->title('Query converted to Official Partner!')
+                                ->title('Query converted & confirmation email sent to partner!')
                                 ->send();
                         }
                     }),
