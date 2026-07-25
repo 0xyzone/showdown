@@ -8,15 +8,15 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 
     @php
-        $themeColor = $activeTournament?->theme_color ?? '#10b981';
+        $themeColor = $activeTournament?->theme_color ?? '#00f0ff';
 
-        // Convert Hex to RGB for full 100% dynamic opacity blending
+        // Convert Hex to RGB for full opacity blending
         $hex = ltrim($themeColor, '#');
         if (strlen($hex) == 3) {
             $r = hexdec(substr($hex, 0, 1).substr($hex, 0, 1));
@@ -33,10 +33,9 @@
         $seasonVersion = $activeTournament?->season_version ?? '2026 VOL-I';
         $entryFee = $activeTournament?->entry_fee ?? 100;
         $prizePool = $activeTournament?->prize_pool_total ?? 500000;
-        $heroHeadline = $activeTournament?->hero_headline ?: 'UNLEASH THE LEGEND, CLAIM YOUR GLORY';
-        $heroSubheadline = $activeTournament?->hero_subheadline ?: "Nepal's premier national esports championship stage is live! Register your squad for multi-game title disciplines and follow live brackets on Challonge.com.";
-        $logoUrl = $activeTournament?->logo_path ? Storage::url($activeTournament->logo_path) : null;
-        $bannerUrl = $activeTournament?->banner_path ? Storage::url($activeTournament->banner_path) : null;
+        $heroHeadline = $activeTournament?->hero_headline ?: 'OUTLAW SHOWDOWN';
+        $heroSubheadline = $activeTournament?->hero_subheadline ?: "Outlaw Showdown 2026 Vol-I inaugurate premier esports stage with Laravel & Filament v5 backend.";
+        $registrationEnd = $activeTournament?->registration_end ? $activeTournament->registration_end->toIso8601String() : now()->addDays(10)->toIso8601String();
     @endphp
 
     <style>
@@ -52,46 +51,6 @@
             font-family: 'Outfit', sans-serif;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
-        .font-mono-cyber {
-            font-family: 'Space Grotesk', monospace;
-        }
-
-        /* Dynamic Theme System */
-        .dynamic-accent-text {
-            color: {{ $themeColor }} !important;
-        }
-        .dynamic-accent-bg {
-            background-color: {{ $themeColor }} !important;
-        }
-        .dynamic-accent-border {
-            border-color: rgba({{ $rgb }}, 0.4) !important;
-        }
-        .dynamic-badge {
-            background-color: rgba({{ $rgb }}, 0.15);
-            border: 1px solid rgba({{ $rgb }}, 0.4);
-            color: {{ $themeColor }};
-        }
-        .dynamic-btn-gradient {
-            background: linear-gradient(135deg, {{ $themeColor }} 0%, rgba({{ $rgb }}, 0.8) 100%);
-            box-shadow: 0 0 30px rgba({{ $rgb }}, 0.45);
-        }
-        .dynamic-btn-gradient:hover {
-            box-shadow: 0 0 50px rgba({{ $rgb }}, 0.75);
-        }
-
-        /* High Intensity Glassmorphism */
-        .esports-card-v2 {
-            background: rgba(10, 18, 30, 0.85);
-            -webkit-backdrop-filter: blur(24px);
-            backdrop-filter: blur(24px);
-            border: 1px solid rgba({{ $rgb }}, 0.3);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .esports-card-v2:hover {
-            border-color: rgba({{ $rgb }}, 0.75);
-            box-shadow: 0 25px 60px -10px rgba({{ $rgb }}, 0.4);
-        }
 
         /* Persistent Light Mode */
         html.light body {
@@ -100,7 +59,7 @@
         }
         html.light .esports-card-v2 {
             background: rgba(255, 255, 255, 0.95);
-            border-color: rgba({{ $rgb }}, 0.3);
+            border-color: rgba(0, 240, 255, 0.3);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         }
         html.light .nav-bg {
@@ -108,81 +67,84 @@
         }
     </style>
 </head>
-<body class="cyber-bg text-slate-100 min-h-screen selection:bg-emerald-500 selection:text-slate-950 overflow-x-hidden antialiased relative">
+<body class="cyber-bg text-slate-100 min-h-screen selection:bg-cyan-400 selection:text-slate-950 overflow-x-hidden antialiased relative">
+
+    <!-- REACTIVE CURSOR TRAIL -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"></div>
 
     <!-- DYNAMIC PARTICLES BACKGROUND CANVAS -->
     <canvas id="particle-canvas" class="fixed inset-0 pointer-events-none z-0 opacity-40"></canvas>
 
     <!-- SCANLINE OVERLAY -->
-    <div class="fixed inset-0 scanlines pointer-events-none z-40 opacity-30"></div>
+    <div class="fixed inset-0 scanlines pointer-events-none z-40 opacity-20"></div>
 
-    <!-- TOP NAVIGATION BAR -->
-    <nav class="sticky top-0 z-50 backdrop-blur-2xl nav-bg bg-slate-950/90 border-b dynamic-accent-border transition-all">
+    <!-- 1. TOP NAVIGATION BAR (MATCHING REFERENCE IMAGE) -->
+    <nav class="sticky top-0 z-50 backdrop-blur-2xl nav-bg bg-slate-950/90 border-b border-cyan-500/30 transition-all">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20 gap-4">
+            <div class="flex items-center justify-between h-20 gap-4 overflow-hidden">
                 
                 <!-- BRAND LOGO -->
-                <a href="#" class="flex items-center gap-3 group shrink-0">
-                    <div class="w-11 h-11 clip-corner-sm dynamic-btn-gradient flex items-center justify-center font-black text-slate-950 text-xl group-hover:scale-110 transition-transform duration-300">
+                <a href="#" class="flex items-center gap-2.5 group shrink-0">
+                    <div class="w-10 h-10 clip-corner-sm btn-primary-cyan flex items-center justify-center font-black text-slate-950 text-lg group-hover:scale-105 transition-transform duration-300">
                         OS
                     </div>
-                    <div class="flex flex-col">
-                        <div class="flex items-center gap-2">
-                            <span class="font-black text-xl sm:text-2xl tracking-wider group-hover:dynamic-accent-text transition-colors whitespace-nowrap">
-                                {{ strtoupper(strtok($tournamentName, ' ')) }}<span class="dynamic-accent-text">{{ strtoupper(substr($tournamentName, strpos($tournamentName, ' ') ?: 0)) }}</span>
+                    <div class="flex flex-col min-w-0">
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-orbitron font-black text-lg sm:text-xl tracking-wider text-white whitespace-nowrap">
+                                OUTLAW<span class="text-neon-cyan">SHOWDOWN</span>
                             </span>
-                            <span class="hidden sm:inline-flex px-2 py-0.5 rounded text-[10px] font-mono-cyber font-bold dynamic-badge animate-pulse whitespace-nowrap">LIVE</span>
+                            <span class="hidden sm:inline-flex px-1.5 py-0.5 rounded text-[9px] font-mono-cyber font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 animate-pulse whitespace-nowrap">LIVE</span>
                         </div>
-                        <div class="text-[10px] tracking-widest dynamic-accent-text uppercase font-mono-cyber font-bold whitespace-nowrap">{{ $seasonVersion }} • ARENA</div>
                     </div>
                 </a>
 
                 <!-- DESKTOP NAV LINKS -->
-                <div class="hidden xl:flex items-center gap-8 text-sm font-extrabold tracking-wide shrink-0">
-                    <a href="#games" class="hover:dynamic-accent-text transition-colors flex items-center gap-2 whitespace-nowrap hover:scale-105 transform">
-                        <span class="text-base">🎮</span> Game Titles
+                <div class="hidden lg:flex items-center gap-6 xl:gap-8 text-sm font-extrabold tracking-wide shrink-0">
+                    <a href="#" class="text-cyan-400 font-bold border-b-2 border-cyan-400 pb-1 flex items-center gap-1.5 whitespace-nowrap">
+                        Overview
                     </a>
-                    <a href="#hub" class="hover:dynamic-accent-text transition-colors flex items-center gap-2 whitespace-nowrap hover:scale-105 transform">
-                        <span class="text-base">🏆</span> Challonge Brackets
+                    <a href="#games" class="text-slate-300 hover:text-cyan-400 transition-colors flex items-center gap-1.5 whitespace-nowrap hover:scale-105 transform">
+                        Esports
                     </a>
-                    <a href="#sponsors" class="hover:dynamic-accent-text transition-colors flex items-center gap-2 whitespace-nowrap hover:scale-105 transform">
-                        <span class="text-base">🤝</span> Sponsors & Partners
+                    <a href="{{ url('/mukhyadwar') }}" class="text-slate-300 hover:text-cyan-400 transition-colors flex items-center gap-1.5 whitespace-nowrap hover:scale-105 transform">
+                        Players
+                    </a>
+                    <a href="{{ url('/mukhyadwar') }}" class="text-slate-300 hover:text-cyan-400 transition-colors flex items-center gap-1.5 whitespace-nowrap hover:scale-105 transform">
+                        Managers
+                    </a>
+                    <a href="#community" class="text-slate-300 hover:text-cyan-400 transition-colors flex items-center gap-1.5 whitespace-nowrap hover:scale-105 transform">
+                        Contact
                     </a>
                 </div>
 
                 <!-- DESKTOP CTA & THEME TOGGLE BUTTONS -->
-                <div class="hidden lg:flex items-center gap-4 shrink-0">
-                    <!-- PERSISTENT LIGHT / DARK THEME TOGGLE BUTTON -->
-                    <button id="theme-toggle-btn" class="p-2.5 rounded-xl bg-slate-900/80 border dynamic-accent-border text-slate-200 hover:dynamic-accent-text focus:outline-none transition-colors" title="Toggle Light / Dark Mode">
+                <div class="hidden lg:flex items-center gap-3 shrink-0">
+                    <button id="theme-toggle-btn" class="p-2.5 rounded-xl bg-slate-900/80 border border-cyan-500/30 text-slate-200 hover:text-cyan-400 focus:outline-none transition-colors" title="Toggle Light / Dark Mode">
                         <span id="theme-sun-icon" class="hidden">☀️</span>
                         <span id="theme-moon-icon">🌙</span>
                     </button>
 
-                    <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900/90 border dynamic-accent-border text-xs font-mono-cyber whitespace-nowrap">
-                        <span class="text-slate-400">ENTRY FEE:</span> <span class="font-black dynamic-accent-text">Rs. {{ number_format($entryFee) }}</span> / player
-                    </div>
-
                     @auth('participant')
-                        <a href="{{ url('/mukhyadwar') }}" class="px-5 py-2.5 rounded-xl font-black text-sm dynamic-btn-gradient text-slate-950 transition-all hover:scale-105 flex items-center gap-2 whitespace-nowrap">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                            <span>Mukhyadwar Arena</span>
+                        <a href="{{ url('/mukhyadwar') }}" class="px-5 py-2.5 rounded-xl font-bold text-sm btn-primary-cyan transition-all hover:scale-105 flex items-center gap-2 whitespace-nowrap">
+                            Mukhyadwar Arena
                         </a>
                     @else
-                        <a href="{{ url('/mukhyadwar/login') }}" class="font-extrabold text-sm px-3 py-2 transition-colors whitespace-nowrap">
-                            Log In
+                        <a href="{{ url('/mukhyadwar/login') }}" class="font-bold text-sm text-slate-300 hover:text-white px-3 py-2 transition-colors whitespace-nowrap">
+                            Log in
                         </a>
-                        <a href="{{ url('/mukhyadwar/register') }}" class="px-5 py-2.5 clip-corner-sm dynamic-btn-gradient text-slate-950 font-black text-xs uppercase tracking-wider transition-all hover:scale-105 whitespace-nowrap">
-                            Mukhyadwar Portal
+                        <a href="{{ url('/mukhyadwar/register') }}" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-800 border border-cyan-500/40 text-white hover:bg-slate-700 transition-all hover:scale-105 whitespace-nowrap">
+                            Sign Up
                         </a>
                     @endauth
                 </div>
 
                 <!-- MOBILE MENU TOGGLE -->
-                <div class="flex xl:hidden items-center gap-3 shrink-0">
-                    <button id="theme-toggle-btn-mobile" class="p-2.5 rounded-xl bg-slate-900 border dynamic-accent-border text-slate-200">
+                <div class="flex lg:hidden items-center gap-2.5 shrink-0">
+                    <button id="theme-toggle-btn-mobile" class="p-2.5 rounded-xl bg-slate-900 border border-cyan-500/30 text-slate-200">
                         <span>🌓</span>
                     </button>
-                    <button id="mobile-menu-toggle" class="p-2.5 rounded-xl bg-slate-900 border dynamic-accent-border dynamic-accent-text focus:outline-none transition-colors">
+                    <button id="mobile-menu-toggle" class="p-2.5 rounded-xl bg-slate-900 border border-cyan-500/30 text-cyan-400 focus:outline-none transition-colors">
                         <svg id="hamburger-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                         <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
@@ -191,35 +153,26 @@
         </div>
 
         <!-- MOBILE MENU DRAWER -->
-        <div id="mobile-menu-drawer" class="hidden xl:hidden bg-slate-950/95 border-b dynamic-accent-border backdrop-blur-2xl px-4 pt-4 pb-6 space-y-4 transition-all">
+        <div id="mobile-menu-drawer" class="hidden lg:hidden bg-slate-950/95 border-b border-cyan-500/30 backdrop-blur-2xl px-4 pt-4 pb-6 space-y-4 transition-all">
             <div class="flex flex-col gap-3 font-bold text-sm tracking-wide">
-                <a href="#games" onclick="toggleMobileMenu()" class="px-4 py-2.5 rounded-lg hover:bg-slate-900 hover:dynamic-accent-text flex items-center gap-2">
-                    <span>🎮</span> Game Titles
-                </a>
-                <a href="#hub" onclick="toggleMobileMenu()" class="px-4 py-2.5 rounded-lg hover:bg-slate-900 hover:dynamic-accent-text flex items-center gap-2">
-                    <span>🏆</span> Challonge Brackets
-                </a>
-                <a href="#sponsors" onclick="toggleMobileMenu()" class="px-4 py-2.5 rounded-lg hover:bg-slate-900 hover:dynamic-accent-text flex items-center gap-2">
-                    <span>🤝</span> Sponsors & Partners
-                </a>
+                <a href="#" onclick="toggleMobileMenu()" class="px-4 py-2.5 rounded-lg hover:bg-slate-900 text-cyan-400">Overview</a>
+                <a href="#games" onclick="toggleMobileMenu()" class="px-4 py-2.5 rounded-lg hover:bg-slate-900 text-slate-200">Esports</a>
+                <a href="{{ url('/mukhyadwar') }}" class="px-4 py-2.5 rounded-lg hover:bg-slate-900 text-slate-200">Players & Managers</a>
+                <a href="#community" onclick="toggleMobileMenu()" class="px-4 py-2.5 rounded-lg hover:bg-slate-900 text-slate-200">Contact</a>
             </div>
 
             <div class="pt-4 border-t border-slate-800 flex flex-col gap-3">
-                <div class="flex items-center justify-between px-4 py-2 rounded-lg bg-slate-900 border dynamic-accent-border text-xs font-mono-cyber">
-                    <span class="text-slate-400">ENTRY FEE:</span> <span class="font-bold dynamic-accent-text">Rs. {{ number_format($entryFee) }} / person</span>
-                </div>
-
                 @auth('participant')
-                    <a href="{{ url('/mukhyadwar') }}" class="w-full py-3 rounded-xl text-center font-black text-sm dynamic-btn-gradient text-slate-950">
+                    <a href="{{ url('/mukhyadwar') }}" class="w-full py-3 rounded-xl text-center font-bold text-sm btn-primary-cyan">
                         Mukhyadwar Arena
                     </a>
                 @else
                     <div class="grid grid-cols-2 gap-3">
-                        <a href="{{ url('/mukhyadwar/login') }}" class="py-2.5 rounded-lg text-center font-semibold text-sm bg-slate-900 border dynamic-accent-border">
-                            Log In
+                        <a href="{{ url('/mukhyadwar/login') }}" class="py-2.5 rounded-lg text-center font-semibold text-sm bg-slate-900 border border-cyan-500/30">
+                            Log in
                         </a>
-                        <a href="{{ url('/mukhyadwar/register') }}" class="py-2.5 clip-corner-sm text-center font-extrabold text-sm uppercase dynamic-btn-gradient text-slate-950">
-                            Portal
+                        <a href="{{ url('/mukhyadwar/register') }}" class="py-2.5 rounded-lg text-center font-bold text-sm bg-slate-800 border border-cyan-500/40 text-white">
+                            Sign Up
                         </a>
                     </div>
                 @endauth
@@ -227,89 +180,72 @@
         </div>
     </nav>
 
-    <!-- 1. HIGH-INTENSITY HERO ARENA SECTION (100% DYNAMIC TOURNAMENT SETUP) -->
-    <section class="relative pt-12 pb-24 lg:pt-20 lg:pb-32 overflow-hidden z-10">
+    <!-- 2. HERO SECTION: "THE SHOWDOWN ARENA" (REGENERATED TRANSPARENT CHIBI MASCOT OVERLAYS) -->
+    <section class="relative pt-10 pb-20 lg:pt-16 lg:pb-28 overflow-hidden z-10">
         <!-- Dynamic Glow Aura -->
-        <div class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[900px] h-[600px] sm:h-[900px] rounded-full blur-[180px] pointer-events-none animate-pulse-glow" style="background-color: rgba({{ $rgb }}, 0.2);"></div>
+        <div class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full blur-[180px] pointer-events-none animate-pulse-glow" style="background-color: rgba(0, 240, 255, 0.15);"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div class="relative min-h-[520px] rounded-3xl esports-card-v2 p-8 sm:p-12 border-2 border-cyan-500/40 overflow-visible">
                 
-                <!-- HERO DYNAMIC TEXT CONTENT -->
-                <div class="lg:col-span-7 text-center lg:text-left reveal-left">
-                    <!-- Dynamic Featured Badge -->
-                    <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full dynamic-badge text-xs sm:text-sm font-mono-cyber tracking-widest uppercase mb-6 shadow-sm">
-                        <span class="w-2.5 h-2.5 rounded-full dynamic-accent-bg animate-ping"></span>
-                        <span>FEATURED EVENT: {{ strtoupper($tournamentName) }}</span>
+                <!-- NEW REGENERATED FLOATING TRANSPARENT MASCOT 1: CYBER SNIPER GIRL (TOP-RIGHT MATCHING REFERENCE) -->
+                <div class="absolute -top-14 -right-6 sm:-right-10 z-20 pointer-events-auto reveal-right animate-float-left" data-parallax-speed="18">
+                    <img src="/images/cyber_chibi_sniper_girl.png" alt="Cyber Chibi Sniper Girl" class="w-56 sm:w-80 lg:w-[420px] h-auto object-contain filter drop-shadow-[0_10px_35px_rgba(255,0,85,0.55)] transform hover:scale-105 transition-transform duration-300">
+                </div>
+
+                <!-- NEW REGENERATED FLOATING TRANSPARENT MASCOT 2: MECHA ROBOT DRAGON (BOTTOM-LEFT MATCHING REFERENCE) -->
+                <div class="absolute -bottom-10 -left-6 sm:-left-10 z-20 pointer-events-auto reveal-left animate-float-right" data-parallax-speed="-14">
+                    <img src="/images/mecha_chibi_robot_dragon.png" alt="Mecha Robot Dragon Mascot" class="w-48 sm:w-64 lg:w-[320px] h-auto object-contain filter drop-shadow-[0_10px_35px_rgba(0,240,255,0.55)] transform hover:scale-105 transition-transform duration-300">
+                </div>
+
+                <!-- HERO INNER CENTER CONTENT -->
+                <div class="max-w-2xl mx-auto text-center relative z-10 py-6">
+                    <div class="text-xs font-mono-cyber font-bold text-slate-400 uppercase tracking-widest mb-3">
+                        The Showdown Arena
                     </div>
 
-                    <!-- Dynamic Hero Headline -->
-                    <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight uppercase leading-[0.95] mb-6">
-                        <span class="dynamic-accent-text">{{ $heroHeadline }}</span>
+                    <!-- Main Dual Neon Title matching reference image -->
+                    <h1 class="font-orbitron text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight leading-none mb-6">
+                        <span class="text-stroke-cyan block mb-2">OUTLAW</span>
+                        <span class="text-stroke-pink block">SHOWDOWN</span>
                     </h1>
 
-                    <!-- Dynamic Hero Subheadline -->
-                    <p class="text-slate-300 text-base sm:text-lg lg:text-xl font-normal leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0">
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-8 max-w-lg mx-auto">
                         {{ $heroSubheadline }}
                     </p>
 
-                    <!-- Dynamic Stats Card Grid -->
-                    <div class="p-6 rounded-3xl esports-card-v2 mb-8 max-w-lg mx-auto lg:mx-0 grid grid-cols-2 gap-6 border dynamic-accent-border">
-                        <div class="p-2 border-r border-slate-800">
-                            <div class="text-xs dynamic-accent-text font-mono-cyber uppercase tracking-wider font-bold">ENTRY FEE PER PERSON</div>
-                            <div class="text-2xl sm:text-4xl font-black mt-1">Rs. {{ number_format($entryFee) }}</div>
-                        </div>
-                        <div class="p-2">
-                            <div class="text-xs dynamic-accent-text font-mono-cyber uppercase tracking-wider font-bold">TOTAL PRIZE POOL</div>
-                            <div class="text-2xl sm:text-4xl font-black dynamic-accent-text mt-1">Rs. {{ number_format($prizePool) }}</div>
+                    <!-- Countdown Timer matching reference layout -->
+                    <div id="countdown-target" data-date="{{ $registrationEnd }}" class="mb-8 p-4 rounded-2xl bg-slate-950/80 border border-cyan-500/30 max-w-sm mx-auto shadow-xl">
+                        <div class="text-[10px] font-mono-cyber font-bold text-slate-400 uppercase tracking-widest mb-2">Countdown Timer</div>
+                        <div class="grid grid-cols-4 gap-2 font-orbitron text-center">
+                            <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
+                                <div id="cd-days" class="text-lg sm:text-2xl font-black text-white">00</div>
+                                <div class="text-[9px] font-mono-cyber text-slate-400 mt-0.5">Days</div>
+                            </div>
+                            <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
+                                <div id="cd-hours" class="text-lg sm:text-2xl font-black text-white">06</div>
+                                <div class="text-[9px] font-mono-cyber text-slate-400 mt-0.5">Hour</div>
+                            </div>
+                            <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
+                                <div id="cd-mins" class="text-lg sm:text-2xl font-black text-white">40</div>
+                                <div class="text-[9px] font-mono-cyber text-slate-400 mt-0.5">Hours</div>
+                            </div>
+                            <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
+                                <div id="cd-secs" class="text-lg sm:text-2xl font-black text-cyan-400">36</div>
+                                <div class="text-[9px] font-mono-cyber text-slate-400 mt-0.5">Seconds</div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Action Buttons -->
-                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                        <a href="{{ url('/mukhyadwar/register') }}" onclick="playCyberSound()" class="w-full sm:w-auto px-10 py-5 clip-corner dynamic-btn-gradient text-slate-950 font-black text-lg uppercase tracking-wider transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3">
-                            <span>Register Your Squad</span>
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                    <!-- Dual CTAs matching reference: /mukhyadwar Primary + Discord Secondary -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <a href="{{ url('/mukhyadwar') }}" onclick="playCyberSound()" class="w-full sm:w-auto px-8 py-3.5 rounded-xl btn-primary-cyan font-bold text-sm tracking-wide transition-all hover:scale-105 flex items-center justify-center gap-2">
+                            <span>/mukhyadwar</span>
                         </a>
-                        <button onclick="playCyberSound(); document.getElementById('sponsor-modal').classList.remove('hidden')" class="w-full sm:w-auto px-10 py-5 clip-corner bg-slate-900/90 hover:bg-slate-800 border dynamic-accent-border dynamic-accent-text font-extrabold text-lg uppercase tracking-wider transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3">
-                            <svg class="w-5 h-5 dynamic-accent-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span>Sponsor Query</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- HERO DYNAMIC EMBLEM / GRAPHIC CARD -->
-                <div class="lg:col-span-5 relative reveal-right">
-                    <div class="relative mx-auto max-w-sm sm:max-w-md lg:max-w-none">
-                        @if($bannerUrl || $logoUrl)
-                            <div class="rounded-3xl esports-card-v2 p-4 border dynamic-accent-border overflow-hidden group">
-                                <img src="{{ $bannerUrl ?: $logoUrl }}" alt="{{ $tournamentName }}" class="w-full h-auto rounded-2xl object-cover group-hover:scale-105 transition-transform duration-500">
-                            </div>
-                        @else
-                            <!-- SLEEK HIGH-INTENSITY METALLIC TROPHY CARD -->
-                            <div class="rounded-3xl esports-card-v2 p-8 sm:p-10 border-2 dynamic-accent-border text-center relative overflow-hidden group">
-                                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-slate-900/90 border-2 dynamic-accent-border flex items-center justify-center text-5xl sm:text-6xl mx-auto mb-6 shadow-2xl group-hover:scale-110 transition-transform">
-                                    🏆
-                                </div>
-                                <div class="px-4 py-1.5 rounded-full dynamic-badge text-xs font-mono-cyber uppercase font-bold tracking-widest inline-block mb-3">
-                                    OFFICIAL ARENA TROPHY
-                                </div>
-                                <h3 class="text-2xl sm:text-3xl font-black uppercase text-white mb-2">{{ $tournamentName }}</h3>
-                                <p class="text-slate-400 text-xs sm:text-sm max-w-xs mx-auto mb-6">
-                                    Compete across {{ $gameTitles->count() }} major disciplines for glory & Rs. {{ number_format($prizePool) }} prize pool.
-                                </p>
-                                <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-800 text-left font-mono-cyber text-xs">
-                                    <div>
-                                        <div class="text-slate-400">DISCIPLINES:</div>
-                                        <div class="font-bold text-white mt-0.5">{{ $gameTitles->count() }} Titles</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-slate-400">STAGE STATUS:</div>
-                                        <div class="font-bold dynamic-accent-text mt-0.5">{{ strtoupper(str_replace('_', ' ', $activeTournament?->status ?? 'registration_open')) }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
+                        <a href="{{ $activeTournament?->discord_server_url ?: 'https://discord.gg/outlawshowdown' }}" target="_blank" onclick="playCyberSound()" class="w-full sm:w-auto px-8 py-3.5 rounded-xl btn-purple-discord font-bold text-sm tracking-wide transition-all hover:scale-105 flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.093.252-.19.373-.287a.074.074 0 0 1 .078-.01c3.927 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .079.009c.12.098.245.195.372.288a.077.077 0 0 1-.006.127c-.598.35-1.22.656-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028z"/></svg>
+                            <span>Discord</span>
+                        </a>
                     </div>
                 </div>
 
@@ -317,193 +253,201 @@
         </div>
     </section>
 
-    <!-- 2. GAME TITLES SECTION -->
-    <section class="py-20 relative bg-slate-950/80 border-t dynamic-accent-border" id="games">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16 reveal-on-scroll">
-                <span class="px-4 py-1.5 rounded-full dynamic-badge text-xs font-mono-cyber uppercase font-bold tracking-widest">MULTIPLE GAME TITLE DISCIPLINES</span>
-                <h2 class="text-3xl sm:text-5xl font-black uppercase tracking-tight mt-4">
-                    TOURNAMENT <span class="dynamic-accent-text">GAME TITLES</span>
+    <!-- 3. LIVE MATCH & SCHEDULE TICKER PANELS (WITH REGENERATED TURTLE & DRAGON MASCOTS) -->
+    <section class="py-16 relative" id="ticker">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div class="text-left mb-8 reveal-on-scroll">
+                <h2 class="font-orbitron text-2xl sm:text-4xl font-black uppercase text-white">
+                    Live Match & Schedule Ticker
                 </h2>
-                <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto mt-2">
-                    Multiple game titles assigned to {{ $tournamentName }}. Entry fee: Rs. {{ number_format($entryFee) }} / player.
+                <p class="text-slate-400 text-xs sm:text-sm mt-1">
+                    Live chibi mascots line-up charm game mascots.
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                @foreach($gameTitles as $game)
-                    <div class="reveal-on-scroll rounded-3xl esports-card-v2 p-7 border dynamic-accent-border transition-all duration-500 hover:-translate-y-3 group relative overflow-hidden">
-                        <div class="flex justify-between items-start mb-6">
-                            <span class="px-3 py-1 clip-corner-sm dynamic-badge font-mono-cyber text-[11px] uppercase font-bold">{{ strtoupper(str_replace('_', ' ', $game->game_type)) }}</span>
-                            <span class="text-xs font-mono-cyber text-slate-300 font-bold">Rs. {{ number_format($entryFee) }} / Person</span>
+            <!-- PANELS GRID MATCHING REFERENCE IMAGE -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+                
+                <!-- NEW REGENERATED TRANSPARENT TURTLE WARRIOR MASCOT OVERLAY ON TICKER CARD EDGE -->
+                <div class="absolute -top-16 right-4 z-20 animate-float-left pointer-events-none hidden sm:block">
+                    <img src="/images/chibi_turtle_warrior_mascot.png" alt="Turtle Warrior Mascot" class="w-24 h-24 object-contain filter drop-shadow-[0_8px_25px_rgba(16,185,129,0.5)]">
+                </div>
+
+                <!-- PANEL 1: MOBA SCORES -->
+                <div class="reveal-on-scroll rounded-3xl esports-card-v2 p-6 border border-cyan-500/30 flex items-center justify-between gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-slate-900 border border-amber-500/40 flex items-center justify-center text-3xl">
+                        🔥
+                    </div>
+                    <div class="text-center">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono-cyber font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase">MOBA</span>
+                        <div class="font-orbitron text-3xl font-black text-white mt-2">1 - 0</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-xl">🛡️</div>
+                </div>
+
+                <!-- PANEL 2: MATCH CENTER -->
+                <div class="reveal-on-scroll rounded-3xl esports-card-v2 p-6 border border-cyan-500/30 text-center">
+                    <div class="flex items-center justify-center gap-2 mb-2">
+                        <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                        <span class="text-[11px] font-mono-cyber text-slate-300">Live score</span>
+                    </div>
+                    <div class="font-orbitron text-4xl font-black text-white mb-2">0 - 0</div>
+                    <div class="text-xs text-slate-400 font-mono-cyber">Upcoming fixtures: <span class="text-white font-bold">3 VS 0</span></div>
+                </div>
+
+                <!-- PANEL 3: UPCOMING FIXTURES -->
+                <div class="reveal-on-scroll rounded-3xl esports-card-v2 p-6 border border-cyan-500/30">
+                    <div class="text-xs font-mono-cyber font-bold text-slate-300 mb-3">Upcoming Fixtures</div>
+                    <div class="space-y-2 text-xs font-mono-cyber">
+                        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/80">
+                            <span class="flex items-center gap-2"><span>🎮</span> MOBA Mascot</span>
+                            <span class="font-bold text-cyan-400">1 <span class="text-slate-500">vs</span> 0</span>
                         </div>
-                        <div class="w-16 h-16 rounded-2xl bg-slate-900/90 border dynamic-accent-border flex items-center justify-center text-4xl mb-6 group-hover:scale-110 transition-transform">🎮</div>
-                        <h3 class="text-2xl font-extrabold group-hover:dynamic-accent-text transition-colors mb-3">{{ $game->name }}</h3>
-                        <p class="text-slate-400 text-sm mb-6 leading-relaxed">Official esports discipline powered by {{ $game->developer ?? 'Outlaw Operations' }}.</p>
-                        <div class="flex items-center justify-between pt-5 border-t border-slate-800">
-                            <span class="text-xs font-mono-cyber dynamic-accent-text font-bold">Official Arena</span>
-                            <a href="{{ url('/mukhyadwar/register') }}" onclick="playCyberSound()" class="px-4 py-2 clip-corner-sm dynamic-btn-gradient text-slate-950 font-extrabold text-xs uppercase tracking-wider flex items-center gap-1 transition-all">Register Squad</a>
+                        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/80">
+                            <span class="flex items-center gap-2"><span>🎯</span> FPS Mascot</span>
+                            <span class="font-bold text-pink-400">1 <span class="text-slate-500">vs</span> 0</span>
                         </div>
                     </div>
-                @endforeach
+                </div>
+
             </div>
         </div>
     </section>
 
-    <!-- 3. CHALLONGE BRACKETS ARENA WITH FALLBACK -->
-    <section class="py-24 relative" id="hub">
+    <!-- 4. ACTIVE TOURNAMENT SPOTLIGHT (GAME CARDS MATCHING REFERENCE IMAGE) -->
+    <section class="py-16 relative bg-slate-950/80" id="games">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6 reveal-on-scroll">
-                <div>
-                    <div class="text-xs font-mono-cyber dynamic-accent-text uppercase tracking-widest mb-2">POWERED BY CHALLONGE.COM API</div>
-                    <h2 class="text-3xl sm:text-5xl font-black uppercase">LIVE MATCH <span class="dynamic-accent-text">BRACKETS</span></h2>
-                </div>
-                @if(!empty($activeTournament?->challonge_url))
-                    <a href="{{ $activeTournament->challonge_url }}" target="_blank" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-900 border dynamic-accent-border dynamic-accent-text hover:text-white font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all">
-                        <span>Open Full Challonge Bracket</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                    </a>
-                @endif
-            </div>
-
-            @if(!empty($activeTournament?->challonge_embed_url) || !empty($activeTournament?->challonge_url))
-                <div class="reveal-on-scroll rounded-3xl esports-card-v2 border dynamic-accent-border overflow-hidden shadow-[0_0_50px_rgba(var(--accent-rgb),0.2)]">
-                    <div class="bg-slate-900/90 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="w-3 h-3 rounded-full dynamic-accent-bg animate-ping"></span>
-                            <span class="font-extrabold text-xs sm:text-sm tracking-wider uppercase">Official Challonge Bracket Module</span>
-                        </div>
-                        <span class="hidden sm:inline-block text-xs font-mono-cyber dynamic-accent-text font-bold">CHALLONGE.COM</span>
-                    </div>
-                    <div class="w-full bg-slate-950 overflow-hidden min-h-[550px] relative">
-                        <iframe src="{{ $challongeEmbedUrl }}" width="100%" height="550" frameborder="0" scrolling="auto" allowtransparency="true" class="w-full h-[550px] border-0"></iframe>
-                    </div>
-                </div>
-            @else
-                <!-- CATCHY CHALLONGE COMING SOON FALLBACK CARD -->
-                <div class="reveal-on-scroll rounded-3xl esports-card-v2 p-12 text-center border-2 border-dashed dynamic-accent-border">
-                    <div class="w-16 h-16 rounded-2xl bg-slate-900 border dynamic-accent-border flex items-center justify-center text-3xl mx-auto mb-4 animate-bounce">
-                        🏆
-                    </div>
-                    <h3 class="text-2xl sm:text-3xl font-black uppercase mb-3">TIE-SHEET BRACKETS <span class="dynamic-accent-text">COMING SOON!</span></h3>
-                    <p class="text-slate-400 text-sm max-w-lg mx-auto mb-6">
-                        Official match draw tie-sheets and group stage brackets for {{ $tournamentName }} are currently being generated on Challonge.com. Stay tuned!
-                    </p>
-                    <a href="{{ $activeTournament?->discord_server_url ?: 'https://discord.gg/outlawshowdown' }}" target="_blank" class="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl dynamic-btn-gradient text-slate-950 font-extrabold text-sm uppercase tracking-wider">
-                        <span>Join Discord for Live Draw Alerts</span>
-                    </a>
-                </div>
-            @endif
-        </div>
-    </section>
-
-    <!-- 4. OFFICIAL SPONSORS & PARTNERS SECTION WITH FALLBACK -->
-    <section class="py-20 relative bg-slate-950 border-b dynamic-accent-border" id="sponsors">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16 reveal-on-scroll">
-                <span class="px-4 py-1.5 rounded-full dynamic-badge text-xs font-mono-cyber uppercase font-bold tracking-widest">
-                    {{ strtoupper($tournamentName) }} PARTNERSHIPS
-                </span>
-                <h2 class="text-3xl sm:text-5xl font-black uppercase tracking-tight mt-4">
-                    SPONSORS & <span class="dynamic-accent-text">MEDIA PARTNERS</span>
+            <div class="text-left mb-10 reveal-on-scroll">
+                <h2 class="font-orbitron text-2xl sm:text-4xl font-black uppercase text-white">
+                    Active Tournament Spotlight
                 </h2>
             </div>
 
-            @php
-                $titleSponsors = $sponsors->where('level', 'title');
-            @endphp
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                @foreach($gameTitles as $game)
+                    <div class="reveal-on-scroll rounded-3xl esports-card-v2 tilt-card p-6 border border-cyan-500/30 group">
+                        <div class="w-full h-44 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-5xl mb-4 group-hover:scale-105 transition-transform overflow-hidden relative">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-10"></div>
+                            <span>🎮</span>
+                        </div>
+                        <h3 class="font-orbitron text-lg font-bold text-white mb-1 group-hover:text-cyan-400 transition-colors">{{ $game->name }}</h3>
+                        <div class="text-xs text-slate-400 font-mono-cyber capitalize">{{ str_replace('_', ' ', $game->game_type) }}</div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- CHALLONGE BRACKETS PREVIEW -->
+            <div class="mt-16 reveal-on-scroll rounded-3xl esports-card-v2 border border-cyan-500/30 overflow-hidden" id="hub">
+                <div class="bg-slate-900/90 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                    <span class="font-orbitron text-sm font-bold text-white uppercase">Official Challonge Bracket Module</span>
+                    <span class="text-xs font-mono-cyber text-cyan-400">CHALLONGE.COM</span>
+                </div>
+                <div class="w-full bg-slate-950 overflow-hidden min-h-[500px] relative">
+                    <iframe src="{{ $challongeEmbedUrl }}" width="100%" height="500" frameborder="0" scrolling="auto" allowtransparency="true" class="w-full h-[500px] border-0"></iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. COMMUNITY HUB: "JOIN COMMUNITY" (REGENERATED HOODIE CAT MASCOT OVERLAY MATCHING REFERENCE) -->
+    <section class="py-20 relative bg-slate-950 border-t border-cyan-500/30 overflow-hidden" id="community">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            
+            <div class="rounded-3xl esports-card-v2 p-10 sm:p-14 border-2 border-cyan-500/40 text-center relative overflow-visible">
+                
+                <!-- NEW REGENERATED TRANSPARENT HOODIE CAT MASCOT OVERLAY ON RIGHT EDGE (MATCHING REFERENCE IMAGE) -->
+                <div class="absolute -bottom-8 -right-8 sm:-right-12 z-20 animate-float-right pointer-events-auto" data-parallax-speed="15">
+                    <img src="/images/chibi_hoodie_cat_mascot.png" alt="Chibi Hoodie Cat Mascot" class="w-52 sm:w-72 lg:w-[340px] h-auto object-contain filter drop-shadow-[0_10px_35px_rgba(0,240,255,0.6)] transform hover:scale-105 transition-transform duration-300">
+                </div>
+
+                <!-- NEW REGENERATED TRANSPARENT CYBER SNIPER MASCOT OVERLAY ON LEFT EDGE -->
+                <div class="absolute -bottom-8 -left-8 sm:-left-12 z-20 animate-float-left pointer-events-auto hidden sm:block" data-parallax-speed="-12">
+                    <img src="/images/cyber_chibi_sniper_girl.png" alt="Cyber Chibi Mascot" class="w-48 sm:w-64 lg:w-[280px] h-auto object-contain filter drop-shadow-[0_10px_35px_rgba(255,0,85,0.5)] transform hover:scale-105 transition-transform duration-300">
+                </div>
+
+                <!-- CENTER DISCORD CTA CONTENT -->
+                <div class="max-w-md mx-auto relative z-10">
+                    <div class="w-16 h-16 rounded-2xl bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-3xl mx-auto mb-4 text-purple-400">
+                        💬
+                    </div>
+                    <h2 class="font-orbitron text-3xl sm:text-4xl font-black uppercase text-white mb-2">
+                        Join Community
+                    </h2>
+                    <p class="text-slate-300 text-sm mb-6 font-mono-cyber">
+                        Join the official Discord community.
+                    </p>
+                    <a href="{{ $activeTournament?->discord_server_url ?: 'https://discord.gg/outlawshowdown' }}" target="_blank" onclick="playCyberSound()" class="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-white text-slate-950 font-bold text-sm hover:bg-slate-200 transition-all hover:scale-105 shadow-xl">
+                        <span>Join community</span>
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SPONSORS & PARTNERS LINEUP -->
+    <section class="py-16 relative bg-slate-950 border-t border-cyan-500/20" id="sponsors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 reveal-on-scroll">
+                <span class="px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono-cyber uppercase font-bold tracking-widest">OFFICIAL PARTNERSHIPS</span>
+                <h2 class="font-orbitron text-2xl sm:text-4xl font-black uppercase text-white mt-3">Sponsors & Partners</h2>
+            </div>
 
             @if($sponsors->count() > 0 || $partners->count() > 0)
-                @if($titleSponsors->count() > 0)
-                    <div class="mb-14 reveal-on-scroll">
-                        <div class="grid grid-cols-1 max-w-2xl mx-auto">
-                            @foreach($titleSponsors as $sponsor)
-                                <a href="{{ $sponsor->website_url ?? '#' }}" target="_blank" class="p-8 rounded-3xl esports-card-v2 border-2 border-amber-500/60 text-center flex flex-col items-center justify-center gap-4 group hover:scale-105 transition-transform">
-                                    <img src="{{ $sponsor->logo_url ? Storage::url($sponsor->logo_url) : asset('images/sponsor_placeholder.png') }}" alt="{{ $sponsor->name }}" class="max-h-28 max-w-[240px] object-contain rounded-xl">
-                                    <div class="text-xl font-black text-amber-400 tracking-wider uppercase">{{ $sponsor->name }}</div>
-                                </a>
-                            @endforeach
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+                    @foreach($sponsors as $sponsor)
+                        <div class="p-4 rounded-2xl esports-card-v2 border border-cyan-500/30 text-center flex flex-col items-center justify-center gap-2">
+                            <img src="{{ $sponsor->logo_url ? Storage::url($sponsor->logo_url) : asset('images/sponsor_placeholder.png') }}" alt="{{ $sponsor->name }}" class="max-h-12 max-w-[140px] object-contain rounded-lg">
+                            <span class="text-xs font-bold text-white">{{ $sponsor->name }}</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-mono-cyber font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase">Sponsor</span>
                         </div>
-                    </div>
-                @endif
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                    @endforeach
                     @foreach($partners as $partner)
-                        <a href="{{ $partner->website_url ?? '#' }}" target="_blank" class="p-6 rounded-2xl esports-card-v2 border dynamic-accent-border text-center flex flex-col items-center justify-center gap-3 hover:border-white transition-colors">
-                            <img src="{{ $partner->logo_url ? Storage::url($partner->logo_url) : asset('images/sponsor_placeholder.png') }}" alt="{{ $partner->name }}" class="max-h-14 max-w-[160px] object-contain rounded-lg">
-                            <span class="text-base font-extrabold">{{ $partner->name }}</span>
-                            <span class="px-3 py-1 rounded text-xs font-mono-cyber font-bold dynamic-badge">{{ $partner->title }}</span>
-                        </a>
+                        <div class="p-4 rounded-2xl esports-card-v2 border border-cyan-500/30 text-center flex flex-col items-center justify-center gap-2">
+                            <img src="{{ $partner->logo_url ? Storage::url($partner->logo_url) : asset('images/sponsor_placeholder.png') }}" alt="{{ $partner->name }}" class="max-h-12 max-w-[140px] object-contain rounded-lg">
+                            <span class="text-xs font-bold text-white">{{ $partner->name }}</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-mono-cyber font-bold dynamic-badge">{{ $partner->title }}</span>
+                        </div>
                     @endforeach
                 </div>
             @else
-                <!-- CATCHY SPONSORS EMPTY FALLBACK CTA CARD -->
-                <div class="reveal-on-scroll rounded-3xl esports-card-v2 p-12 text-center border-2 border-dashed dynamic-accent-border max-w-3xl mx-auto">
-                    <div class="w-16 h-16 rounded-2xl bg-slate-900 border dynamic-accent-border flex items-center justify-center text-3xl mx-auto mb-4">🤝</div>
-                    <h3 class="text-2xl sm:text-4xl font-black uppercase mb-3">BECOME AN OFFICIAL <span class="dynamic-accent-text">SPONSOR OR PARTNER!</span></h3>
-                    <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto mb-8">
-                        Connect your brand directly with thousands of competitive gamers, youth audiences, and esports fans across Nepal for {{ $tournamentName }}.
-                    </p>
-                    <button onclick="playCyberSound(); document.getElementById('sponsor-modal').classList.remove('hidden')" class="px-10 py-5 clip-corner dynamic-btn-gradient text-slate-950 font-black text-lg uppercase tracking-wider transition-all duration-300 hover:scale-105">
-                        Grab Sponsorship Opportunity
+                <div class="reveal-on-scroll rounded-3xl esports-card-v2 p-8 text-center border border-dashed border-cyan-500/30 max-w-xl mx-auto">
+                    <h3 class="font-orbitron text-xl font-bold uppercase mb-2">Become an Official Partner</h3>
+                    <p class="text-slate-400 text-xs mb-4">Connect your brand directly with esports fans across Nepal.</p>
+                    <button onclick="playCyberSound(); document.getElementById('sponsor-modal').classList.remove('hidden')" class="px-6 py-2.5 rounded-xl btn-primary-cyan text-xs uppercase font-bold">
+                        Sponsor Query
                     </button>
                 </div>
             @endif
         </div>
     </section>
 
-    <!-- 5. SPONSORSHIP INQUIRY BANNER & MODAL -->
-    <section class="py-24 relative bg-gradient-to-b from-slate-950 to-slate-900 border-t dynamic-accent-border" id="sponsor-query-section">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center reveal-on-scroll">
-            <span class="px-4 py-1.5 rounded-full dynamic-badge text-xs font-mono-cyber uppercase font-bold tracking-widest">BRAND PARTNERSHIPS</span>
-            <h2 class="text-3xl sm:text-5xl font-black uppercase tracking-tight mt-4 mb-6">
-                PARTNER WITH <span class="dynamic-accent-text">{{ strtoupper($tournamentName) }}</span>
-            </h2>
-            <p class="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto mb-10">
-                Connect your brand directly with thousands of competitive gamers, youth audiences, and esports enthusiasts across Nepal!
-            </p>
-            <button onclick="playCyberSound(); document.getElementById('sponsor-modal').classList.remove('hidden')" class="px-10 py-5 clip-corner dynamic-btn-gradient text-slate-950 font-black text-lg uppercase tracking-wider transition-all duration-300 hover:scale-105">
-                Send Sponsorship Query
-            </button>
-        </div>
-    </section>
-
     <!-- LIVEWIRE SPONSOR QUERY MODAL -->
     <div id="sponsor-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-xl hidden">
-        <div class="relative w-full max-w-lg rounded-3xl esports-card-v2 p-8 border dynamic-accent-border shadow-[0_0_60px_rgba(var(--accent-rgb),0.5)]">
+        <div class="relative w-full max-w-lg rounded-3xl esports-card-v2 p-8 border border-cyan-500/40 shadow-[0_0_60px_rgba(0,240,255,0.5)]">
             <button onclick="document.getElementById('sponsor-modal').classList.add('hidden')" class="absolute top-5 right-5 text-slate-400 hover:text-white text-2xl font-bold">✕</button>
-            
             <div class="text-center mb-6">
-                <div class="w-14 h-14 rounded-2xl bg-slate-900 border dynamic-accent-border flex items-center justify-center text-3xl mx-auto mb-3">🤝</div>
-                <h3 class="text-2xl font-black uppercase">Sponsor {{ $tournamentName }}</h3>
-                <p class="text-slate-400 text-xs mt-1">Submit your partnership query and join our esports sponsor lineup!</p>
+                <div class="w-14 h-14 rounded-2xl bg-slate-900 border border-cyan-500/30 flex items-center justify-center text-3xl mx-auto mb-3">🤝</div>
+                <h3 class="font-orbitron text-2xl font-black uppercase text-white">Sponsor Outlaw Showdown</h3>
             </div>
-
             <livewire:sponsor-query-form />
         </div>
     </div>
 
-    <!-- 6. FOOTER -->
-    <footer class="bg-slate-950 border-t dynamic-accent-border py-12 text-slate-400 text-sm relative z-10">
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 border-t border-cyan-500/30 py-10 text-slate-400 text-xs font-mono-cyber relative z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 clip-corner-sm dynamic-btn-gradient flex items-center justify-center font-black text-slate-950 text-base">OS</div>
-                <span class="font-extrabold tracking-wider text-base">{{ strtoupper($tournamentName) }}</span>
+                <div class="w-8 h-8 clip-corner-sm btn-primary-cyan flex items-center justify-center font-black text-slate-950 text-sm">OS</div>
+                <span class="font-orbitron font-extrabold text-white text-sm">OUTLAW SHOWDOWN 2026</span>
             </div>
-            <div class="text-xs font-mono-cyber text-slate-400 text-center">
-                © 2026 {{ $tournamentName }}. All Rights Reserved. Entry Fee: Rs. {{ number_format($entryFee) }} / person.
-            </div>
-            <div class="flex items-center gap-5 dynamic-accent-text font-bold text-xs">
-                <a href="#games" class="hover:underline">Games</a>
-                <a href="#hub" class="hover:underline">Results</a>
-                <a href="#sponsors" class="hover:underline">Sponsors</a>
-            </div>
+            <div>© 2026 Outlaw Showdown. All Rights Reserved. Entry Fee: Rs. {{ number_format($entryFee) }}.</div>
         </div>
     </footer>
 
     @livewireScripts
     <script>
-        // Persistent Light / Dark Mode Toggle Logic
         function initTheme() {
             const savedTheme = localStorage.getItem('app-theme') || 'dark';
             if (savedTheme === 'light') {

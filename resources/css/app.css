@@ -5,35 +5,92 @@
 @source '../../resources/views/**/*.blade.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+    --font-orbitron: 'Orbitron', sans-serif;
 }
 
-/* Custom Cyber & Memphis Esports Base Styling */
+/* Deep Cyber-Neon Base */
 .cyber-bg {
-    background-color: #03070e;
+    background-color: #0b0e14;
     background-image: 
-        radial-gradient(circle at 50% 10%, rgba(var(--accent-rgb, 16, 185, 129), 0.18) 0%, transparent 65%),
-        radial-gradient(circle at 90% 80%, rgba(var(--accent-rgb, 16, 185, 129), 0.12) 0%, transparent 55%),
-        linear-gradient(to right, rgba(var(--accent-rgb, 16, 185, 129), 0.04) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(var(--accent-rgb, 16, 185, 129), 0.04) 1px, transparent 1px);
-    background-size: 100% 100%, 100% 100%, 50px 50px, 50px 50px;
+        radial-gradient(circle at 50% 10%, rgba(var(--accent-rgb, 0, 240, 255), 0.16) 0%, transparent 60%),
+        radial-gradient(circle at 85% 85%, rgba(255, 0, 85, 0.12) 0%, transparent 55%),
+        linear-gradient(to right, rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
 }
 
-.esports-card {
-    background: rgba(8, 16, 26, 0.85);
+.font-orbitron {
+    font-family: 'Orbitron', 'Outfit', sans-serif;
+}
+
+/* Neon Text Strokes matching image_0.png */
+.text-neon-cyan {
+    color: #00f0ff;
+    text-shadow: 0 0 15px rgba(0, 240, 255, 0.7), 0 0 30px rgba(0, 240, 255, 0.4);
+}
+
+.text-neon-pink {
+    color: #ff0055;
+    text-shadow: 0 0 15px rgba(255, 0, 85, 0.7), 0 0 30px rgba(255, 0, 85, 0.4);
+}
+
+.text-stroke-cyan {
+    -webkit-text-stroke: 1.8px #00f0ff;
+    color: transparent;
+    text-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+}
+
+.text-stroke-pink {
+    -webkit-text-stroke: 1.8px #ff0055;
+    color: transparent;
+    text-shadow: 0 0 20px rgba(255, 0, 85, 0.6);
+}
+
+/* Image 0 Glassmorphism Cards */
+.esports-card-v2 {
+    background: rgba(15, 22, 36, 0.88);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(var(--accent-rgb, 16, 185, 129), 0.3);
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    border-radius: 24px;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.5);
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
 }
 
-.esports-card:hover {
-    border-color: rgba(var(--accent-rgb, 16, 185, 129), 0.75);
-    box-shadow: 0 12px 45px -10px rgba(var(--accent-rgb, 16, 185, 129), 0.45);
+.esports-card-v2:hover {
+    border-color: rgba(0, 240, 255, 0.75);
+    box-shadow: 0 20px 50px -10px rgba(0, 240, 255, 0.35);
 }
 
-.clip-corner {
-    clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+/* Primary Button Styling matching image_0.png */
+.btn-primary-cyan {
+    background: #00f0ff;
+    color: #0b0e14;
+    font-weight: 900;
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+    transition: all 0.3s ease;
+}
+
+.btn-primary-cyan:hover {
+    background: #33f3ff;
+    box-shadow: 0 0 40px rgba(0, 240, 255, 0.9);
+    transform: translateY(-2px);
+}
+
+.btn-purple-discord {
+    background: #5865F2;
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 0 25px rgba(88, 101, 242, 0.5);
+    transition: all 0.3s ease;
+}
+
+.btn-purple-discord:hover {
+    background: #6975f4;
+    box-shadow: 0 0 40px rgba(88, 101, 242, 0.8);
+    transform: translateY(-2px);
 }
 
 .clip-corner-sm {
@@ -45,51 +102,94 @@
         to bottom,
         rgba(255, 255, 255, 0),
         rgba(255, 255, 255, 0) 50%,
-        rgba(var(--accent-rgb, 16, 185, 129), 0.04) 50%,
-        rgba(var(--accent-rgb, 16, 185, 129), 0.04)
+        rgba(0, 240, 255, 0.03) 50%,
+        rgba(0, 240, 255, 0.03)
     );
     background-size: 100% 4px;
 }
 
-/* Memphis & Geometric Animations */
-@keyframes spin-slow {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+/* Reactive Cursor Ring */
+#cursor-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #00f0ff;
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.05s ease-out;
+    box-shadow: 0 0 12px #00f0ff;
 }
 
-.animate-spin-slow {
-    animation: spin-slow 24s linear infinite;
+#cursor-ring {
+    width: 36px;
+    height: 36px;
+    border: 2px solid rgba(0, 240, 255, 0.6);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease-out;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
 }
 
-@keyframes float-memphis-1 {
-    0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
-    50% { transform: translateY(-18px) rotate(8deg) scale(1.05); }
+/* Float Animations matching Requirement 2 */
+@keyframes float-mascot-left {
+    0%, 100% { transform: translateY(0px) rotate(-2deg); }
+    50% { transform: translateY(-16px) rotate(3deg); }
 }
 
-.animate-float-memphis-1 {
-    animation: float-memphis-1 6s ease-in-out infinite;
+.animate-float-left {
+    animation: float-mascot-left 5.5s ease-in-out infinite;
+    will-change: transform;
 }
 
-@keyframes float-memphis-2 {
-    0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
-    50% { transform: translateY(16px) rotate(-10deg) scale(0.95); }
+@keyframes float-mascot-right {
+    0%, 100% { transform: translateY(0px) rotate(2deg); }
+    50% { transform: translateY(-20px) rotate(-3deg); }
 }
 
-.animate-float-memphis-2 {
-    animation: float-memphis-2 7s ease-in-out infinite;
+.animate-float-right {
+    animation: float-mascot-right 6s ease-in-out infinite;
+    will-change: transform;
 }
 
-@keyframes pulse-glow {
-    0%, 100% { opacity: 0.35; filter: blur(35px); }
-    50% { opacity: 0.75; filter: blur(50px); }
+@keyframes float-gentle {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
 }
 
-.animate-pulse-glow {
-    animation: pulse-glow 3.5s ease-in-out infinite;
+.animate-float-gentle {
+    animation: float-gentle 4.5s ease-in-out infinite;
 }
 
-/* Reveal Animations */
-.reveal-on-scroll, .reveal-left, .reveal-right {
-    opacity: 1;
+/* Marquee Loop */
+@keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 28s linear infinite;
+}
+
+.animate-marquee:hover {
+    animation-play-state: paused;
+}
+
+/* Scroll Reveal */
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
     transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+}
+
+.reveal-on-scroll.active {
+    opacity: 1;
+    transform: translateY(0px);
 }
