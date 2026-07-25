@@ -2,10 +2,13 @@
 
 namespace App\Providers\Filament;
 
+use App\Livewire\UserInformationForm;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -18,6 +21,8 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
+use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
 
 class MaidanPanelProvider extends PanelProvider
 {
@@ -27,7 +32,14 @@ class MaidanPanelProvider extends PanelProvider
             ->default()
             ->id('maidan')
             ->path('maidan')
+            ->viteTheme('resources/css/filament/maidan/theme.css')
             ->login()
+            ->userMenuItems([
+                'edit-profile' => MenuItem::make()
+                    ->label('Edit Profile')
+                    ->url(fn (): string => EditProfilePage::getUrl())
+                    ->icon('heroicon-m-adjustments-vertical'),
+            ])
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -54,6 +66,24 @@ class MaidanPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->plugins([
+                FilamentShieldPlugin::make(),
+                FilamentEditProfilePlugin::make()
+                    ->slug('edit-my-profile')
+                    ->setTitle('Edit My Profile')
+                    ->setNavigationLabel('Edit My Profile')
+                    ->setNavigationGroup('Profile')
+                    ->setIcon('heroicon-o-user')
+                    ->shouldRegisterNavigation(true)
+                    ->shouldShowEmailForm()
+                    ->shouldShowDeleteAccountForm(false)
+                    ->shouldShowSanctumTokens()
+                    ->shouldShowBrowserSessionsForm()
+                    ->shouldShowAvatarForm()
+                    ->customProfileComponents([
+                        UserInformationForm::class,
+                    ]),
             ]);
     }
 }
