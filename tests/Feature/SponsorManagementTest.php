@@ -67,6 +67,34 @@ class SponsorManagementTest extends TestCase
         });
     }
 
+    public function test_duplicate_sponsor_query_prompts_user_with_existing_status(): void
+    {
+        SponsorQuery::create([
+            'name' => 'Existing User',
+            'company_name' => 'Cyber Gaming Co',
+            'email' => 'john@cybergaming.com',
+            'phone' => '+9779800000000',
+            'details' => 'First query.',
+            'status' => 'pending',
+        ]);
+
+        Livewire::test(SponsorQueryForm::class)
+            ->fill([
+                'name' => 'John Doe',
+                'company_name' => 'Cyber Gaming Co',
+                'email' => 'john@cybergaming.com',
+                'phone' => '+9779800000000',
+                'details' => 'Duplicate query attempt.',
+            ])
+            ->call('submit')
+            ->assertSet('existingFound', true)
+            ->assertSet('existingQueryStatus', 'pending')
+            ->assertSet('isSubmitted', false);
+
+        // Ensure database still has only 1 record
+        $this->assertEquals(1, SponsorQuery::where('email', 'john@cybergaming.com')->count());
+    }
+
     public function test_admin_can_convert_query_and_dispatches_welcome_email(): void
     {
         Mail::fake();

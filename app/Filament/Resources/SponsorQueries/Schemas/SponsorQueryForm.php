@@ -15,8 +15,9 @@ class SponsorQueryForm
     {
         return $schema
             ->components([
-                Section::make('Sponsor Inquiry Details')
-                    ->description('Contact and brand proposal submitted by prospect.')
+                Section::make('Prospect Contact Information')
+                    ->description('Contact person & company identity submitted from the website inquiry.')
+                    ->icon('heroicon-o-user')
                     ->schema([
                         Grid::make(2)->schema([
                             TextInput::make('name')
@@ -37,18 +38,27 @@ class SponsorQueryForm
                                 ->tel()
                                 ->required()
                                 ->maxLength(255),
+                        ]),
+                    ]),
+
+                Section::make('Inquiry Processing & Proposal')
+                    ->description('Current query status and proposal notes.')
+                    ->icon('heroicon-o-chat-bubble-bottom-center-text')
+                    ->schema([
+                        Grid::make(2)->schema([
                             Select::make('status')
                                 ->label('Inquiry Status')
                                 ->options([
-                                    'pending' => 'Pending',
-                                    'contacted' => 'Contacted',
-                                    'converted' => 'Converted',
-                                    'rejected' => 'Rejected',
+                                    'pending' => '⏳ Pending (Under Review)',
+                                    'contacted' => '📩 Contacted (Follow-up Sent)',
+                                    'converted' => '🎉 Converted (Official Sponsor/Partner)',
+                                    'rejected' => '❌ Rejected (Closed)',
                                 ])
                                 ->required()
-                                ->default('pending'),
+                                ->default('pending')
+                                ->columnSpanFull(),
                             Textarea::make('details')
-                                ->label('Query Proposal Details')
+                                ->label('Proposal Details & Requirements')
                                 ->columnSpanFull()
                                 ->rows(4),
                         ]),

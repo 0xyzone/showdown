@@ -16,31 +16,41 @@ class PartnerForm
     {
         return $schema
             ->components([
-                Section::make('Official Partner Details')
-                    ->description('Define partner title categories (e.g., Media Partner, Hospitality Partner) and logo display settings.')
+                Section::make('Partner Identity & Categorization')
+                    ->description('Specify the official partner name and specific title category (e.g. Media Partner, Hospitality Partner).')
+                    ->icon('heroicon-o-user-group')
                     ->schema([
                         Grid::make(2)->schema([
                             TextInput::make('name')
                                 ->label('Partner / Brand Name')
+                                ->placeholder('e.g. Kantipur TV Network, Hotel Annapurna')
                                 ->required()
                                 ->maxLength(255),
                             TextInput::make('title')
                                 ->label('Partner Category Title')
-                                ->placeholder('e.g. Media Partner, Hospitality Partner, Beverage Partner')
+                                ->placeholder('e.g. Media Partner, Hospitality Partner, Broadcasting Partner')
                                 ->required()
                                 ->maxLength(255),
+                        ]),
+                    ]),
+
+                Section::make('Partnership Tier & Visibility')
+                    ->description('Configure hierarchy tier, sort sequence, website link, and active visibility.')
+                    ->icon('heroicon-o-adjustments-horizontal')
+                    ->schema([
+                        Grid::make(3)->schema([
                             Select::make('level')
-                                ->label('Partner Hierarchy Tier')
+                                ->label('Partnership Level')
                                 ->options([
-                                    'major' => 'Major Partner',
-                                    'standard' => 'Standard Partner',
+                                    'major' => '🌟 Major Partner',
+                                    'standard' => '🤝 Standard Partner',
                                 ])
                                 ->required()
                                 ->default('standard'),
                             TextInput::make('website_url')
                                 ->label('Website / Landing URL')
                                 ->url()
-                                ->placeholder('https://')
+                                ->placeholder('https://example.com')
                                 ->maxLength(255),
                             TextInput::make('order')
                                 ->label('Display Sort Order')
@@ -48,16 +58,24 @@ class PartnerForm
                                 ->default(0),
                             Toggle::make('is_active')
                                 ->label('Visible on Website')
-                                ->default(true),
-                            FileUpload::make('logo_url')
-                                ->label('Brand Logo Graphic')
-                                ->image()
-                                ->disk('public')
-                                ->directory('partners')
-                                ->visibility('public')
-                                ->required()
+                                ->helperText('Toggle to immediately show/hide this partner on the homepage.')
+                                ->default(true)
                                 ->columnSpanFull(),
                         ]),
+                    ]),
+
+                Section::make('Brand Graphic Asset')
+                    ->icon('heroicon-o-photo')
+                    ->schema([
+                        FileUpload::make('logo_url')
+                            ->label('Brand Logo Graphic')
+                            ->image()
+                            ->imageEditor()
+                            ->disk('public')
+                            ->directory('partners')
+                            ->visibility('public')
+                            ->required()
+                            ->columnSpanFull(),
                     ]),
             ]);
     }

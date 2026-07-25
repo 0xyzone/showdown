@@ -21,6 +21,12 @@ class SponsorQueryForm extends Component
 
     public bool $isSubmitted = false;
 
+    public bool $existingFound = false;
+
+    public string $existingQueryStatus = '';
+
+    public string $existingCompanyName = '';
+
     protected array $rules = [
         'name' => 'required|string|max:255',
         'company_name' => 'required|string|max:255',
@@ -32,6 +38,23 @@ class SponsorQueryForm extends Component
     public function submit(): void
     {
         $this->validate();
+
+        $cleanEmail = strtolower(trim($this->email));
+        $cleanCompany = strtolower(trim($this->company_name));
+
+        // Check if an inquiry already exists for this email or company
+        $existingQuery = SponsorQuery::whereRaw('LOWER(email) = ?', [$cleanEmail])
+            ->orWhereRaw('LOWER(company_name) = ?', [$cleanCompany])
+            ->latest()
+            ->first();
+
+        if ($existingQuery) {
+            $this->existingFound = true;
+            $this->existingQueryStatus = $existingQuery->status;
+            $this->existingCompanyName = $existingQuery->company_name;
+
+            return;
+        }
 
         $query = SponsorQuery::create([
             'name' => $this->name,
@@ -49,6 +72,14 @@ class SponsorQueryForm extends Component
         }
 
         $this->isSubmitted = true;
+    }
+
+    public function resetForm(): void
+    {
+        $this->existingFound = false;
+        $this->isSubmitted = false;
+        $this->existingQueryStatus = '';
+        $this->existingCompanyName = '';
     }
 
     public function render()

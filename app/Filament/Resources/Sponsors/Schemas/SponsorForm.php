@@ -16,43 +16,55 @@ class SponsorForm
     {
         return $schema
             ->components([
-                Section::make('Official Sponsor Information')
-                    ->description('Specify the branding logo, hierarchy tier, and display active status.')
+                Section::make('Official Brand Identity')
+                    ->description('Specify the official brand name, website URL, and graphic logo asset.')
+                    ->icon('heroicon-o-sparkles')
                     ->schema([
                         Grid::make(2)->schema([
                             TextInput::make('name')
                                 ->label('Brand / Sponsor Name')
+                                ->placeholder('e.g. Monster Energy, Razer Gaming')
                                 ->required()
                                 ->maxLength(255),
-                            Select::make('level')
-                                ->label('Sponsorship Hierarchy Tier')
-                                ->options([
-                                    'title' => 'Title Sponsor (Mega Spotlight)',
-                                    'platinum' => 'Platinum Sponsor (Large Spotlight)',
-                                    'gold' => 'Gold Sponsor (Medium Spotlight)',
-                                    'silver' => 'Silver Sponsor (Standard Stream)',
-                                ])
-                                ->required()
-                                ->default('silver'),
                             TextInput::make('website_url')
                                 ->label('Website / Landing URL')
                                 ->url()
-                                ->placeholder('https://')
+                                ->placeholder('https://example.com')
                                 ->maxLength(255),
-                            TextInput::make('order')
-                                ->label('Display Sort Order')
-                                ->numeric()
-                                ->default(0),
                             FileUpload::make('logo_url')
                                 ->label('Brand Logo Graphic')
                                 ->image()
+                                ->imageEditor()
                                 ->disk('public')
                                 ->directory('sponsors')
                                 ->visibility('public')
                                 ->required()
                                 ->columnSpanFull(),
+                        ]),
+                    ]),
+
+                Section::make('Hierarchy & Placement Settings')
+                    ->description('Configure tier level hierarchy, sort position, and active visibility on the website.')
+                    ->icon('heroicon-o-adjustments-vertical')
+                    ->schema([
+                        Grid::make(3)->schema([
+                            Select::make('level')
+                                ->label('Sponsorship Hierarchy Tier')
+                                ->options([
+                                    'title' => '👑 Title Sponsor (Mega Spotlight Banner)',
+                                    'platinum' => '💎 Platinum Sponsor (Large 2-Col Grid)',
+                                    'gold' => '🥇 Gold Sponsor (Medium Grid)',
+                                    'silver' => '🛡️ Silver Sponsor (Standard Stream)',
+                                ])
+                                ->required()
+                                ->default('silver'),
+                            TextInput::make('order')
+                                ->label('Display Sort Order')
+                                ->numeric()
+                                ->default(0),
                             Toggle::make('is_active')
                                 ->label('Visible on Website')
+                                ->helperText('Toggle to immediately show/hide this sponsor on the homepage.')
                                 ->default(true),
                         ]),
                     ]),
