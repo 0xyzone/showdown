@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
+    'tournament_id',
     'name',
     'logo_url',
     'website_url',
@@ -20,8 +21,20 @@ class Sponsor extends Model
 {
     use HasFactory;
 
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
+
+    public function tournament(): BelongsTo
+    {
+        return $this->belongsTo(Tournament::class);
+    }
+
     public function sponsorQuery(): BelongsTo
     {
-        return $this->belongsTo(SponsorQuery::class, 'sponsor_query_id');
+        return $this->belongsTo(SponsorQuery::class);
     }
 }

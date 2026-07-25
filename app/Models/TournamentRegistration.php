@@ -9,23 +9,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'tournament_id',
-    'name',
-    'title',
-    'logo_url',
-    'website_url',
-    'level',
-    'order',
-    'is_active',
-    'sponsor_query_id',
+    'team_id',
+    'registered_by',
+    'status',
+    'roster_data',
+    'payment_receipt_path',
+    'notes',
 ])]
-class Partner extends Model
+class TournamentRegistration extends Model
 {
     use HasFactory;
 
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
+            'roster_data' => 'array',
         ];
     }
 
@@ -34,8 +32,13 @@ class Partner extends Model
         return $this->belongsTo(Tournament::class);
     }
 
-    public function sponsorQuery(): BelongsTo
+    public function team(): BelongsTo
     {
-        return $this->belongsTo(SponsorQuery::class);
+        return $this->belongsTo(Team::class);
+    }
+
+    public function registeredBy(): BelongsTo
+    {
+        return $this->belongsTo(Participant::class, 'registered_by');
     }
 }

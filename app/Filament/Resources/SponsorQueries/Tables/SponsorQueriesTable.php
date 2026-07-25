@@ -106,6 +106,12 @@ class SponsorQueriesTable
                             ->required()
                             ->live(),
 
+                        Select::make('tournament_id')
+                            ->label('Assigned Tournament')
+                            ->relationship('tournament', 'name')
+                            ->nullable()
+                            ->placeholder('All Tournaments (Global)'),
+
                         // Sponsor Fields
                         Select::make('sponsor_level')
                             ->label('Sponsorship Tier Level')
@@ -149,6 +155,7 @@ class SponsorQueriesTable
                         if ($data['target_type'] === 'sponsor') {
                             $sponsor = Sponsor::create([
                                 'name' => $record->company_name,
+                                'tournament_id' => $data['tournament_id'] ?? null,
                                 'logo_url' => $data['logo_url'],
                                 'website_url' => $data['website_url'] ?? null,
                                 'level' => $data['sponsor_level'],
@@ -178,6 +185,7 @@ class SponsorQueriesTable
                         } elseif ($data['target_type'] === 'partner') {
                             $partner = Partner::create([
                                 'name' => $record->company_name,
+                                'tournament_id' => $data['tournament_id'] ?? null,
                                 'title' => $data['partner_title'],
                                 'logo_url' => $data['logo_url'],
                                 'website_url' => $data['website_url'] ?? null,

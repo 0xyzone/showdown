@@ -17,15 +17,20 @@ class PartnerForm
         return $schema
             ->components([
                 Section::make('Partner Identity & Categorization')
-                    ->description('Specify the official partner name and specific title category (e.g. Media Partner, Hospitality Partner).')
+                    ->description('Specify the official partner name, assigned tournament, and specific title category.')
                     ->icon('heroicon-o-user-group')
                     ->schema([
-                        Grid::make(2)->schema([
+                        Grid::make(3)->schema([
                             TextInput::make('name')
                                 ->label('Partner / Brand Name')
                                 ->placeholder('e.g. Kantipur TV Network, Hotel Annapurna')
                                 ->required()
                                 ->maxLength(255),
+                            Select::make('tournament_id')
+                                ->label('Assigned Tournament')
+                                ->relationship('tournament', 'name')
+                                ->nullable()
+                                ->placeholder('All Tournaments (Global)'),
                             TextInput::make('title')
                                 ->label('Partner Category Title')
                                 ->placeholder('e.g. Media Partner, Hospitality Partner, Broadcasting Partner')

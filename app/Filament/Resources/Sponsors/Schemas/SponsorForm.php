@@ -17,15 +17,20 @@ class SponsorForm
         return $schema
             ->components([
                 Section::make('Official Brand Identity')
-                    ->description('Specify the official brand name, website URL, and graphic logo asset.')
+                    ->description('Specify the official brand name, assigned tournament, website URL, and graphic logo asset.')
                     ->icon('heroicon-o-sparkles')
                     ->schema([
-                        Grid::make(2)->schema([
+                        Grid::make(3)->schema([
                             TextInput::make('name')
                                 ->label('Brand / Sponsor Name')
                                 ->placeholder('e.g. Monster Energy, Razer Gaming')
                                 ->required()
                                 ->maxLength(255),
+                            Select::make('tournament_id')
+                                ->label('Assigned Tournament')
+                                ->relationship('tournament', 'name')
+                                ->nullable()
+                                ->placeholder('All Tournaments (Global)'),
                             TextInput::make('website_url')
                                 ->label('Website / Landing URL')
                                 ->url()
