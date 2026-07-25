@@ -50,8 +50,8 @@ class EsportsTournamentSeeder extends Seeder
             'game_type' => '1v1',
         ]);
 
-        // 2. Create Primary Tournament & Attach Multi-Games
-        $tournament = Tournament::firstOrCreate(['slug' => 'outlaw-showdown-2026-vol-1'], [
+        // 2. Create Tournament 1: Primary Featured Active Event
+        $t1 = Tournament::firstOrCreate(['slug' => 'outlaw-showdown-2026-vol-1'], [
             'name' => 'Outlaw Showdown 2026 Vol-I',
             'season_version' => '2026 Vol-I',
             'description' => 'Nepal premier national esports championship featuring Rs 500,000 Total Prize Pool across 6 major gaming disciplines.',
@@ -68,7 +68,7 @@ class EsportsTournamentSeeder extends Seeder
             'rules_doc_link' => 'https://outlawshowdown.com/rules.pdf',
         ]);
 
-        $tournament->gameTitles()->syncWithoutDetaching([
+        $t1->gameTitles()->syncWithoutDetaching([
             $pubg->id,
             $mlbbOpen->id,
             $mlbbWomens->id,
@@ -77,7 +77,31 @@ class EsportsTournamentSeeder extends Seeder
             $cosplay->id,
         ]);
 
-        // 3. Create Sample Participant & Teams
+        // 3. Create Tournament 2: Secondary Upcoming Event
+        $t2 = Tournament::firstOrCreate(['slug' => 'outlaw-winter-showdown-2026'], [
+            'name' => 'Outlaw Winter Showdown 2026',
+            'season_version' => '2026 Winter Ed.',
+            'description' => 'Winter arena edition for top mobile and tactical FPS contenders in South Asia.',
+            'status' => 'draft',
+            'is_active' => false,
+            'prize_pool_total' => 250000.00,
+            'registration_start' => now()->addDays(30),
+            'registration_end' => now()->addDays(45),
+            'start_date' => now()->addDays(46),
+            'end_date' => now()->addDays(50),
+            'challonge_url' => 'https://challonge.com/outlaw_winter_2026',
+            'challonge_embed_url' => 'https://challonge.com/outlaw_winter_2026/module',
+            'discord_server_url' => 'https://discord.gg/outlawshowdown',
+            'rules_doc_link' => 'https://outlawshowdown.com/rules-winter.pdf',
+        ]);
+
+        $t2->gameTitles()->syncWithoutDetaching([
+            $pubg->id,
+            $valorant->id,
+            $mlbbOpen->id,
+        ]);
+
+        // 4. Create Sample Participants & Teams
         $participant = Participant::firstOrCreate(['email' => 'player@outlaw.com'], [
             'name' => 'Aarav Sharma',
             'password' => bcrypt('password'),
@@ -94,14 +118,29 @@ class EsportsTournamentSeeder extends Seeder
             'country' => 'Nepal',
         ]);
 
-        // 4. Create Registration
+        $team2 = Team::firstOrCreate(['name' => 'Elementrix Esports'], [
+            'manager_id' => $participant->id,
+            'tag' => 'ELMX',
+            'country' => 'Nepal',
+        ]);
+
+        // 5. Create Tournament Registrations
         TournamentRegistration::firstOrCreate([
-            'tournament_id' => $tournament->id,
+            'tournament_id' => $t1->id,
             'team_id' => $team1->id,
         ], [
             'registered_by' => $participant->id,
             'status' => 'approved',
             'notes' => 'Roster verified & payment confirmed.',
+        ]);
+
+        TournamentRegistration::firstOrCreate([
+            'tournament_id' => $t1->id,
+            'team_id' => $team2->id,
+        ], [
+            'registered_by' => $participant->id,
+            'status' => 'pending',
+            'notes' => 'Payment receipt under verification.',
         ]);
     }
 }

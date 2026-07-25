@@ -15,11 +15,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // User::firstOrCreate(['email' => 'admin@outlaw.com'], [
+        //     'name' => 'Admin User',
+        //     'password' => bcrypt('password'),
+        // ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // User::firstOrCreate(['email' => 'test@example.com'], [
+        //     'name' => 'Test User',
+        //     'password' => bcrypt('password'),
+        // ]);
+
+        $this->call([
+            EsportsTournamentSeeder::class,
+            SponsorAndPartnerSeeder::class,
         ]);
     }
 }
