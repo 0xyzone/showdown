@@ -33,6 +33,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'theme_color',
     'prize_pool_total',
     'entry_fee',
+    'entry_fee_suffix',
+    'min_main_players',
+    'max_main_players',
+    'max_substitutes',
+    'require_coach',
+    'require_manager',
 ])]
 class Tournament extends Model
 {
@@ -49,6 +55,11 @@ class Tournament extends Model
             'prize_pool_total' => 'decimal:2',
             'entry_fee' => 'decimal:2',
             'is_active' => 'boolean',
+            'min_main_players' => 'integer',
+            'max_main_players' => 'integer',
+            'max_substitutes' => 'integer',
+            'require_coach' => 'boolean',
+            'require_manager' => 'boolean',
         ];
     }
 
@@ -64,6 +75,14 @@ class Tournament extends Model
                 }
             }
         });
+    }
+
+    public function getFormattedEntryFeeAttribute(): string
+    {
+        $amount = number_format($this->entry_fee, 0);
+        $suffix = $this->entry_fee_suffix ? "/{$this->entry_fee_suffix}" : '/person';
+
+        return "Rs. {$amount}{$suffix}";
     }
 
     public function gameTitles(): BelongsToMany

@@ -32,6 +32,7 @@
         $tournamentName = $activeTournament?->name ?? 'OUTLAW SHOWDOWN 2026';
         $seasonVersion = $activeTournament?->season_version ?? '2026 VOL-I';
         $entryFee = $activeTournament?->entry_fee ?? 100;
+        $entryFeeSuffix = $activeTournament?->entry_fee_suffix ?: 'person';
         $prizePool = $activeTournament?->prize_pool_total ?? 500000;
         $heroHeadline = $activeTournament?->hero_headline ?: 'OUTLAW SHOWDOWN';
         $heroSubheadline = $activeTournament?->hero_subheadline ?: "Outlaw Showdown 2026 Vol-I inaugurate premier esports stage with Laravel & Filament v5 backend.";
@@ -442,7 +443,7 @@
                 <div class="w-8 h-8 clip-corner-sm btn-primary-cyan flex items-center justify-center font-black text-slate-950 text-sm">OS</div>
                 <span class="font-orbitron font-extrabold text-white text-sm">OUTLAW SHOWDOWN 2026</span>
             </div>
-            <div>© 2026 Outlaw Showdown. All Rights Reserved. Entry Fee: Rs. {{ number_format($entryFee) }}.</div>
+            <div>© 2026 Outlaw Showdown. All Rights Reserved. Entry Fee: Rs. {{ number_format($entryFee) }}/{{ $entryFeeSuffix }}.</div>
         </div>
     </footer>
 

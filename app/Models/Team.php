@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'manager_id',
+    'game_title_id',
     'name',
     'tag',
     'logo_path',
@@ -22,6 +23,16 @@ class Team extends Model
     public function manager(): BelongsTo
     {
         return $this->belongsTo(Participant::class, 'manager_id');
+    }
+
+    public function gameTitle(): BelongsTo
+    {
+        return $this->belongsTo(GameTitle::class, 'game_title_id');
+    }
+
+    public function players(): HasMany
+    {
+        return $this->hasMany(TeamPlayer::class);
     }
 
     public function registrations(): HasMany

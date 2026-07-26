@@ -47,6 +47,26 @@ class GameTitleForm
                         ]),
                     ]),
 
+                Section::make('Squad Roster Requirements')
+                    ->description('Configure required main players and max substitutes for this game title. (Every team also allows 1 Coach and 1 Manager).')
+                    ->icon('heroicon-o-user-group')
+                    ->schema([
+                        Grid::make(2)->schema([
+                            TextInput::make('min_main_players')
+                                ->label('Required Main Players')
+                                ->helperText('e.g. 5 for MLBB/Valorant, 4 for PUBG, 1 for eFootball')
+                                ->numeric()
+                                ->default(5)
+                                ->required(),
+                            TextInput::make('max_substitutes')
+                                ->label('Maximum Substitutes Allowed')
+                                ->helperText('e.g. 2 substitute players allowed')
+                                ->numeric()
+                                ->default(2)
+                                ->required(),
+                        ]),
+                    ]),
+
                 Section::make('Brand Graphics & Banners')
                     ->description('Upload logo emblem and hero header banner graphics.')
                     ->icon('heroicon-o-photo')

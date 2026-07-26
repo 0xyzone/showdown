@@ -23,6 +23,10 @@ class TournamentRegistrationsTable
     {
         return $table
             ->columns([
+                ImageColumn::make('team.logo_path')
+                    ->label('Crest')
+                    ->disk('public')
+                    ->square(),
                 TextColumn::make('tournament.name')
                     ->label('Tournament')
                     ->searchable()
@@ -32,8 +36,13 @@ class TournamentRegistrationsTable
                     ->label('Team Name')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('team.gameTitle.name')
+                    ->label('Game Title')
+                    ->badge()
+                    ->color('info')
+                    ->sortable(),
                 TextColumn::make('registeredBy.name')
-                    ->label('Manager / Player')
+                    ->label('Manager')
                     ->searchable(),
                 TextColumn::make('status')
                     ->badge()
@@ -53,6 +62,12 @@ class TournamentRegistrationsTable
                     ->dateTime('M d, Y H:i'),
             ])
             ->filters([
+                SelectFilter::make('tournament_id')
+                    ->label('Filter by Tournament')
+                    ->relationship('tournament', 'name'),
+                SelectFilter::make('game_title')
+                    ->label('Filter by Game Title')
+                    ->relationship('team.gameTitle', 'name'),
                 SelectFilter::make('status')
                     ->options([
                         'pending' => 'Pending',

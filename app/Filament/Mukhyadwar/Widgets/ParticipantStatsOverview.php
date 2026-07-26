@@ -3,6 +3,7 @@
 namespace App\Filament\Mukhyadwar\Widgets;
 
 use App\Models\Team;
+use App\Models\TeamPlayer;
 use App\Models\TournamentRegistration;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -14,16 +15,22 @@ class ParticipantStatsOverview extends BaseWidget
     {
         $participantId = Auth::id();
         $myTeamsCount = Team::where('manager_id', $participantId)->count();
+        $totalPlayers = TeamPlayer::whereHas('team', fn ($q) => $q->where('manager_id', $participantId))->count();
         $myApplicationsCount = TournamentRegistration::where('registered_by', $participantId)->count();
         $approvedCount = TournamentRegistration::where('registered_by', $participantId)->where('status', 'approved')->count();
 
         return [
             Stat::make('My Esports Squads', $myTeamsCount)
-                ->description('Registered teams')
+                ->description('Registered teams managed by you')
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('primary'),
 
-            Stat::make('Tournament Applications', $myApplicationsCount)
+            Stat::make('Squad Players & Roster', $totalPlayers)
+                ->description('Total players in your rosters')
+                ->descriptionIcon('heroicon-m-users')
+                ->color('warning'),
+
+            Stat::make('Tournament Registrations', $myApplicationsCount)
                 ->description('Submitted tournament entries')
                 ->descriptionIcon('heroicon-m-clipboard-document-check')
                 ->color('info'),

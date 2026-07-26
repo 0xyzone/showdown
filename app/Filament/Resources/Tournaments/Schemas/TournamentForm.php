@@ -179,10 +179,16 @@ class TournamentForm
                                         ->prefix('Rs.')
                                         ->default(500000),
                                     TextInput::make('entry_fee')
-                                        ->label('Registration Entry Fee Per Person (NPR)')
+                                        ->label('Registration Entry Fee Amount (NPR)')
                                         ->numeric()
                                         ->prefix('Rs.')
                                         ->default(100.00)
+                                        ->required(),
+                                    TextInput::make('entry_fee_suffix')
+                                        ->label('Entry Fee Suffix / Unit')
+                                        ->placeholder('e.g. person, team, head, player')
+                                        ->default('person')
+                                        ->helperText('Displayed alongside fee (e.g. Rs. 100/person, Rs. 500/team, Rs. 100/head).')
                                         ->required(),
                                 ]),
                             ]),

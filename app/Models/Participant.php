@@ -19,6 +19,7 @@ use Spatie\Permission\Traits\HasRoles;
     'password',
     'phone',
     'avatar_path',
+    'avatar_url',
     'ign',
     'discord_tag',
     'role',
@@ -40,6 +41,17 @@ class Participant extends Authenticatable implements FilamentUser, HasAvatar
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saving(function (Participant $participant) {
+            if ($participant->avatar_url && ! $participant->avatar_path) {
+                $participant->avatar_path = $participant->avatar_url;
+            } elseif ($participant->avatar_path && ! $participant->avatar_url) {
+                $participant->avatar_url = $participant->avatar_path;
+            }
+        });
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $panel->getId() === 'mukhyadwar';
@@ -47,7 +59,17 @@ class Participant extends Authenticatable implements FilamentUser, HasAvatar
 
     public function getFilamentAvatarUrl(): ?string
     {
-        return $this->avatar_path ? Storage::disk('public')->url($this->avatar_path) : null;
+        $avatar = $this->avatar_url ?? $this->avatar_path;
+
+        if (! $avatar) {
+            return null;
+        }
+
+        if (str_starts_with($avatar, 'http://') || str_starts_with($avatar, 'https://')) {
+            return $avatar;
+        }
+
+        return Storage::disk('public')->url($avatar);
     }
 
     public function teams(): HasMany

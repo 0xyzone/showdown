@@ -49,6 +49,10 @@ class TournamentsTable
                 ToggleColumn::make('is_active')
                     ->label('Active Event')
                     ->sortable(),
+                TextColumn::make('formatted_entry_fee')
+                    ->label('Entry Fee')
+                    ->badge()
+                    ->color('warning'),
                 TextColumn::make('prize_pool_total')
                     ->label('Prize Pool')
                     ->money('NPR')

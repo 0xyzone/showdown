@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\GameTitle;
 use App\Models\Participant;
 use App\Models\Team;
+use App\Models\TeamPlayer;
 use App\Models\Tournament;
 use App\Models\TournamentRegistration;
 use Illuminate\Database\Seeder;
@@ -62,6 +63,11 @@ class EsportsTournamentSeeder extends Seeder
             'prize_pool_total' => 500000.00,
             'entry_fee' => 100.00,
             'theme_color' => '#10b981',
+            'min_main_players' => 5,
+            'max_main_players' => 5,
+            'max_substitutes' => 2,
+            'require_coach' => false,
+            'require_manager' => false,
             'registration_start' => now()->subDays(5),
             'registration_end' => now()->addDays(14),
             'start_date' => now()->addDays(15),
@@ -77,6 +83,9 @@ class EsportsTournamentSeeder extends Seeder
             'hero_subheadline' => "Nepal's premier national esports championship stage is live! Register your squad for multi-game title disciplines and follow live brackets on Challonge.com.",
             'entry_fee' => 100.00,
             'is_active' => true,
+            'min_main_players' => 5,
+            'max_main_players' => 5,
+            'max_substitutes' => 2,
         ]);
 
         $t1->gameTitles()->syncWithoutDetaching([
@@ -100,6 +109,9 @@ class EsportsTournamentSeeder extends Seeder
             'prize_pool_total' => 250000.00,
             'entry_fee' => 150.00,
             'theme_color' => '#06b6d4',
+            'min_main_players' => 5,
+            'max_main_players' => 5,
+            'max_substitutes' => 2,
             'registration_start' => now()->addDays(30),
             'registration_end' => now()->addDays(45),
             'start_date' => now()->addDays(46),
@@ -129,17 +141,40 @@ class EsportsTournamentSeeder extends Seeder
 
         $team1 = Team::firstOrCreate(['name' => 'Outlaw Esports'], [
             'manager_id' => $participant->id,
+            'game_title_id' => $mlbbOpen->id,
             'tag' => 'OTL',
             'country' => 'Nepal',
         ]);
 
         $team2 = Team::firstOrCreate(['name' => 'Elementrix Esports'], [
             'manager_id' => $participant->id,
+            'game_title_id' => $valorant->id,
             'tag' => 'ELMX',
             'country' => 'Nepal',
         ]);
 
-        // 5. Create Tournament Registrations
+        // 5. Create Sample Players for Team 1
+        $playerNames = ['Rohan Gurung', 'Bikash Thapa', 'Sujan Shrestha', 'Ayush Rai', 'Nabin Karki', 'Kiran Lama', 'Aashish Neupane'];
+        $roles = ['main_player', 'main_player', 'main_player', 'main_player', 'main_player', 'substitute', 'substitute'];
+        $ingameRoles = ['Jungler', 'Exp Laner', 'Mid Laner', 'Gold Laner', 'Roamer', 'Flex', 'Reserve'];
+
+        foreach ($playerNames as $index => $name) {
+            TeamPlayer::firstOrCreate([
+                'team_id' => $team1->id,
+                'full_name' => $name,
+            ], [
+                'role' => $roles[$index],
+                'date_of_birth' => '2002-05-15',
+                'ign' => 'OTL_'.str_replace(' ', '_', $name),
+                'ingame_role' => $ingameRoles[$index],
+                'whatsapp_number' => '+977981122334'.$index,
+                'email' => strtolower(str_replace(' ', '.', $name)).'@gmail.com',
+                'discord_id' => str_replace(' ', '', $name).'#1234',
+                'citizenship_number' => '12-01-78-0432'.$index,
+            ]);
+        }
+
+        // 6. Create Tournament Registrations
         TournamentRegistration::firstOrCreate([
             'tournament_id' => $t1->id,
             'team_id' => $team1->id,
