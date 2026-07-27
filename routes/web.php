@@ -8,7 +8,7 @@ use App\Services\ChallongeService;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    $activeTournament = Tournament::where('is_active', true)->with('gameTitles')->first() ?? Tournament::with('gameTitles')->first();
+    $activeTournament = Tournament::where('is_active', true)->with('gameTitles')->first();
 
     $sponsors = Sponsor::where('is_active', true)
         ->where(function ($query) use ($activeTournament) {
@@ -18,7 +18,10 @@ Route::get('/', function () {
             }
         })
         ->orderBy('order')
-        ->get();
+        ->get()
+        ->groupBy(function ($sponsor) {
+            return strtolower($sponsor->level ?: 'general');
+        });
 
     $partners = Partner::where('is_active', true)
         ->where(function ($query) use ($activeTournament) {
@@ -28,7 +31,10 @@ Route::get('/', function () {
             }
         })
         ->orderBy('order')
-        ->get();
+        ->get()
+        ->groupBy(function ($partner) {
+            return strtolower($partner->level ?: 'official');
+        });
 
     $gameTitles = $activeTournament && $activeTournament->gameTitles->count() > 0
         ? $activeTournament->gameTitles
@@ -36,7 +42,7 @@ Route::get('/', function () {
 
     $challongeService = new ChallongeService;
     $challongeEmbedUrl = $activeTournament?->challonge_embed_url
-        ?: ($activeTournament?->challonge_url ? $challongeService->getEmbedUrl($activeTournament->challonge_url) : 'https://challonge.com/module');
+        ?: ($activeTournament?->challonge_url ? $challongeService->getEmbedUrl($activeTournament->challonge_url) : null);
 
     return view('welcome', compact(
         'sponsors',

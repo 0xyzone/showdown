@@ -14,7 +14,9 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class TournamentForm
 {
@@ -31,6 +33,8 @@ class TournamentForm
                                     TextInput::make('name')
                                         ->label('Tournament Name')
                                         ->required()
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state ?? '')))
                                         ->maxLength(255),
                                     TextInput::make('slug')
                                         ->label('Slug')
@@ -68,13 +72,24 @@ class TournamentForm
                                         ->default('#10b981')
                                         ->required(),
                                     FileUpload::make('logo_path')
-                                        ->label('Tournament Logo')
+                                        ->label('Tournament Logo (1:1 Ratio, PNG)')
                                         ->image()
+                                        ->imageEditor()
+                                        ->imageEditorAspectRatios([
+                                            '1:1',
+                                        ])
+                                        ->acceptedFileTypes(['image/png'])
+                                        ->imageCropAspectRatio('1:1')
                                         ->disk('public')
                                         ->directory('tournaments'),
                                     FileUpload::make('banner_path')
-                                        ->label('Tournament Banner')
+                                        ->label('Tournament Banner (16:9 Ratio)')
                                         ->image()
+                                        ->imageEditor()
+                                        ->imageEditorAspectRatios([
+                                            '16:9',
+                                        ])
+                                        ->imageCropAspectRatio('16:9')
                                         ->disk('public')
                                         ->directory('tournaments'),
                                     RichEditor::make('description')
@@ -154,7 +169,7 @@ class TournamentForm
                                     ->columnSpanFull(),
                             ]),
 
-                        Tab::make('Rules & Schedule Dates')
+                        Tab::make('Dates')
                             ->icon('heroicon-o-calendar')
                             ->schema([
                                 Grid::make(2)->schema([

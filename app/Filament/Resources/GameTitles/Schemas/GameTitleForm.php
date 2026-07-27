@@ -7,7 +7,9 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class GameTitleForm
 {
@@ -24,6 +26,8 @@ class GameTitleForm
                                 ->label('Title Name')
                                 ->placeholder('e.g. PUBG Mobile, Valorant')
                                 ->required()
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state ?? '')))
                                 ->maxLength(255),
                             TextInput::make('slug')
                                 ->label('Slug')
@@ -73,14 +77,25 @@ class GameTitleForm
                     ->schema([
                         Grid::make(2)->schema([
                             FileUpload::make('logo_path')
-                                ->label('Logo Emblem')
+                                ->label('Logo Emblem (1:1 Ratio, PNG)')
                                 ->image()
+                                ->imageEditor()
+                                ->imageEditorAspectRatios([
+                                    '1:1',
+                                ])
+                                ->acceptedFileTypes(['image/png'])
+                                ->imageCropAspectRatio('1:1')
                                 ->disk('public')
                                 ->directory('games')
                                 ->visibility('public'),
                             FileUpload::make('banner_path')
-                                ->label('Hero Header Banner')
+                                ->label('Hero Header Banner (16:9 Ratio)')
                                 ->image()
+                                ->imageEditor()
+                                ->imageEditorAspectRatios([
+                                    '16:9',
+                                ])
+                                ->imageCropAspectRatio('16:9')
                                 ->disk('public')
                                 ->directory('games')
                                 ->visibility('public'),

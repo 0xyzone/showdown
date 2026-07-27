@@ -24,6 +24,8 @@ class TournamentRegistrationResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Tournaments & Arenas';
 
+    protected static ?int $navigationSort = 3;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
 
     public static function form(Schema $schema): Schema

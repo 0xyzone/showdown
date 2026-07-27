@@ -55,7 +55,6 @@ class UserInformationForm extends Component implements HasForms
                             TextInput::make('username')
                                 ->label('Username')
                                 ->unique(ignoreRecord: true, modifyRuleUsing: fn (Unique $rule) => $rule->ignore($userId))
-                                ->disabled(fn ($state) => $state)
                                 ->maxLength(255),
                             TextInput::make('discord_id')
                                 ->label('Discord ID')

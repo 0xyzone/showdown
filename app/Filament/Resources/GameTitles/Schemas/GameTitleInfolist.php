@@ -21,6 +21,9 @@ class GameTitleInfolist
                             ImageEntry::make('logo_path')
                                 ->label('Logo Emblem')
                                 ->disk('public')
+                                ->height(140)
+                                ->width(140)
+                                ->extraImgAttributes(['class' => 'object-contain rounded-xl bg-slate-900 p-2 border border-slate-800'])
                                 ->defaultImageUrl(asset('images/sponsor_placeholder.png')),
                             Grid::make(2)->schema([
                                 TextEntry::make('name')
@@ -47,6 +50,7 @@ class GameTitleInfolist
                         ImageEntry::make('banner_path')
                             ->label('Banner Graphic')
                             ->disk('public')
+                            ->extraImgAttributes(['class' => 'w-full max-h-72 object-cover rounded-2xl aspect-[16/9]'])
                             ->columnSpanFull(),
                     ]),
             ]);

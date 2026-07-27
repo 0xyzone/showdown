@@ -73,9 +73,14 @@ class PartnerForm
                     ->icon('heroicon-o-photo')
                     ->schema([
                         FileUpload::make('logo_url')
-                            ->label('Brand Logo Graphic')
+                            ->label('Brand Logo Graphic (1:1 Ratio, PNG)')
                             ->image()
                             ->imageEditor()
+                            ->imageEditorAspectRatios([
+                                '1:1',
+                            ])
+                            ->acceptedFileTypes(['image/png'])
+                            ->imageCropAspectRatio('1:1')
                             ->disk('public')
                             ->directory('partners')
                             ->visibility('public')

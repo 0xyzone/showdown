@@ -37,9 +37,14 @@ class SponsorForm
                                 ->placeholder('https://example.com')
                                 ->maxLength(255),
                             FileUpload::make('logo_url')
-                                ->label('Brand Logo Graphic')
+                                ->label('Brand Logo Graphic (1:1 Ratio, PNG)')
                                 ->image()
                                 ->imageEditor()
+                                ->imageEditorAspectRatios([
+                                    '1:1',
+                                ])
+                                ->acceptedFileTypes(['image/png'])
+                                ->imageCropAspectRatio('1:1')
                                 ->disk('public')
                                 ->directory('sponsors')
                                 ->visibility('public')

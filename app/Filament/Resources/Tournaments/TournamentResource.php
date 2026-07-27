@@ -24,6 +24,8 @@ class TournamentResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Tournaments & Arenas';
 
+    protected static ?int $navigationSort = 2;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-trophy';
 
     public static function form(Schema $schema): Schema

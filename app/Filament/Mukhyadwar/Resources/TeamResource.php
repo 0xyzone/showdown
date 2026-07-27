@@ -61,8 +61,14 @@ class TeamResource extends Resource
                                 ->default('Nepal')
                                 ->required(),
                             FileUpload::make('logo_path')
-                                ->label('Team Crest / Logo')
+                                ->label('Team Crest / Logo (1:1 Ratio, PNG)')
                                 ->image()
+                                ->imageEditor()
+                                ->imageEditorAspectRatios([
+                                    '1:1',
+                                ])
+                                ->acceptedFileTypes(['image/png'])
+                                ->imageCropAspectRatio('1:1')
                                 ->disk('public')
                                 ->directory('teams')
                                 ->columnSpanFull(),

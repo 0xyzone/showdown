@@ -7,6 +7,7 @@ use App\Mail\SponsorQueryConverted;
 use App\Models\Partner;
 use App\Models\Sponsor;
 use App\Models\SponsorQuery;
+use App\Models\Tournament;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -108,10 +109,9 @@ class SponsorQueriesTable
 
                         Select::make('tournament_id')
                             ->label('Assigned Tournament')
-                            ->relationship('tournament', 'name')
+                            ->options(Tournament::pluck('name', 'id'))
                             ->nullable()
                             ->placeholder('All Tournaments (Global)'),
-
                         // Sponsor Fields
                         Select::make('sponsor_level')
                             ->label('Sponsorship Tier Level')
