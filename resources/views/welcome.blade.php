@@ -820,9 +820,25 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            const headerElement = document.querySelector('header');
+            const mobileMenuDrawer = document.getElementById('mobile-menu-drawer');
+            const hamburgerIcon = document.getElementById('hamburger-icon');
+            const closeIcon = document.getElementById('close-icon');
+
             document.getElementById('mobile-menu-toggle')?.addEventListener('click', (e) => {
                 e.stopPropagation();
                 toggleMobileMenu();
+            });
+
+            // CLOSE HAMBURGER MENU WHEN CLICKING ANYWHERE OUTSIDE THE HEADER
+            document.addEventListener('click', (e) => {
+                if (mobileMenuDrawer && mobileMenuDrawer.classList.contains('open')) {
+                    if (headerElement && !headerElement.contains(e.target)) {
+                        mobileMenuDrawer.classList.remove('open');
+                        hamburgerIcon?.classList.remove('hidden');
+                        closeIcon?.classList.add('hidden');
+                    }
+                }
             });
         });
 
