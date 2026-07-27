@@ -244,7 +244,8 @@
 
     @if($activeTournament)
         <!-- ACTIVE TOURNAMENT HERO SECTION -->
-        <section class="relative pt-2 pb-14 sm:pt-4 sm:pb-16 lg:pt-8 lg:pb-24 overflow-hidden z-10 scroll-mt-20" id="overview">
+        <section class="relative pt-2 pb-14 sm:pt-4 sm:pb-16 lg:pt-8 lg:pb-24 overflow-visble
+         z-10 scroll-mt-20" id="overview">
             <!-- Dynamic Glow Aura reflecting active tournament accent -->
             <div class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full blur-[180px] pointer-events-none animate-pulse-glow" style="background-color: rgba({{ $rgb }}, 0.2);"></div>
 
@@ -252,8 +253,8 @@
                 <div class="relative min-h-[480px] sm:min-h-[520px] rounded-3xl esports-card-v2 p-6 sm:p-12 lg:p-16 border-2 border-cyan-500/40 overflow-hidden sm:overflow-visible">
                     
                     <!-- MASCOT 1: CYBER SNIPER GIRL (HIDDEN ON MOBILE, CONTROLLED SIZE ON DESKTOP) -->
-                    <div class="hidden lg:block absolute -top-14 -right-6 sm:-right-10 z-20 pointer-events-auto reveal-right animate-float-left" data-parallax-speed="18">
-                        <img src="/images/cyber_chibi_sniper_girl.png" alt="Cyber Chibi Mascot" class="w-64 lg:w-[340px] xl:w-[380px] h-auto object-contain filter drop-shadow-[0_10px_35px_rgba(255,0,85,0.55)] transform hover:scale-105 transition-transform duration-300">
+                    <div class="hidden lg:block absolute -top-14 -right-6 sm:-right-10 z-20 pointer-events-auto reveal-right animate-float-left overflow-visible" data-parallax-speed="18">
+                        <img src="/images/cyber_chibi_sniper_girl.png" alt="Cyber Chibi Mascot" class="w-64 lg:w-[340px] xl:w-[380px] h-auto object-contain filter drop-shadow-[0_10px_35px_rgba(255,0,85,0.55)] transform hover:scale-105 transition-transform duration-300 overflow-visible">
                     </div>
 
                     <!-- MASCOT 2: MECHA ROBOT DRAGON (HIDDEN ON MOBILE, CONTROLLED SIZE ON DESKTOP) -->
