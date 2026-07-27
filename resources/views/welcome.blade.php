@@ -29,6 +29,13 @@
         }
         $rgb = "$r, $g, $b";
 
+        // Calculate Luminance to determine if theme background/buttons require dark or light text
+        // Relative Luminance formula (WCAG Standard): 0.2126*R + 0.7152*G + 0.0722*B
+        $luminance = ($r * 0.2126 + $g * 0.7152 + $b * 0.0722) / 255;
+        $btnTextColor = $luminance > 0.55 ? '#0b0e14' : '#ffffff';
+        $accentBadgeBg = $luminance > 0.55 ? "rgba($rgb, 0.25)" : "rgba($rgb, 0.18)";
+        $accentBadgeText = $luminance > 0.55 ? "rgb(" . max(0, $r-50) . "," . max(0, $g-50) . "," . max(0, $b-50) . ")" : $themeColor;
+
         $tournamentName = $activeTournament?->name ?? 'OUTLAW SHOWDOWN';
         $seasonVersion = $activeTournament?->season_version ?? 'SEASON UPCOMING';
         $entryFee = $activeTournament?->entry_fee ?? 100;
@@ -52,6 +59,7 @@
         :root {
             --accent-hex: {{ $themeColor }};
             --accent-rgb: {{ $rgb }};
+            --accent-btn-text: {{ $btnTextColor }};
             --color-emerald-500: {{ $themeColor }};
             --color-emerald-400: {{ $themeColor }};
             --color-emerald-300: {{ $themeColor }};
@@ -64,9 +72,10 @@
         body {
             font-family: 'Outfit', sans-serif;
         }
-        /* Dynamic Accent Styles */
+        /* Dynamic Accent Styles with Contrast Contrast Safeguards */
         .dynamic-accent-bg {
             background-color: {{ $themeColor }};
+            color: {{ $btnTextColor }};
         }
         .dynamic-accent-text {
             color: {{ $themeColor }};
@@ -76,7 +85,7 @@
         }
         .dynamic-accent-btn {
             background-color: {{ $themeColor }};
-            color: #0b0e14;
+            color: {{ $btnTextColor }};
             box-shadow: 0 0 20px rgba({{ $rgb }}, 0.4);
         }
         .dynamic-accent-btn:hover {
@@ -90,22 +99,17 @@
         }
 
         /* Sleek Floating Capsule Navbar Animation */
-        #floating-navbar {
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        }
         #floating-navbar.scrolled {
-            background-color: rgba(9, 14, 26, 0.94);
-            border-color: rgba({{ $rgb }}, 0.45);
-            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.85), 0 0 25px rgba({{ $rgb }}, 0.3);
-            padding-top: 0.35rem;
-            padding-bottom: 0.35rem;
+            background-color: rgba(9, 14, 26, 0.96);
+            border-color: rgba({{ $rgb }}, 0.5);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.9), 0 0 25px rgba({{ $rgb }}, 0.35);
         }
 
         /* Active Navigation Link Styling */
-        .nav-link {
+        .mobile-nav-link {
             transition: all 0.25s ease;
         }
-        .nav-link.active {
+        .mobile-nav-link.active {
             color: {{ $themeColor }} !important;
             background-color: rgba(30, 41, 59, 0.9) !important;
             font-weight: 800 !important;
@@ -113,15 +117,15 @@
 
         /* Mobile Drawer Transition */
         #mobile-menu-drawer {
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             max-height: 0;
             opacity: 0;
-            transform: translateY(-12px) scale(0.98);
+            transform: translateY(-10px) scale(0.97);
             overflow: hidden;
             pointer-events: none;
         }
         #mobile-menu-drawer.open {
-            max-height: 520px;
+            max-height: 600px;
             opacity: 1;
             transform: translateY(0) scale(1);
             pointer-events: auto;
@@ -140,112 +144,100 @@
     <!-- SCANLINE OVERLAY -->
     <div class="fixed inset-0 scanlines pointer-events-none z-40 opacity-20"></div>
 
-    <!-- 1. CENTERED ULTRA-SLEEK FLOATING CAPSULE NAVIGATION HEADER -->
-    <header class="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-6xl pointer-events-none">
-        <nav id="floating-navbar" class="pointer-events-auto rounded-full bg-slate-950/90 backdrop-blur-2xl border border-cyan-500/35 px-4 sm:px-6 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.8)] flex items-center justify-between gap-2 sm:gap-4 relative overflow-hidden">
+    <!-- 1. MINIMALIST FLOATING CAPSULE HEADER (CLEAN LOGO EMBLEM + HAMBURGER ICON BUTTON) -->
+    <header class="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-2xl pointer-events-none">
+        
+        <!-- MAIN CAPSULE BAR -->
+        <nav id="floating-navbar" class="pointer-events-auto rounded-full bg-slate-950/92 backdrop-blur-2xl border border-cyan-500/35 px-4 sm:px-6 py-2.5 shadow-[0_8px_32px_rgba(0,0,0,0.85)] flex items-center justify-between gap-4 relative z-20">
             
             <!-- BRAND LOGO EMBLEM -->
-            <a href="#overview" class="flex items-center gap-2 group shrink-0">
+            <a href="#overview" class="flex items-center gap-2 group shrink-0 min-w-0">
                 @if($activeTournament?->logo_path)
-                    <img src="{{ Storage::url($activeTournament->logo_path) }}" alt="{{ $tournamentName }}" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-contain border border-cyan-500/40 p-0.5 group-hover:scale-105 transition-transform bg-slate-900">
+                    <img src="{{ Storage::url($activeTournament->logo_path) }}" alt="{{ $tournamentName }}" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-contain border border-cyan-500/40 p-0.5 group-hover:scale-105 transition-transform bg-slate-900 shrink-0">
                 @else
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full dynamic-accent-btn flex items-center justify-center font-black text-slate-950 text-xs sm:text-sm group-hover:scale-105 transition-transform duration-300">
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full dynamic-accent-btn flex items-center justify-center font-black text-xs group-hover:scale-105 transition-transform duration-300 shrink-0">
                         OS
                     </div>
                 @endif
 
                 <div class="flex items-center gap-1.5 min-w-0">
-                    <span class="font-orbitron font-black text-xs sm:text-base tracking-wider text-white whitespace-nowrap truncate max-w-[140px] sm:max-w-none">
+                    <span class="font-orbitron font-black text-xs sm:text-sm tracking-wider text-white whitespace-nowrap truncate max-w-[150px] sm:max-w-[260px]">
                         {{ $tournamentName }}
                     </span>
                     @if($activeTournament)
-                        <span class="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[8px] font-mono-cyber font-extrabold uppercase animate-pulse" style="background-color: rgba({{ $rgb }}, 0.2); color: {{ $themeColor }}; border: 1px solid rgba({{ $rgb }}, 0.4);">LIVE</span>
+                        <span class="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[8px] font-mono-cyber font-extrabold uppercase animate-pulse shrink-0" style="background-color: rgba({{ $rgb }}, 0.2); color: {{ $themeColor }}; border: 1px solid rgba({{ $rgb }}, 0.4);">LIVE</span>
                     @else
-                        <span class="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[8px] font-mono-cyber font-extrabold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">SOON</span>
+                        <span class="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[8px] font-mono-cyber font-extrabold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0">SOON</span>
                     @endif
                 </div>
             </a>
 
-            <!-- ACTION BUTTONS: PARTNER, LOGIN, SIGNUP & HAMBURGER MENU TRIGGER -->
-            <div class="flex items-center gap-2 shrink-0">
-                <button onclick="playCyberSound(); document.getElementById('sponsor-modal').classList.remove('hidden')" class="px-3 sm:px-4 py-1.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/35 hover:bg-amber-500/25 transition-all hover:scale-105 whitespace-nowrap">
-                    🤝 Partner
+            <!-- HAMBURGER MENU BUTTON -->
+            <button id="mobile-menu-toggle" aria-label="Toggle navigation menu" class="p-2 rounded-xl bg-slate-900 border border-cyan-500/30 text-cyan-400 focus:outline-none transition-colors hover:bg-slate-800 cursor-pointer shrink-0">
+                <svg id="hamburger-icon" class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+                <svg id="close-icon" class="w-5 h-5 hidden transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </nav>
+
+        <!-- ABSOLUTELY POSITIONED HAMBURGER MENU DRAWER (CONTAINING ALL NAV LINKS, PARTNER BUTTON & LOGIN/SIGNUP) -->
+        <div id="mobile-menu-drawer" class="pointer-events-auto absolute top-full left-0 right-0 mt-3 rounded-2xl bg-slate-950/98 border border-cyan-500/40 backdrop-blur-2xl px-4 pt-3.5 pb-4 shadow-[0_20px_50px_rgba(0,0,0,0.95)] space-y-3.5 z-10">
+            <!-- NAV LINKS -->
+            <div class="flex flex-col gap-1 font-bold text-xs tracking-wide">
+                <a href="#overview" onclick="toggleMobileMenu()" class="mobile-nav-link active px-3.5 py-2.5 rounded-xl bg-slate-900/90 text-slate-200 hover:bg-slate-800 flex items-center justify-between transition-colors">
+                    <span>Overview</span>
+                    <span class="text-[10px] text-slate-400 font-mono-cyber">#overview</span>
+                </a>
+                @if($activeTournament)
+                    <a href="#games" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-slate-900 flex items-center justify-between transition-colors">
+                        <span>Esports & Prize Pool</span>
+                        <span class="text-[10px] text-slate-400 font-mono-cyber">#games</span>
+                    </a>
+                    <a href="#timeline" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-slate-900 flex items-center justify-between transition-colors">
+                        <span>Event Timeline</span>
+                        <span class="text-[10px] text-slate-400 font-mono-cyber">#timeline</span>
+                    </a>
+                    <a href="#brackets" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-slate-900 flex items-center justify-between transition-colors">
+                        <span>Match Brackets</span>
+                        <span class="text-[10px] text-slate-400 font-mono-cyber">#brackets</span>
+                    </a>
+                @endif
+                <a href="#sponsors" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-slate-900 flex items-center justify-between transition-colors">
+                    <span>Sponsors</span>
+                    <span class="text-[10px] text-slate-400 font-mono-cyber">#sponsors</span>
+                </a>
+                <a href="#partners" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-slate-900 flex items-center justify-between transition-colors">
+                    <span>Partners</span>
+                    <span class="text-[10px] text-slate-400 font-mono-cyber">#partners</span>
+                </a>
+            </div>
+
+            <!-- ACTION BUTTONS SECTION INSIDE DRAWER (PARTNER, LOGIN, SIGNUP / ARENA PORTAL) -->
+            <div class="pt-3 border-t border-slate-800/80 flex flex-col gap-2">
+                <button onclick="toggleMobileMenu(); playCyberSound(); document.getElementById('sponsor-modal').classList.remove('hidden')" class="w-full py-2.5 rounded-xl text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/35 hover:bg-amber-500/25 transition-all text-center flex items-center justify-center gap-2">
+                    <span>🤝 Submit Partner / Sponsor Inquiry</span>
                 </button>
 
                 @auth('participant')
-                    <a href="{{ url('/mukhyadwar') }}" class="px-3.5 sm:px-4 py-1.5 rounded-full font-extrabold text-xs dynamic-accent-btn transition-all hover:scale-105 whitespace-nowrap">
+                    <a href="{{ url('/mukhyadwar') }}" class="w-full py-2.5 rounded-xl text-center font-extrabold text-xs dynamic-accent-btn">
                         Arena Portal
                     </a>
                 @else
-                    <a href="{{ url('/mukhyadwar/login') }}" class="hidden sm:inline-block px-3 py-1 font-bold text-xs text-slate-300 hover:text-white transition-colors whitespace-nowrap">
-                        Log in
-                    </a>
-                    <a href="{{ url('/mukhyadwar/register') }}" class="px-3.5 sm:px-4 py-1.5 rounded-full font-extrabold text-xs bg-slate-800/90 border border-cyan-500/40 text-white hover:bg-slate-700 transition-all hover:scale-105 whitespace-nowrap">
-                        Sign Up
-                    </a>
+                    <div class="grid grid-cols-2 gap-2 pt-0.5">
+                        <a href="{{ url('/mukhyadwar/login') }}" class="py-2.5 rounded-xl text-center font-bold text-xs bg-slate-900 border border-cyan-500/30 text-white hover:bg-slate-800 transition-colors">
+                            Log in
+                        </a>
+                        <a href="{{ url('/mukhyadwar/register') }}" class="py-2.5 rounded-xl text-center font-bold text-xs bg-slate-800 border border-cyan-500/40 text-white hover:bg-slate-700 transition-colors">
+                            Sign Up
+                        </a>
+                    </div>
                 @endauth
-
-                <!-- THREE-LINED HAMBURGER ICON BUTTON -->
-                <button id="mobile-menu-toggle" aria-label="Toggle navigation menu" class="p-1.5 sm:p-2 rounded-xl bg-slate-900 border border-cyan-500/30 text-cyan-400 focus:outline-none transition-colors hover:bg-slate-800">
-                    <svg id="hamburger-icon" class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
-                    <svg id="close-icon" class="w-5 h-5 hidden transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
             </div>
+        </div>
 
-            <!-- ANIMATED HAMBURGER MENU DRAWER FOR ALL SECTION LINKS -->
-            <div id="mobile-menu-drawer" class="absolute top-full left-0 right-0 mt-3 rounded-2xl bg-slate-950/95 border border-cyan-500/35 backdrop-blur-2xl px-4 pt-3 pb-5 shadow-[0_20px_50px_rgba(0,0,0,0.9)] space-y-3">
-                <div class="flex flex-col gap-1 font-bold text-xs tracking-wide">
-                    <a href="#overview" onclick="toggleMobileMenu()" class="mobile-nav-link active px-3.5 py-2.5 rounded-xl bg-slate-900/80 text-slate-200 hover:bg-slate-800 flex items-center justify-between">
-                        <span>Overview</span>
-                        <span class="text-[10px] text-slate-500 font-mono-cyber">#overview</span>
-                    </a>
-                    @if($activeTournament)
-                        <a href="#games" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-slate-900 flex items-center justify-between">
-                            <span>Esports & Prize Pool</span>
-                            <span class="text-[10px] text-slate-500 font-mono-cyber">#games</span>
-                        </a>
-                        <a href="#timeline" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-slate-900 flex items-center justify-between">
-                            <span>Event Timeline</span>
-                            <span class="text-[10px] text-slate-500 font-mono-cyber">#timeline</span>
-                        </a>
-                        <a href="#brackets" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-slate-900 flex items-center justify-between">
-                            <span>Match Brackets</span>
-                            <span class="text-[10px] text-slate-500 font-mono-cyber">#brackets</span>
-                        </a>
-                    @endif
-                    <a href="#sponsors" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-slate-900 flex items-center justify-between">
-                        <span>Sponsors</span>
-                        <span class="text-[10px] text-slate-500 font-mono-cyber">#sponsors</span>
-                    </a>
-                    <a href="#partners" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-slate-900 flex items-center justify-between">
-                        <span>Partners</span>
-                        <span class="text-[10px] text-slate-500 font-mono-cyber">#partners</span>
-                    </a>
-                </div>
-
-                <div class="pt-2.5 border-t border-slate-800/80 sm:hidden flex flex-col gap-2">
-                    @auth('participant')
-                        <a href="{{ url('/mukhyadwar') }}" class="w-full py-2.5 rounded-xl text-center font-extrabold text-xs dynamic-accent-btn">
-                            Arena Portal
-                        </a>
-                    @else
-                        <div class="grid grid-cols-2 gap-2">
-                            <a href="{{ url('/mukhyadwar/login') }}" class="py-2 rounded-xl text-center font-bold text-xs bg-slate-900 border border-cyan-500/30 text-white">
-                                Log in
-                            </a>
-                            <a href="{{ url('/mukhyadwar/register') }}" class="py-2 rounded-xl text-center font-bold text-xs bg-slate-800 border border-cyan-500/40 text-white">
-                                Sign Up
-                            </a>
-                        </div>
-                    @endauth
-                </div>
-            </div>
-
-        </nav>
     </header>
 
     <div class="pt-16 sm:pt-20"></div>
@@ -571,7 +563,7 @@
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[160px] pointer-events-none"></div>
 
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-16 reveal-on-scroll relative z-10">
-            <span class="px-4 py-1.5 rounded-full text-xs font-mono-cyber uppercase font-bold tracking-widest inline-block shadow-[0_0_25px_rgba({{ $rgb }},0.35)]" style="background-color: rgba({{ $rgb }}, 0.18); color: {{ $themeColor }}; border: 1px solid rgba({{ $rgb }}, 0.5);">
+            <span class="px-4 py-1.5 rounded-full text-xs font-mono-cyber uppercase font-bold tracking-widest inline-block shadow-[0_0_25px_rgba({{ $rgb }},0.35)]" style="background-color: {{ $accentBadgeBg }}; color: {{ $accentBadgeText }}; border: 1px solid rgba({{ $rgb }}, 0.5);">
                 ✨ PRESTIGE SPONSORSHIP HIERARCHY ✨
             </span>
             <h2 class="font-orbitron text-3xl sm:text-5xl font-black uppercase text-white mt-4 tracking-tight drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
@@ -798,7 +790,7 @@
     <footer class="bg-slate-950 border-t border-cyan-500/30 py-10 text-slate-400 text-xs font-mono-cyber relative z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 clip-corner-sm dynamic-accent-btn flex items-center justify-center font-black text-slate-950 text-sm">OS</div>
+                <div class="w-8 h-8 clip-corner-sm dynamic-accent-btn flex items-center justify-center font-black text-sm">OS</div>
                 <span class="font-orbitron font-extrabold text-white text-sm">OUTLAW SHOWDOWN</span>
             </div>
             <div>© 2026 Outlaw Showdown. All Rights Reserved. @if($activeTournament) Entry Fee: Rs. {{ number_format($entryFee) }}/{{ $entryFeeSuffix }} @endif</div>
@@ -812,34 +804,32 @@
             const hamburger = document.getElementById('hamburger-icon');
             const close = document.getElementById('close-icon');
 
+            if (!drawer) return;
+
             if (drawer.classList.contains('open')) {
                 drawer.classList.remove('open');
-                hamburger.classList.remove('hidden');
-                close.classList.add('hidden');
+                hamburger?.classList.remove('hidden');
+                close?.classList.add('hidden');
             } else {
                 drawer.classList.add('open');
-                hamburger.classList.add('hidden');
-                close.classList.remove('hidden');
+                hamburger?.classList.add('hidden');
+                close?.classList.close-icon?.classList.remove('hidden');
+                close?.classList.remove('hidden');
             }
         }
 
-        document.getElementById('mobile-menu-toggle')?.addEventListener('click', toggleMobileMenu);
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('mobile-menu-toggle')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleMobileMenu();
+            });
+        });
 
         // High-precision IntersectionObserver for Nav ScrollSpy
         const sectionTargets = document.querySelectorAll('section[id], div[id="brackets"]');
-        const navLinks = document.querySelectorAll('.nav-link');
         const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
 
         function setActiveNavId(id) {
-            navLinks.forEach(link => {
-                const href = link.getAttribute('href').replace('#', '');
-                if (href === id) {
-                    link.classList.add('active');
-                } else {
-                    link.classList.remove('active');
-                }
-            });
-
             mobileNavLinks.forEach(link => {
                 const href = link.getAttribute('href').replace('#', '');
                 if (href === id) {
