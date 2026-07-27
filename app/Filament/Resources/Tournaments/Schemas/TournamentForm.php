@@ -151,18 +151,10 @@ class TournamentForm
                                 ]),
                             ]),
 
-                        Tab::make('Challonge & Discord Integration')
+                        Tab::make('Discord & External Links')
                             ->icon('heroicon-o-link')
                             ->schema([
                                 Grid::make(2)->schema([
-                                    TextInput::make('challonge_url')
-                                        ->label('Challonge Bracket URL')
-                                        ->placeholder('https://challonge.com/outlaw_showdown_2026')
-                                        ->url(),
-                                    TextInput::make('challonge_embed_url')
-                                        ->label('Challonge Module Embed URL')
-                                        ->placeholder('https://challonge.com/outlaw_showdown_2026/module')
-                                        ->url(),
                                     TextInput::make('discord_server_url')
                                         ->label('Discord Community Server URL')
                                         ->placeholder('https://discord.gg/outlawshowdown')

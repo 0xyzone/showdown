@@ -361,6 +361,19 @@
                                         $distributionItems = $decoded;
                                     }
                                 }
+
+                                $rawChallonge = $game->pivot?->challonge_url;
+                                $challongeLinks = [];
+                                if (is_array($rawChallonge)) {
+                                    $challongeLinks = $rawChallonge;
+                                } elseif (is_string($rawChallonge) && !empty($rawChallonge)) {
+                                    $decodedCh = json_decode($rawChallonge, true);
+                                    if (is_array($decodedCh)) {
+                                        $challongeLinks = $decodedCh;
+                                    } else {
+                                        $challongeLinks = ['Official Bracket' => $rawChallonge];
+                                    }
+                                }
                             @endphp
                             <div class="reveal-on-scroll rounded-3xl esports-card-v2 tilt-card p-6 border border-cyan-500/30 group flex flex-col justify-between">
                                 <div>
@@ -381,8 +394,8 @@
                                     </div>
                                 </div>
 
-                                <div class="mt-4 pt-4 border-t border-slate-800/80">
-                                    <div class="flex items-center justify-between text-xs font-mono-cyber mb-2">
+                                <div class="mt-4 pt-4 border-t border-slate-800/80 space-y-3">
+                                    <div class="flex items-center justify-between text-xs font-mono-cyber">
                                         <span class="text-slate-400">Allocated Prize Pool:</span>
                                         <span class="font-black text-amber-300 text-sm">
                                             {{ $allocatedPrize > 0 ? 'NPR Rs. ' . number_format($allocatedPrize) : 'TBD' }}
@@ -404,10 +417,27 @@
                                                 @endforeach
                                             </div>
                                         </div>
-                                    @elseif(is_string($distributionRaw) && !empty($distributionRaw))
-                                        <div class="p-3 rounded-xl bg-slate-950/80 border border-amber-500/30 text-[11px] font-mono-cyber text-slate-300 whitespace-pre-line leading-relaxed">
-                                            <div class="text-[9px] font-bold uppercase text-amber-400 mb-1">🏆 Distribution Breakdown</div>
-                                            {{ $distributionRaw }}
+                                    @endif
+
+                                    @if(!empty($challongeLinks))
+                                        <div class="p-3 rounded-xl bg-slate-950/80 border border-cyan-500/30 text-[11px] font-mono-cyber text-slate-300 leading-relaxed">
+                                            <div class="text-[9px] font-bold uppercase text-cyan-400 mb-1.5 flex items-center gap-1">
+                                                <span>🌐</span>
+                                                <span>Challonge Brackets</span>
+                                            </div>
+                                            <div class="space-y-1">
+                                                @foreach($challongeLinks as $stage => $url)
+                                                    @if(!empty($url))
+                                                        <div class="flex items-center justify-between text-[11px] gap-2">
+                                                            <span class="text-slate-300 font-bold truncate">{{ is_numeric($stage) ? 'Stage Link' : $stage }}</span>
+                                                            <a href="{{ $url }}" target="_blank" class="text-cyan-400 font-extrabold hover:text-cyan-300 underline shrink-0 flex items-center gap-1">
+                                                                <span>Open</span>
+                                                                <span class="text-[9px]">↗</span>
+                                                            </a>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
+                                            </div>
                                         </div>
                                     @endif
                                 </div>
@@ -496,26 +526,71 @@
 
                 <!-- CHALLONGE BRACKETS SECTION -->
                 <div class="mt-14 reveal-on-scroll rounded-3xl esports-card-v2 border border-cyan-500/30 overflow-hidden scroll-mt-20" id="brackets">
+                    @php
+                        $allEmbeds = [];
+                        foreach($gameTitles as $g) {
+                            $embeds = $gameChallongeEmbeds[$g->id] ?? [];
+                            if (!empty($embeds)) {
+                                foreach($embeds as $e) {
+                                    $allEmbeds[] = array_merge($e, ['game_name' => $g->name]);
+                                }
+                            }
+                        }
+                    @endphp
+
                     <div class="bg-slate-900/90 px-6 py-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-4">
                         <div>
                             <span class="font-orbitron text-sm font-bold text-white uppercase block">Tournament Match Brackets & Live Results</span>
-                            <span class="text-xs font-mono-cyber text-slate-400">Directly synchronized via Challonge Engine</span>
+                            <span class="text-xs font-mono-cyber text-slate-400">Synchronized via Challonge Brackets Engine</span>
                         </div>
-                        @if($activeTournament->challonge_url)
-                            <a href="{{ $activeTournament->challonge_url }}" target="_blank" class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5" style="background-color: rgba({{ $rgb }}, 0.2); color: {{ $themeColor }}; border: 1px solid rgba({{ $rgb }}, 0.4);">
-                                🌐 Open Full Bracket on Challonge
-                            </a>
-                        @endif
                     </div>
                     
-                    <div class="w-full bg-slate-950 overflow-hidden min-h-[500px] relative">
-                        @if($challongeEmbedUrl)
-                            <iframe src="{{ $challongeEmbedUrl }}" width="100%" height="550" frameborder="0" scrolling="auto" allowtransparency="true" class="w-full h-[550px] border-0"></iframe>
+                    <div class="w-full bg-slate-950 overflow-hidden min-h-[450px] relative">
+                        @if(!empty($allEmbeds))
+                            <div class="p-4 border-b border-slate-800/80 bg-slate-900/50 flex flex-wrap gap-2">
+                                @foreach($allEmbeds as $idx => $item)
+                                    <button onclick="switchBracketEmbed({{ $idx }})" id="bracket-btn-{{ $idx }}" class="bracket-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all border {{ $idx === 0 ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50' : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white' }}">
+                                        🎮 {{ $item['game_name'] }} ({{ $item['label'] }})
+                                    </button>
+                                @endforeach
+                            </div>
+
+                            @foreach($allEmbeds as $idx => $item)
+                                <div id="bracket-frame-{{ $idx }}" class="bracket-frame-container {{ $idx === 0 ? '' : 'hidden' }}">
+                                    <div class="p-3 bg-slate-900/40 border-b border-slate-800 flex items-center justify-between px-6">
+                                        <span class="text-xs font-mono-cyber text-slate-300 font-bold">Displaying: {{ $item['game_name'] }} • {{ $item['label'] }}</span>
+                                        <a href="{{ $item['url'] }}" target="_blank" class="text-xs font-bold text-cyan-400 hover:underline flex items-center gap-1">
+                                            <span>Open Standalone Bracket</span>
+                                            <span class="text-[10px]">↗</span>
+                                        </a>
+                                    </div>
+                                    <iframe src="{{ $item['embed_url'] }}" width="100%" height="550" frameborder="0" scrolling="auto" allowtransparency="true" class="w-full h-[550px] border-0"></iframe>
+                                </div>
+                            @endforeach
+
+                            <script>
+                                function switchBracketEmbed(targetIdx) {
+                                    document.querySelectorAll('.bracket-frame-container').forEach(el => el.classList.add('hidden'));
+                                    document.querySelectorAll('.bracket-tab-btn').forEach(btn => {
+                                        btn.classList.remove('bg-cyan-500/20', 'text-cyan-300', 'border-cyan-500/50');
+                                        btn.classList.add('bg-slate-900', 'text-slate-400', 'border-slate-800');
+                                    });
+
+                                    const activeFrame = document.getElementById('bracket-frame-' + targetIdx);
+                                    if (activeFrame) activeFrame.classList.remove('hidden');
+
+                                    const activeBtn = document.getElementById('bracket-btn-' + targetIdx);
+                                    if (activeBtn) {
+                                        activeBtn.classList.remove('bg-slate-900', 'text-slate-400', 'border-slate-800');
+                                        activeBtn.classList.add('bg-cyan-500/20', 'text-cyan-300', 'border-cyan-500/50');
+                                    }
+                                }
+                            </script>
                         @else
                             <div class="flex flex-col items-center justify-center p-16 text-center space-y-4">
                                 <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-cyan-500/30 flex items-center justify-center text-4xl">🏆</div>
                                 <h4 class="font-orbitron text-xl font-bold text-white">Brackets Preparation in Progress</h4>
-                                <p class="text-slate-400 text-sm max-w-md">Match brackets and tournament standings will be published live on Challonge as soon as registrations close.</p>
+                                <p class="text-slate-400 text-sm max-w-md">Match brackets and stage standings will be published live on Challonge as soon as registrations close.</p>
                             </div>
                         @endif
                     </div>

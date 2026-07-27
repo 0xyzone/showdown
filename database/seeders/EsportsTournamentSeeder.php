@@ -56,7 +56,7 @@ class EsportsTournamentSeeder extends Seeder
             'name' => 'Outlaw Showdown 2026 Vol-I',
             'season_version' => '2026 Vol-I',
             'hero_headline' => 'UNLEASH THE LEGEND, CLAIM YOUR GLORY',
-            'hero_subheadline' => "Nepal's premier national esports championship stage is live! Register your squad for multi-game title disciplines and follow live brackets on Challonge.com.",
+            'hero_subheadline' => "Nepal's premier national esports championship stage is live! Register your squad for multi-game title disciplines.",
             'description' => 'Nepal premier national esports championship featuring Rs 500,000 Total Prize Pool across 6 major gaming disciplines.',
             'status' => 'registration_open',
             'is_active' => true,
@@ -72,8 +72,6 @@ class EsportsTournamentSeeder extends Seeder
             'registration_end' => now()->addDays(14),
             'start_date' => now()->addDays(15),
             'end_date' => now()->addDays(20),
-            'challonge_url' => 'https://challonge.com/outlaw_showdown_2026',
-            'challonge_embed_url' => 'https://challonge.com/outlaw_showdown_2026/module',
             'discord_server_url' => 'https://discord.gg/outlawshowdown',
             'rules_doc_link' => 'https://outlawshowdown.com/rules.pdf',
         ]);
@@ -89,12 +87,36 @@ class EsportsTournamentSeeder extends Seeder
         ]);
 
         $t1->gameTitles()->syncWithoutDetaching([
-            $pubg->id,
-            $mlbbOpen->id,
-            $mlbbWomens->id,
-            $efootball->id,
-            $valorant->id,
-            $cosplay->id,
+            $pubg->id => [
+                'prize_pool' => 150000.00,
+                'prize_distribution' => json_encode(['1st Place' => '80000', '2nd Place' => '45000', '3rd Place' => '25000']),
+                'challonge_url' => json_encode(['Group A' => 'https://challonge.com/outlaw_pubg_group_a', 'Grand Finals' => 'https://challonge.com/outlaw_pubg_finals']),
+            ],
+            $mlbbOpen->id => [
+                'prize_pool' => 120000.00,
+                'prize_distribution' => json_encode(['1st Place' => '65000', '2nd Place' => '35000', '3rd Place' => '20000']),
+                'challonge_url' => json_encode(['Playoffs' => 'https://challonge.com/outlaw_mlbb_playoffs']),
+            ],
+            $mlbbWomens->id => [
+                'prize_pool' => 80000.00,
+                'prize_distribution' => json_encode(['1st Place' => '45000', '2nd Place' => '25000', '3rd Place' => '10000']),
+                'challonge_url' => json_encode(['Main Bracket' => 'https://challonge.com/outlaw_mlbb_women']),
+            ],
+            $efootball->id => [
+                'prize_pool' => 50000.00,
+                'prize_distribution' => json_encode(['1st Place' => '30000', '2nd Place' => '15000', '3rd Place' => '5000']),
+                'challonge_url' => json_encode(['Swiss Stage' => 'https://challonge.com/outlaw_efootball_swiss']),
+            ],
+            $valorant->id => [
+                'prize_pool' => 80000.00,
+                'prize_distribution' => json_encode(['1st Place' => '45000', '2nd Place' => '25000', '3rd Place' => '10000']),
+                'challonge_url' => json_encode(['Knockout Stage' => 'https://challonge.com/outlaw_valorant_ko']),
+            ],
+            $cosplay->id => [
+                'prize_pool' => 20000.00,
+                'prize_distribution' => json_encode(['Best Cosplayer' => '12000', 'Runner-up' => '8000']),
+                'challonge_url' => null,
+            ],
         ]);
 
         // 3. Create Tournament 2: Secondary Upcoming Event
@@ -116,8 +138,6 @@ class EsportsTournamentSeeder extends Seeder
             'registration_end' => now()->addDays(45),
             'start_date' => now()->addDays(46),
             'end_date' => now()->addDays(50),
-            'challonge_url' => 'https://challonge.com/outlaw_winter_2026',
-            'challonge_embed_url' => 'https://challonge.com/outlaw_winter_2026/module',
             'discord_server_url' => 'https://discord.gg/outlawshowdown',
             'rules_doc_link' => 'https://outlawshowdown.com/rules-winter.pdf',
         ]);

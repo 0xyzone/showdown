@@ -18,8 +18,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'hero_headline',
     'hero_subheadline',
     'rules_doc_link',
-    'challonge_url',
-    'challonge_embed_url',
     'discord_server_url',
     'discord_webhook_url',
     'linktree_url',
@@ -88,7 +86,7 @@ class Tournament extends Model
     public function gameTitles(): BelongsToMany
     {
         return $this->belongsToMany(GameTitle::class)
-            ->withPivot(['prize_pool', 'prize_distribution'])
+            ->withPivot(['prize_pool', 'prize_distribution', 'challonge_url'])
             ->withTimestamps();
     }
 

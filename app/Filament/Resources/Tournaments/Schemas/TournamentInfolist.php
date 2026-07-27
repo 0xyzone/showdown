@@ -72,18 +72,10 @@ class TournamentInfolist
                             ->placeholder('No game titles assigned yet.'),
                     ]),
 
-                Section::make('Challonge & Discord Integration Hub')
+                Section::make('Discord & External Links')
                     ->icon('heroicon-o-link')
                     ->schema([
                         Grid::make(3)->schema([
-                            TextEntry::make('challonge_url')
-                                ->label('Challonge Bracket URL')
-                                ->url(fn ($record) => $record->challonge_url, true)
-                                ->placeholder('No Challonge bracket URL'),
-                            TextEntry::make('challonge_embed_url')
-                                ->label('Challonge Module Embed')
-                                ->url(fn ($record) => $record->challonge_embed_url, true)
-                                ->placeholder('No embed URL'),
                             TextEntry::make('discord_server_url')
                                 ->label('Discord Server')
                                 ->url(fn ($record) => $record->discord_server_url, true)

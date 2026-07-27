@@ -21,7 +21,7 @@ class GameTitlesRelationManager extends RelationManager
 {
     protected static string $relationship = 'gameTitles';
 
-    protected static ?string $title = 'Game Titles & Dedicated Prize Pool Distribution';
+    protected static ?string $title = 'Game Titles, Prize Pool & Challonge Brackets';
 
     public static function recalculatePrizePool(Get $get, Set $set): void
     {
@@ -81,6 +81,15 @@ class GameTitlesRelationManager extends RelationManager
                     ->readOnly()
                     ->default(0)
                     ->helperText('Automatically calculated sum of all placement prize amounts entered above.'),
+
+                KeyValue::make('challonge_url')
+                    ->label('Challonge Bracket Links (Key / Value Pairs)')
+                    ->keyLabel('Stage / Group Name (e.g., Qualifiers, Group A, Grand Finals)')
+                    ->valueLabel('Challonge Bracket URL or Module Link')
+                    ->keyPlaceholder('e.g. Grand Finals')
+                    ->valuePlaceholder('e.g. https://challonge.com/my_bracket')
+                    ->columnSpanFull()
+                    ->helperText('Set up dedicated Challonge links for different tournament stages/groups for this game title.'),
             ]);
     }
 
@@ -118,7 +127,22 @@ class GameTitlesRelationManager extends RelationManager
 
                         return implode(' • ', $items);
                     })
-                    ->limit(60)
+                    ->limit(50)
+                    ->placeholder('None configured'),
+                TextColumn::make('challonge_url')
+                    ->label('Challonge Brackets')
+                    ->formatStateUsing(function ($state) {
+                        if (empty($state)) {
+                            return 'None configured';
+                        }
+                        $data = is_array($state) ? $state : json_decode((string) $state, true);
+                        if (! is_array($data) || empty($data)) {
+                            return is_string($state) ? $state : 'Configured';
+                        }
+                        $count = count($data);
+
+                        return "{$count} Bracket Link(s)";
+                    })
                     ->placeholder('None configured'),
             ])
             ->headerActions([
@@ -143,12 +167,20 @@ class GameTitlesRelationManager extends RelationManager
                             ->prefix('Rs.')
                             ->readOnly()
                             ->default(0),
+                        KeyValue::make('challonge_url')
+                            ->label('Challonge Bracket Links (Key / Value Pairs)')
+                            ->keyLabel('Stage / Group Name (e.g., Qualifiers, Group A, Grand Finals)')
+                            ->valueLabel('Challonge Bracket URL or Module Link')
+                            ->keyPlaceholder('e.g. Grand Finals')
+                            ->valuePlaceholder('e.g. https://challonge.com/my_bracket')
+                            ->columnSpanFull()
+                            ->helperText('Set up dedicated Challonge links for different tournament stages/groups for this game title.'),
                     ])
                     ->after(fn () => $this->updateOverallTournamentPrizePool()),
             ])
             ->recordActions([
                 EditAction::make()
-                    ->label('Edit Prize Pool & Distribution')
+                    ->label('Edit Prize Pool & Challonge Brackets')
                     ->after(fn () => $this->updateOverallTournamentPrizePool()),
                 DetachAction::make()
                     ->after(fn () => $this->updateOverallTournamentPrizePool()),
