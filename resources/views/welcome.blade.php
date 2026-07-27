@@ -33,7 +33,16 @@
         $seasonVersion = $activeTournament?->season_version ?? 'SEASON UPCOMING';
         $entryFee = $activeTournament?->entry_fee ?? 100;
         $entryFeeSuffix = $activeTournament?->entry_fee_suffix ?: 'person';
-        $prizePool = $activeTournament?->prize_pool_total ?? 0;
+
+        // Calculate dynamic total prize pool from per-game allocations if present
+        $calculatedPrizePool = 0;
+        if ($activeTournament && $activeTournament->gameTitles->count() > 0) {
+            foreach ($activeTournament->gameTitles as $g) {
+                $calculatedPrizePool += (float) ($g->pivot->prize_pool ?? 0);
+            }
+        }
+        $prizePool = $calculatedPrizePool > 0 ? $calculatedPrizePool : ($activeTournament?->prize_pool_total ?? 500000);
+
         $heroHeadline = $activeTournament?->hero_headline ?: 'OUTLAW SHOWDOWN';
         $heroSubheadline = $activeTournament?->hero_subheadline ?: "Experience Nepal's ultimate competitive esports arena.";
         $registrationEnd = $activeTournament?->registration_end ? $activeTournament->registration_end->toIso8601String() : null;
@@ -137,97 +146,95 @@
             
             <!-- BRAND LOGO EMBLEM -->
             <a href="#overview" class="flex items-center gap-2 group shrink-0">
-                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full dynamic-accent-btn flex items-center justify-center font-black text-slate-950 text-xs sm:text-sm group-hover:scale-105 transition-transform duration-300">
-                    OS
-                </div>
+                @if($activeTournament?->logo_path)
+                    <img src="{{ Storage::url($activeTournament->logo_path) }}" alt="{{ $tournamentName }}" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-contain border border-cyan-500/40 p-0.5 group-hover:scale-105 transition-transform bg-slate-900">
+                @else
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full dynamic-accent-btn flex items-center justify-center font-black text-slate-950 text-xs sm:text-sm group-hover:scale-105 transition-transform duration-300">
+                        OS
+                    </div>
+                @endif
+
                 <div class="flex items-center gap-1.5 min-w-0">
-                    <span class="font-orbitron font-black text-xs sm:text-base tracking-wider text-white whitespace-nowrap">
-                        OUTLAW<span class="dynamic-accent-text">SHOWDOWN</span>
+                    <span class="font-orbitron font-black text-xs sm:text-base tracking-wider text-white whitespace-nowrap truncate max-w-[140px] sm:max-w-none">
+                        {{ $tournamentName }}
                     </span>
                     @if($activeTournament)
-                        <span class="hidden 2xl:inline-flex px-2 py-0.5 rounded-full text-[8px] font-mono-cyber font-extrabold uppercase animate-pulse" style="background-color: rgba({{ $rgb }}, 0.2); color: {{ $themeColor }}; border: 1px solid rgba({{ $rgb }}, 0.4);">LIVE</span>
+                        <span class="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[8px] font-mono-cyber font-extrabold uppercase animate-pulse" style="background-color: rgba({{ $rgb }}, 0.2); color: {{ $themeColor }}; border: 1px solid rgba({{ $rgb }}, 0.4);">LIVE</span>
                     @else
-                        <span class="hidden 2xl:inline-flex px-2 py-0.5 rounded-full text-[8px] font-mono-cyber font-extrabold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">SOON</span>
+                        <span class="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[8px] font-mono-cyber font-extrabold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">SOON</span>
                     @endif
                 </div>
             </a>
 
-            <!-- DESKTOP CENTER CAPSULE LINKS -->
-            <div class="hidden xl:flex items-center gap-1 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-800/80 text-xs font-bold tracking-wide">
-                <a href="#overview" class="nav-link active px-3.5 py-1 rounded-full text-slate-300 hover:text-white transition-all whitespace-nowrap">
-                    Overview
-                </a>
-                @if($activeTournament)
-                    <a href="#games" class="nav-link px-3.5 py-1 rounded-full text-slate-300 hover:text-white transition-all whitespace-nowrap">
-                        Esports
-                    </a>
-                    <a href="#brackets" class="nav-link px-3.5 py-1 rounded-full text-slate-300 hover:text-white transition-all whitespace-nowrap">
-                        Brackets
-                    </a>
-                @endif
-                <a href="#sponsors" class="nav-link px-3.5 py-1 rounded-full text-slate-300 hover:text-white transition-all whitespace-nowrap">
-                    Sponsors
-                </a>
-                <a href="#partners" class="nav-link px-3.5 py-1 rounded-full text-slate-300 hover:text-white transition-all whitespace-nowrap">
-                    Partners
-                </a>
-                <a href="#community" class="nav-link px-3.5 py-1 rounded-full text-slate-300 hover:text-white transition-all whitespace-nowrap">
-                    Contact
-                </a>
-            </div>
-
-            <!-- RIGHT CTA BUTTONS -->
-            <div class="hidden xl:flex items-center gap-2 shrink-0">
-                <button onclick="playCyberSound(); document.getElementById('sponsor-modal').classList.remove('hidden')" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/35 hover:bg-amber-500/25 transition-all hover:scale-105 whitespace-nowrap">
+            <!-- ACTION BUTTONS: PARTNER, LOGIN, SIGNUP & HAMBURGER MENU TRIGGER -->
+            <div class="flex items-center gap-2 shrink-0">
+                <button onclick="playCyberSound(); document.getElementById('sponsor-modal').classList.remove('hidden')" class="px-3 sm:px-4 py-1.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/35 hover:bg-amber-500/25 transition-all hover:scale-105 whitespace-nowrap">
                     🤝 Partner
                 </button>
 
                 @auth('participant')
-                    <a href="{{ url('/mukhyadwar') }}" class="px-4 py-1.5 rounded-full font-extrabold text-xs dynamic-accent-btn transition-all hover:scale-105 whitespace-nowrap">
+                    <a href="{{ url('/mukhyadwar') }}" class="px-3.5 sm:px-4 py-1.5 rounded-full font-extrabold text-xs dynamic-accent-btn transition-all hover:scale-105 whitespace-nowrap">
                         Arena Portal
                     </a>
                 @else
-                    <a href="{{ url('/mukhyadwar/login') }}" class="px-3 py-1 font-bold text-xs text-slate-300 hover:text-white transition-colors whitespace-nowrap">
+                    <a href="{{ url('/mukhyadwar/login') }}" class="hidden sm:inline-block px-3 py-1 font-bold text-xs text-slate-300 hover:text-white transition-colors whitespace-nowrap">
                         Log in
                     </a>
-                    <a href="{{ url('/mukhyadwar/register') }}" class="px-4 py-1.5 rounded-full font-extrabold text-xs bg-slate-800/90 border border-cyan-500/40 text-white hover:bg-slate-700 transition-all hover:scale-105 whitespace-nowrap">
+                    <a href="{{ url('/mukhyadwar/register') }}" class="px-3.5 sm:px-4 py-1.5 rounded-full font-extrabold text-xs bg-slate-800/90 border border-cyan-500/40 text-white hover:bg-slate-700 transition-all hover:scale-105 whitespace-nowrap">
                         Sign Up
                     </a>
                 @endauth
+
+                <!-- THREE-LINED HAMBURGER ICON BUTTON -->
+                <button id="mobile-menu-toggle" aria-label="Toggle navigation menu" class="p-1.5 sm:p-2 rounded-xl bg-slate-900 border border-cyan-500/30 text-cyan-400 focus:outline-none transition-colors hover:bg-slate-800">
+                    <svg id="hamburger-icon" class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                    <svg id="close-icon" class="w-5 h-5 hidden transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
             </div>
 
-            <!-- TABLET & MOBILE MENU COMPACT TRIGGER -->
-            <div class="flex xl:hidden items-center gap-2 shrink-0">
-                <button onclick="playCyberSound(); document.getElementById('sponsor-modal').classList.remove('hidden')" class="px-2.5 py-1.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 whitespace-nowrap">
-                    🤝 Partner
-                </button>
-                <button id="mobile-menu-toggle" aria-label="Toggle navigation menu" class="p-1.5 sm:p-2 rounded-xl bg-slate-900 border border-cyan-500/30 text-cyan-400 focus:outline-none transition-colors">
-                    <svg id="hamburger-icon" class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                    <svg id="close-icon" class="w-5 h-5 hidden transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-
-            <!-- ANIMATED FLOATING MOBILE MENU DRAWER CARD -->
-            <div id="mobile-menu-drawer" class="xl:hidden absolute top-full left-0 right-0 mt-3 rounded-2xl bg-slate-950/95 border border-cyan-500/35 backdrop-blur-2xl px-4 pt-3 pb-5 shadow-[0_20px_50px_rgba(0,0,0,0.9)] space-y-3">
+            <!-- ANIMATED HAMBURGER MENU DRAWER FOR ALL SECTION LINKS -->
+            <div id="mobile-menu-drawer" class="absolute top-full left-0 right-0 mt-3 rounded-2xl bg-slate-950/95 border border-cyan-500/35 backdrop-blur-2xl px-4 pt-3 pb-5 shadow-[0_20px_50px_rgba(0,0,0,0.9)] space-y-3">
                 <div class="flex flex-col gap-1 font-bold text-xs tracking-wide">
-                    <a href="#overview" onclick="toggleMobileMenu()" class="mobile-nav-link active px-3.5 py-2 rounded-xl bg-slate-900/80 text-slate-200">Overview</a>
+                    <a href="#overview" onclick="toggleMobileMenu()" class="mobile-nav-link active px-3.5 py-2.5 rounded-xl bg-slate-900/80 text-slate-200 hover:bg-slate-800 flex items-center justify-between">
+                        <span>Overview</span>
+                        <span class="text-[10px] text-slate-500 font-mono-cyber">#overview</span>
+                    </a>
                     @if($activeTournament)
-                        <a href="#games" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2 rounded-xl hover:bg-slate-900 text-slate-200">Esports Spotlight</a>
-                        <a href="#brackets" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2 rounded-xl hover:bg-slate-900 text-slate-200">Match Brackets</a>
+                        <a href="#games" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-slate-900 flex items-center justify-between">
+                            <span>Esports & Prize Pool</span>
+                            <span class="text-[10px] text-slate-500 font-mono-cyber">#games</span>
+                        </a>
+                        <a href="#timeline" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-slate-900 flex items-center justify-between">
+                            <span>Event Timeline</span>
+                            <span class="text-[10px] text-slate-500 font-mono-cyber">#timeline</span>
+                        </a>
+                        <a href="#brackets" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-slate-900 flex items-center justify-between">
+                            <span>Match Brackets</span>
+                            <span class="text-[10px] text-slate-500 font-mono-cyber">#brackets</span>
+                        </a>
                     @endif
-                    <a href="#sponsors" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2 rounded-xl hover:bg-slate-900 text-slate-200">Sponsors</a>
-                    <a href="#partners" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2 rounded-xl hover:bg-slate-900 text-slate-200">Partners</a>
-                    <a href="#community" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2 rounded-xl hover:bg-slate-900 text-slate-200">Contact</a>
+                    <a href="#sponsors" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-slate-900 flex items-center justify-between">
+                        <span>Sponsors</span>
+                        <span class="text-[10px] text-slate-500 font-mono-cyber">#sponsors</span>
+                    </a>
+                    <a href="#partners" onclick="toggleMobileMenu()" class="mobile-nav-link px-3.5 py-2.5 rounded-xl text-slate-200 hover:bg-slate-900 flex items-center justify-between">
+                        <span>Partners</span>
+                        <span class="text-[10px] text-slate-500 font-mono-cyber">#partners</span>
+                    </a>
                 </div>
 
-                <div class="pt-2.5 border-t border-slate-800/80 flex flex-col gap-2">
+                <div class="pt-2.5 border-t border-slate-800/80 sm:hidden flex flex-col gap-2">
                     @auth('participant')
                         <a href="{{ url('/mukhyadwar') }}" class="w-full py-2.5 rounded-xl text-center font-extrabold text-xs dynamic-accent-btn">
                             Arena Portal
                         </a>
                     @else
                         <div class="grid grid-cols-2 gap-2">
-                            <a href="{{ url('/mukhyadwar/login') }}" class="py-2 rounded-xl text-center font-bold text-xs bg-slate-900 border border-cyan-500/30">
+                            <a href="{{ url('/mukhyadwar/login') }}" class="py-2 rounded-xl text-center font-bold text-xs bg-slate-900 border border-cyan-500/30 text-white">
                                 Log in
                             </a>
                             <a href="{{ url('/mukhyadwar/register') }}" class="py-2 rounded-xl text-center font-bold text-xs bg-slate-800 border border-cyan-500/40 text-white">
@@ -250,21 +257,29 @@
             <div class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full blur-[180px] pointer-events-none animate-pulse-glow" style="background-color: rgba({{ $rgb }}, 0.2);"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-                <div class="relative min-h-[480px] sm:min-h-[520px] rounded-3xl esports-card-v2 p-6 sm:p-12 border-2 border-cyan-500/40 overflow-hidden sm:overflow-visible">
+                <div class="relative min-h-[480px] sm:min-h-[520px] rounded-3xl esports-card-v2 p-6 sm:p-12 lg:p-16 border-2 border-cyan-500/40 overflow-hidden sm:overflow-visible">
                     
                     <!-- MASCOT 1: CYBER SNIPER GIRL (HIDDEN ON MOBILE, CONTROLLED SIZE ON DESKTOP) -->
                     <div class="hidden lg:block absolute -top-14 -right-6 sm:-right-10 z-20 pointer-events-auto reveal-right animate-float-left" data-parallax-speed="18">
-                        <img src="/images/cyber_chibi_sniper_girl.png" alt="Cyber Chibi Mascot" class="w-64 lg:w-[360px] h-auto object-contain filter drop-shadow-[0_10px_35px_rgba(255,0,85,0.55)] transform hover:scale-105 transition-transform duration-300">
+                        <img src="/images/cyber_chibi_sniper_girl.png" alt="Cyber Chibi Mascot" class="w-64 lg:w-[340px] xl:w-[380px] h-auto object-contain filter drop-shadow-[0_10px_35px_rgba(255,0,85,0.55)] transform hover:scale-105 transition-transform duration-300">
                     </div>
 
                     <!-- MASCOT 2: MECHA ROBOT DRAGON (HIDDEN ON MOBILE, CONTROLLED SIZE ON DESKTOP) -->
                     <div class="hidden lg:block absolute -bottom-10 -left-6 sm:-left-10 z-20 pointer-events-auto reveal-left animate-float-right" data-parallax-speed="-14">
-                        <img src="/images/mecha_chibi_robot_dragon.png" alt="Mecha Robot Dragon Mascot" class="w-56 lg:w-[280px] h-auto object-contain filter drop-shadow-[0_10px_35px_rgba({{ $rgb }},0.55)] transform hover:scale-105 transition-transform duration-300">
+                        <img src="/images/mecha_chibi_robot_dragon.png" alt="Mecha Robot Dragon Mascot" class="w-56 lg:w-[260px] xl:w-[300px] h-auto object-contain filter drop-shadow-[0_10px_35px_rgba({{ $rgb }},0.55)] transform hover:scale-105 transition-transform duration-300">
                     </div>
 
-                    <!-- HERO INNER CENTER CONTENT -->
-                    <div class="max-w-2xl mx-auto text-center relative z-10 py-4 sm:py-6">
-                        <div class="text-xs font-mono-cyber font-bold text-slate-400 uppercase tracking-widest mb-3">
+                    <!-- HERO INNER CENTER CONTENT (SPACIOUS MAX WIDTH FOR DESKTOP VIEW) -->
+                    <div class="max-w-3xl lg:max-w-4xl mx-auto text-center relative z-10 py-4 sm:py-6">
+                        
+                        <!-- INDEPENDENT PROMINENT TOURNAMENT LOGO DISPLAY (NO ENCLOSING BOX) -->
+                        @if($activeTournament->logo_path)
+                            <div class="mb-6 flex justify-center">
+                                <img src="{{ Storage::url($activeTournament->logo_path) }}" alt="{{ $activeTournament->name }} Official Logo" class="w-28 h-28 sm:w-36 sm:h-36 lg:w-44 lg:h-44 object-contain filter drop-shadow-[0_0_25px_rgba({{ $rgb }},0.6)] transform hover:scale-105 transition-transform duration-300">
+                            </div>
+                        @endif
+
+                        <div class="text-xs sm:text-sm font-mono-cyber font-bold text-slate-400 uppercase tracking-widest mb-3">
                             The Showdown Arena • {{ $seasonVersion }}
                         </div>
 
@@ -273,30 +288,40 @@
                             <span class="dynamic-stroke-text block mb-2 break-words">{{ $heroHeadline }}</span>
                         </h1>
 
-                        <p class="text-slate-300 text-xs sm:text-base leading-relaxed mb-8 max-w-lg mx-auto">
+                        <!-- PRIZE POOL DYNAMIC BADGE -->
+                        <div class="mb-6 flex justify-center">
+                            <div class="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500/20 via-yellow-400/20 to-amber-500/20 border border-amber-400/60 shadow-[0_0_25px_rgba(251,191,36,0.35)] flex items-center gap-2">
+                                <span class="text-xl sm:text-2xl">🏆</span>
+                                <span class="font-orbitron text-sm sm:text-lg font-black text-amber-300 uppercase tracking-wider">
+                                    Total Prize Pool: NPR Rs. {{ number_format($prizePool) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <p class="text-slate-300 text-xs sm:text-base lg:text-lg leading-relaxed mb-8 max-w-2xl mx-auto font-sans">
                             {{ $heroSubheadline }}
                         </p>
 
                         @if($registrationEnd)
                             <!-- Countdown Timer -->
-                            <div id="countdown-target" data-date="{{ $registrationEnd }}" class="mb-8 p-4 rounded-2xl bg-slate-950/80 border border-cyan-500/30 max-w-sm mx-auto shadow-xl">
-                                <div class="text-[10px] font-mono-cyber font-bold text-slate-400 uppercase tracking-widest mb-2">Registration Closes In</div>
-                                <div class="grid grid-cols-4 gap-2 font-orbitron text-center">
-                                    <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
-                                        <div id="cd-days" class="text-base sm:text-2xl font-black text-white">00</div>
-                                        <div class="text-[9px] font-mono-cyber text-slate-400 mt-0.5">Days</div>
+                            <div id="countdown-target" data-date="{{ $registrationEnd }}" class="mb-8 p-4 sm:p-5 rounded-2xl bg-slate-950/80 border border-cyan-500/30 max-w-md mx-auto shadow-xl">
+                                <div class="text-[10px] sm:text-xs font-mono-cyber font-bold text-slate-400 uppercase tracking-widest mb-3">Registration Closes In</div>
+                                <div class="grid grid-cols-4 gap-2 sm:gap-3 font-orbitron text-center">
+                                    <div class="p-2 sm:p-3 rounded-xl bg-slate-900 border border-slate-800">
+                                        <div id="cd-days" class="text-base sm:text-3xl font-black text-white">00</div>
+                                        <div class="text-[9px] sm:text-xs font-mono-cyber text-slate-400 mt-0.5">Days</div>
                                     </div>
-                                    <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
-                                        <div id="cd-hours" class="text-base sm:text-2xl font-black text-white">00</div>
-                                        <div class="text-[9px] font-mono-cyber text-slate-400 mt-0.5">Hours</div>
+                                    <div class="p-2 sm:p-3 rounded-xl bg-slate-900 border border-slate-800">
+                                        <div id="cd-hours" class="text-base sm:text-3xl font-black text-white">00</div>
+                                        <div class="text-[9px] sm:text-xs font-mono-cyber text-slate-400 mt-0.5">Hours</div>
                                     </div>
-                                    <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
-                                        <div id="cd-mins" class="text-base sm:text-2xl font-black text-white">00</div>
-                                        <div class="text-[9px] font-mono-cyber text-slate-400 mt-0.5">Mins</div>
+                                    <div class="p-2 sm:p-3 rounded-xl bg-slate-900 border border-slate-800">
+                                        <div id="cd-mins" class="text-base sm:text-3xl font-black text-white">00</div>
+                                        <div class="text-[9px] sm:text-xs font-mono-cyber text-slate-400 mt-0.5">Mins</div>
                                     </div>
-                                    <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
-                                        <div id="cd-secs" class="text-base sm:text-2xl font-black dynamic-accent-text">00</div>
-                                        <div class="text-[9px] font-mono-cyber text-slate-400 mt-0.5">Secs</div>
+                                    <div class="p-2 sm:p-3 rounded-xl bg-slate-900 border border-slate-800">
+                                        <div id="cd-secs" class="text-base sm:text-3xl font-black dynamic-accent-text">00</div>
+                                        <div class="text-[9px] sm:text-xs font-mono-cyber text-slate-400 mt-0.5">Secs</div>
                                     </div>
                                 </div>
                             </div>
@@ -304,10 +329,10 @@
 
                         <!-- CTAs -->
                         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <a href="{{ url('/mukhyadwar') }}" onclick="playCyberSound()" class="w-full sm:w-auto px-8 py-3.5 rounded-xl dynamic-accent-btn font-bold text-sm tracking-wide transition-all flex items-center justify-center gap-2">
+                            <a href="{{ url('/mukhyadwar') }}" onclick="playCyberSound()" class="w-full sm:w-auto px-8 py-3.5 sm:px-10 sm:py-4 rounded-xl dynamic-accent-btn font-extrabold text-sm tracking-wide transition-all flex items-center justify-center gap-2">
                                 <span>/mukhyadwar Registration</span>
                             </a>
-                            <a href="{{ $activeTournament->discord_server_url ?: 'https://discord.gg/outlawshowdown' }}" target="_blank" onclick="playCyberSound()" class="w-full sm:w-auto px-8 py-3.5 rounded-xl btn-purple-discord font-bold text-sm tracking-wide transition-all hover:scale-105 flex items-center justify-center gap-2">
+                            <a href="{{ $activeTournament->discord_server_url ?: 'https://discord.gg/outlawshowdown' }}" target="_blank" onclick="playCyberSound()" class="w-full sm:w-auto px-8 py-3.5 sm:px-10 sm:py-4 rounded-xl btn-purple-discord font-extrabold text-sm tracking-wide transition-all hover:scale-105 flex items-center justify-center gap-2">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.093.252-.19.373-.287a.074.074 0 0 1 .078-.01c3.927 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .079.009c.12.098.245.195.372.288a.077.077 0 0 1-.006.127c-.598.35-1.22.656-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028z"/></svg>
                                 <span>Discord Community</span>
                             </a>
@@ -318,31 +343,162 @@
             </div>
         </section>
 
-        <!-- ACTIVE TOURNAMENT SPOTLIGHT -->
+        <!-- ACTIVE TOURNAMENT SPOTLIGHT & PRIZE POOL BREAKDOWN -->
         <section class="py-14 relative bg-slate-950/80 scroll-mt-20" id="games">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-left mb-10 reveal-on-scroll">
-                    <span class="px-3 py-1 rounded text-xs font-mono-cyber font-bold uppercase" style="background-color: rgba({{ $rgb }}, 0.2); color: {{ $themeColor }}; border: 1px solid rgba({{ $rgb }}, 0.4);">FEATURED TITLES</span>
+                    <span class="px-3 py-1 rounded text-xs font-mono-cyber font-bold uppercase" style="background-color: rgba({{ $rgb }}, 0.2); color: {{ $themeColor }}; border: 1px solid rgba({{ $rgb }}, 0.4);">FEATURED TITLES & PRIZE ALLOCATION</span>
                     <h2 class="font-orbitron text-2xl sm:text-4xl font-black uppercase text-white mt-2">
-                        Active Tournament Spotlight
+                        Game Titles & Dedicated Prize Pool
                     </h2>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    @foreach($gameTitles as $game)
-                        <div class="reveal-on-scroll rounded-3xl esports-card-v2 tilt-card p-6 border border-cyan-500/30 group">
-                            <div class="w-full h-44 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-5xl mb-4 group-hover:scale-105 transition-transform overflow-hidden relative">
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-10"></div>
-                                @if($game->logo_path)
-                                    <img src="{{ Storage::url($game->logo_path) }}" alt="{{ $game->name }}" class="w-24 h-24 object-contain relative z-20">
-                                @else
-                                    <span>🎮</span>
-                                @endif
+                @if($gameTitles->count() > 0)
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach($gameTitles as $game)
+                            @php
+                                $allocatedPrize = $game->pivot?->prize_pool ? (float)$game->pivot->prize_pool : 0;
+                                $distributionRaw = $game->pivot?->prize_distribution;
+                                $distributionItems = [];
+                                if (is_array($distributionRaw)) {
+                                    $distributionItems = $distributionRaw;
+                                } elseif (is_string($distributionRaw) && !empty($distributionRaw)) {
+                                    $decoded = json_decode($distributionRaw, true);
+                                    if (is_array($decoded)) {
+                                        $distributionItems = $decoded;
+                                    }
+                                }
+                            @endphp
+                            <div class="reveal-on-scroll rounded-3xl esports-card-v2 tilt-card p-6 border border-cyan-500/30 group flex flex-col justify-between">
+                                <div>
+                                    <div class="w-full h-44 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-5xl mb-4 group-hover:scale-105 transition-transform overflow-hidden relative">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-10"></div>
+                                        @if($game->logo_path)
+                                            <img src="{{ Storage::url($game->logo_path) }}" alt="{{ $game->name }}" class="w-28 h-28 object-contain relative z-20">
+                                        @else
+                                            <span>🎮</span>
+                                        @endif
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between gap-2 mb-1">
+                                        <h3 class="font-orbitron text-lg font-bold text-white group-hover:dynamic-accent-text transition-colors break-words">{{ $game->name }}</h3>
+                                        <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 uppercase font-mono-cyber font-bold shrink-0">
+                                            {{ str_replace('_', ' ', $game->game_type) }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 pt-4 border-t border-slate-800/80">
+                                    <div class="flex items-center justify-between text-xs font-mono-cyber mb-2">
+                                        <span class="text-slate-400">Allocated Prize Pool:</span>
+                                        <span class="font-black text-amber-300 text-sm">
+                                            {{ $allocatedPrize > 0 ? 'NPR Rs. ' . number_format($allocatedPrize) : 'TBD' }}
+                                        </span>
+                                    </div>
+
+                                    @if(!empty($distributionItems))
+                                        <div class="p-3 rounded-xl bg-slate-950/80 border border-amber-500/30 text-[11px] font-mono-cyber text-slate-300 leading-relaxed">
+                                            <div class="text-[9px] font-bold uppercase text-amber-400 mb-1.5 flex items-center gap-1">
+                                                <span>🏆</span>
+                                                <span>Distribution Breakdown</span>
+                                            </div>
+                                            <div class="space-y-1">
+                                                @foreach($distributionItems as $rank => $amount)
+                                                    <div class="flex items-center justify-between text-[11px]">
+                                                        <span class="text-slate-300 font-bold">{{ $rank }}</span>
+                                                        <span class="text-amber-300 font-extrabold">Rs. {{ is_numeric($amount) ? number_format((float)$amount) : $amount }}</span>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @elseif(is_string($distributionRaw) && !empty($distributionRaw))
+                                        <div class="p-3 rounded-xl bg-slate-950/80 border border-amber-500/30 text-[11px] font-mono-cyber text-slate-300 whitespace-pre-line leading-relaxed">
+                                            <div class="text-[9px] font-bold uppercase text-amber-400 mb-1">🏆 Distribution Breakdown</div>
+                                            {{ $distributionRaw }}
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
-                            <h3 class="font-orbitron text-lg font-bold text-white mb-1 group-hover:dynamic-accent-text transition-colors break-words">{{ $game->name }}</h3>
-                            <div class="text-xs text-slate-400 font-mono-cyber capitalize">{{ str_replace('_', ' ', $game->game_type) }}</div>
+                        @endforeach
+                    </div>
+                @else
+                    <!-- COMING SOON / NO TITLES SELECTED DISCLAIMER -->
+                    <div class="max-w-2xl mx-auto reveal-on-scroll">
+                        <div class="rounded-3xl esports-card-v2 p-10 text-center border border-dashed border-cyan-500/40 shadow-[0_0_40px_rgba({{ $rgb }},0.15)]">
+                            <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-cyan-500/30 flex items-center justify-center text-3xl mx-auto mb-4 animate-bounce">
+                                🎮
+                            </div>
+                            <span class="px-4 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-xs font-mono-cyber font-extrabold uppercase tracking-widest">
+                                TITLES ANNOUNCING SOON
+                            </span>
+                            <h3 class="font-orbitron text-xl sm:text-2xl font-black uppercase text-white mt-4 mb-2">
+                                Game Titles & Prize Pool Coming Soon
+                            </h3>
+                            <p class="text-slate-400 text-xs sm:text-sm font-mono-cyber max-w-md mx-auto">
+                                Tournament organizers are preparing the game title disciplines and dedicated prize pool distributions for this championship. Stay tuned!
+                            </p>
                         </div>
-                    @endforeach
+                    </div>
+                @endif
+
+                <!-- EVENT TIMELINE SECTION -->
+                <div class="mt-16 reveal-on-scroll scroll-mt-20" id="timeline">
+                    <div class="text-left mb-8">
+                        <span class="px-3 py-1 rounded text-xs font-mono-cyber font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">TOURNAMENT SCHEDULE</span>
+                        <h2 class="font-orbitron text-2xl sm:text-4xl font-black uppercase text-white mt-2">
+                            Event Timeline & Key Dates
+                        </h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- REGISTRATION OPENS -->
+                        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition-all flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-xl text-cyan-400 shrink-0">🚀</div>
+                            <div>
+                                <span class="text-[10px] font-mono-cyber font-bold text-slate-400 uppercase tracking-widest block">Phase 1</span>
+                                <h4 class="font-orbitron text-sm font-bold text-white mt-0.5">Registration Opens</h4>
+                                <p class="text-xs font-mono-cyber text-cyan-300 mt-1">
+                                    {{ $activeTournament->registration_start ? $activeTournament->registration_start->format('M d, Y • h:i A') : 'Announced Soon' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- REGISTRATION CLOSES -->
+                        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition-all flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-xl text-red-400 shrink-0">⏳</div>
+                            <div>
+                                <span class="text-[10px] font-mono-cyber font-bold text-slate-400 uppercase tracking-widest block">Phase 2</span>
+                                <h4 class="font-orbitron text-sm font-bold text-white mt-0.5">Registration Closes</h4>
+                                <p class="text-xs font-mono-cyber text-red-300 mt-1">
+                                    {{ $activeTournament->registration_end ? $activeTournament->registration_end->format('M d, Y • h:i A') : 'Announced Soon' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- TOURNAMENT START -->
+                        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition-all flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl text-amber-400 shrink-0">⚔️</div>
+                            <div>
+                                <span class="text-[10px] font-mono-cyber font-bold text-slate-400 uppercase tracking-widest block">Phase 3</span>
+                                <h4 class="font-orbitron text-sm font-bold text-white mt-0.5">Tournament Begins</h4>
+                                <p class="text-xs font-mono-cyber text-amber-300 mt-1">
+                                    {{ $activeTournament->start_date ? $activeTournament->start_date->format('M d, Y • h:i A') : 'Announced Soon' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- TOURNAMENT FINALE -->
+                        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition-all flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-xl text-emerald-400 shrink-0">👑</div>
+                            <div>
+                                <span class="text-[10px] font-mono-cyber font-bold text-slate-400 uppercase tracking-widest block">Phase 4</span>
+                                <h4 class="font-orbitron text-sm font-bold text-white mt-0.5">Grand Finals & Ceremony</h4>
+                                <p class="text-xs font-mono-cyber text-emerald-300 mt-1">
+                                    {{ $activeTournament->end_date ? $activeTournament->end_date->format('M d, Y') : 'Announced Soon' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- CHALLONGE BRACKETS SECTION -->

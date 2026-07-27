@@ -32,7 +32,9 @@ class GameTitle extends Model
 
     public function tournaments(): BelongsToMany
     {
-        return $this->belongsToMany(Tournament::class);
+        return $this->belongsToMany(Tournament::class)
+            ->withPivot(['prize_pool', 'prize_distribution'])
+            ->withTimestamps();
     }
 
     public function teams(): HasMany

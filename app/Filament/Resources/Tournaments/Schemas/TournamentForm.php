@@ -113,6 +113,25 @@ class TournamentForm
                                 ]),
                             ]),
 
+                        Tab::make('Registration Entry Fee')
+                            ->icon('heroicon-o-currency-dollar')
+                            ->schema([
+                                Grid::make(2)->schema([
+                                    TextInput::make('entry_fee')
+                                        ->label('Registration Entry Fee Amount (NPR)')
+                                        ->numeric()
+                                        ->prefix('Rs.')
+                                        ->default(100.00)
+                                        ->required(),
+                                    TextInput::make('entry_fee_suffix')
+                                        ->label('Entry Fee Suffix / Unit')
+                                        ->placeholder('e.g. person, team, head, player')
+                                        ->default('person')
+                                        ->helperText('Displayed alongside fee (e.g. Rs. 100/person, Rs. 500/team, Rs. 100/head).')
+                                        ->required(),
+                                ]),
+                            ]),
+
                         Tab::make('Sponsors & Partners Setup')
                             ->icon('heroicon-o-building-office-2')
                             ->schema([
@@ -181,30 +200,6 @@ class TournamentForm
                                         ->label('Tournament Start Date'),
                                     DateTimePicker::make('end_date')
                                         ->label('Tournament End Date'),
-                                ]),
-                            ]),
-
-                        Tab::make('Prize Pool & Entry Fee')
-                            ->icon('heroicon-o-currency-dollar')
-                            ->schema([
-                                Grid::make(2)->schema([
-                                    TextInput::make('prize_pool_total')
-                                        ->label('Total Prize Pool Amount (NPR)')
-                                        ->numeric()
-                                        ->prefix('Rs.')
-                                        ->default(500000),
-                                    TextInput::make('entry_fee')
-                                        ->label('Registration Entry Fee Amount (NPR)')
-                                        ->numeric()
-                                        ->prefix('Rs.')
-                                        ->default(100.00)
-                                        ->required(),
-                                    TextInput::make('entry_fee_suffix')
-                                        ->label('Entry Fee Suffix / Unit')
-                                        ->placeholder('e.g. person, team, head, player')
-                                        ->default('person')
-                                        ->helperText('Displayed alongside fee (e.g. Rs. 100/person, Rs. 500/team, Rs. 100/head).')
-                                        ->required(),
                                 ]),
                             ]),
                     ])

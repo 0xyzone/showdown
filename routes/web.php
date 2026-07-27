@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\GameTitle;
 use App\Models\Partner;
 use App\Models\Sponsor;
 use App\Models\Tournament;
@@ -36,9 +35,8 @@ Route::get('/', function () {
             return strtolower($partner->level ?: 'official');
         });
 
-    $gameTitles = $activeTournament && $activeTournament->gameTitles->count() > 0
-        ? $activeTournament->gameTitles
-        : GameTitle::all();
+    // Strictly load only the game titles linked to the active tournament
+    $gameTitles = $activeTournament ? $activeTournament->gameTitles : collect();
 
     $challongeService = new ChallongeService;
     $challongeEmbedUrl = $activeTournament?->challonge_embed_url

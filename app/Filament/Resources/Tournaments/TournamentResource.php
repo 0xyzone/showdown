@@ -6,6 +6,7 @@ use App\Filament\Resources\Tournaments\Pages\CreateTournament;
 use App\Filament\Resources\Tournaments\Pages\EditTournament;
 use App\Filament\Resources\Tournaments\Pages\ListTournaments;
 use App\Filament\Resources\Tournaments\Pages\ViewTournament;
+use App\Filament\Resources\Tournaments\RelationManagers\GameTitlesRelationManager;
 use App\Filament\Resources\Tournaments\Schemas\TournamentForm;
 use App\Filament\Resources\Tournaments\Schemas\TournamentInfolist;
 use App\Filament\Resources\Tournaments\Tables\TournamentsTable;
@@ -46,7 +47,7 @@ class TournamentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            GameTitlesRelationManager::class,
         ];
     }
 
