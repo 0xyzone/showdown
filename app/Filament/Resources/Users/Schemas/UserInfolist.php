@@ -20,6 +20,7 @@ class UserInfolist
                         Grid::make(3)->schema([
                             ImageEntry::make('avatar_url')
                                 ->label('Profile Photo')
+                                ->imageGallery()
                                 ->circular()
                                 ->disk('public')
                                 ->columnSpan(1),
@@ -67,10 +68,12 @@ class UserInfolist
                             ImageEntry::make('citizenship_image')
                                 ->label('Citizenship Document')
                                 ->disk('public')
+                                ->imageGallery()
                                 ->placeholder('No image uploaded'),
                             ImageEntry::make('qr_code_image')
                                 ->label('QR Code')
                                 ->disk('public')
+                                ->imageGallery()
                                 ->placeholder('No image uploaded'),
                         ]),
                     ]),

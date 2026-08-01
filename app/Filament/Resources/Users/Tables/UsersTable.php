@@ -22,6 +22,7 @@ class UsersTable
         return $table
             ->columns([
                 ImageColumn::make('avatar_url')
+                    ->imageGallery()
                     ->label('Avatar')
                     ->circular()
                     ->disk('public'),
@@ -58,7 +59,7 @@ class UsersTable
             ])
             ->filters([
                 Filter::make('active')
-                    ->query(fn (Builder $query) => $query->where('is_active', true)),
+                    ->query(fn(Builder $query) => $query->where('is_active', true)),
                 SelectFilter::make('roles')
                     ->relationship('roles', 'name'),
             ])
