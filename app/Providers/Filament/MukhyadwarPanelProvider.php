@@ -53,7 +53,7 @@ class MukhyadwarPanelProvider extends PanelProvider
             ->widgets([
                 OngoingTournamentWidget::class,
                 ParticipantStatsOverview::class,
-                AccountWidget::class,
+                // AccountWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

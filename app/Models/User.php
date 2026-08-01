@@ -21,6 +21,7 @@ use Spatie\Permission\Traits\HasRoles;
     'name',
     'email',
     'password',
+    'must_change_password',
     'avatar_url',
     'username',
     'phone',
@@ -61,6 +62,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'must_change_password' => 'boolean',
             'custom_fields' => 'array',
         ];
     }

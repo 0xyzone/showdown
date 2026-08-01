@@ -23,6 +23,11 @@ class UserObserver
      */
     public function updating(User $user): void
     {
+        // Automatically clear must_change_password flag when user changes password
+        if ($user->isDirty('password')) {
+            $user->must_change_password = false;
+        }
+
         $disk = Storage::disk(config('filament-edit-profile.disk', 'public'));
 
         foreach ($this->fileFields as $field) {

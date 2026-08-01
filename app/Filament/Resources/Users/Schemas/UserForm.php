@@ -34,9 +34,10 @@ class UserForm
                             TextInput::make('password')
                                 ->label('Password')
                                 ->password()
+                                ->helperText(fn (string $operation): ?string => $operation === 'create' ? 'Password will be automatically generated and emailed to the member.' : 'Leave empty to keep the existing password.')
                                 ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                                 ->dehydrated(fn ($state) => filled($state))
-                                ->required(fn (string $operation): bool => $operation === 'create')
+                                ->visible(fn (string $operation): bool => $operation !== 'create')
                                 ->maxLength(255),
                             Select::make('roles')
                                 ->relationship('roles', 'name')

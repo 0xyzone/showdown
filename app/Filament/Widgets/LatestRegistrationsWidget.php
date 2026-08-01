@@ -3,12 +3,15 @@
 namespace App\Filament\Widgets;
 
 use App\Models\TournamentRegistration;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 
 class LatestRegistrationsWidget extends BaseWidget
 {
+    use HasWidgetShield;
+
     protected int|string|array $columnSpan = 'full';
 
     protected static ?string $heading = 'Recent Team Registrations';

@@ -5,11 +5,14 @@ namespace App\Filament\Widgets;
 use App\Models\SponsorQuery;
 use App\Models\Tournament;
 use App\Models\TournamentRegistration;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class TournamentStatsOverview extends BaseWidget
 {
+    use HasWidgetShield;
+
     protected function getStats(): array
     {
         $activeTournament = Tournament::where('is_active', true)->first();

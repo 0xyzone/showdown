@@ -4,12 +4,15 @@ namespace App\Filament\Widgets;
 
 use App\Models\Expense;
 use App\Models\Income;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Carbon;
 
 class IncomeExpenseChart extends ChartWidget
 {
+    use HasWidgetShield;
+
     protected static ?int $sort = 2;
 
     public function getHeading(): string|Htmlable|null
