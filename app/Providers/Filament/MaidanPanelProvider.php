@@ -15,6 +15,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Width;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -36,6 +37,9 @@ class MaidanPanelProvider extends PanelProvider
             ->path('maidan')
             ->viteTheme('resources/css/filament/maidan/theme.css')
             ->login(CustomLogin::class)
+            ->sidebarCollapsibleOnDesktop()
+            ->maxContentWidth(Width::Full)
+            ->databaseNotifications()
             ->userMenuItems([
                 'edit-profile' => MenuItem::make()
                     ->label('Edit Profile')
