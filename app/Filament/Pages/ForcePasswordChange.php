@@ -47,11 +47,13 @@ class ForcePasswordChange extends Page implements HasForms
                 TextInput::make('current_password')
                     ->label('Current / Auto-generated Password')
                     ->password()
+                    ->revealable()
                     ->required()
                     ->currentPassword(),
 
                 TextInput::make('password')
                     ->label('New Password')
+                    ->revealable()
                     ->password()
                     ->required()
                     ->rule(Password::default())
@@ -59,6 +61,7 @@ class ForcePasswordChange extends Page implements HasForms
 
                 TextInput::make('password_confirmation')
                     ->label('Confirm New Password')
+                    ->revealable()
                     ->password()
                     ->required(),
             ]);
