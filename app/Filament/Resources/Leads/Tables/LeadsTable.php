@@ -47,6 +47,7 @@ class LeadsTable
             ->filters([
                 //
             ])
+            ->poll('10s')
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
