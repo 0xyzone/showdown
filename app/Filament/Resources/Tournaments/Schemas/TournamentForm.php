@@ -113,10 +113,17 @@ class TournamentForm
                                 ]),
                             ]),
 
-                        Tab::make('Registration Entry Fee')
+                        Tab::make('Registration & Admission Pricing')
                             ->icon('heroicon-o-currency-dollar')
                             ->schema([
-                                Grid::make(2)->schema([
+                                Grid::make(3)->schema([
+                                    TextInput::make('ticket_price')
+                                        ->label('Admission Ticket Price (NPR)')
+                                        ->numeric()
+                                        ->prefix('Rs.')
+                                        ->default(150.00)
+                                        ->helperText('Default ticket unit price for audience admission.')
+                                        ->required(),
                                     TextInput::make('entry_fee')
                                         ->label('Registration Entry Fee Amount (NPR)')
                                         ->numeric()
@@ -127,7 +134,7 @@ class TournamentForm
                                         ->label('Entry Fee Suffix / Unit')
                                         ->placeholder('e.g. person, team, head, player')
                                         ->default('person')
-                                        ->helperText('Displayed alongside fee (e.g. Rs. 100/person, Rs. 500/team, Rs. 100/head).')
+                                        ->helperText('Displayed alongside fee (e.g. Rs. 100/person).')
                                         ->required(),
                                 ]),
                             ]),

@@ -35,6 +35,7 @@ class MaidanPanelProvider extends PanelProvider
             ->default()
             ->id('maidan')
             ->path('maidan')
+            ->authGuard('web')
             ->viteTheme('resources/css/filament/maidan/theme.css')
             ->login(CustomLogin::class)
             ->sidebarCollapsibleOnDesktop()

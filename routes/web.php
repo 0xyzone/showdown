@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TicketVerificationController;
 use App\Models\Partner;
 use App\Models\Sponsor;
 use App\Models\Tournament;
@@ -76,3 +77,11 @@ Route::get('/test-error/{code}', function ($code) {
     }
     abort(404);
 });
+
+// Standalone Ticket Verification & Attendee Check-In
+Route::get('/ticket/verify/{token?}', [TicketVerificationController::class, 'show'])->name('ticket.verify');
+Route::post('/ticket/verify/{token}/check-in', [TicketVerificationController::class, 'markAttended'])->name('ticket.check-in');
+
+// Secure Admin Ticket & Receipt Downloads
+Route::get('/admin/ticket-purchases/{purchase}/pdf', [TicketVerificationController::class, 'downloadPdf'])->name('admin.ticket-purchases.pdf');
+Route::get('/admin/ticket-purchases/{purchase}/receipt', [TicketVerificationController::class, 'downloadReceipt'])->name('admin.ticket-purchases.receipt');

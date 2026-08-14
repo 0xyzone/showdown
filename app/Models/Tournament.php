@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'is_active',
     'theme_color',
     'prize_pool_total',
+    'ticket_price',
     'entry_fee',
     'entry_fee_suffix',
     'min_main_players',
@@ -51,6 +52,7 @@ class Tournament extends Model
             'registration_start' => 'datetime',
             'registration_end' => 'datetime',
             'prize_pool_total' => 'decimal:2',
+            'ticket_price' => 'decimal:2',
             'entry_fee' => 'decimal:2',
             'is_active' => 'boolean',
             'min_main_players' => 'integer',
@@ -88,6 +90,21 @@ class Tournament extends Model
         return $this->belongsToMany(GameTitle::class)
             ->withPivot(['prize_pool', 'prize_distribution'])
             ->withTimestamps();
+    }
+
+    public function tournamentRegistrations(): HasMany
+    {
+        return $this->hasMany(TournamentRegistration::class);
+    }
+
+    public function ticketPurchases(): HasMany
+    {
+        return $this->hasMany(TicketPurchase::class);
+    }
+
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
     }
 
     public function registrations(): HasMany
