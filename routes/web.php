@@ -3,11 +3,19 @@
 use App\Models\Partner;
 use App\Models\Sponsor;
 use App\Models\Tournament;
-use App\Services\ChallongeService;
+use App\Models\TournamentRegistration;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    $activeTournament = Tournament::where('is_active', true)->with('gameTitles')->first();
+    $activeTournament = Tournament::where('is_active', true)
+        ->with(['gameTitles'])
+        ->first();
+
+    $otherTournaments = Tournament::where('id', '!=', $activeTournament?->id ?? 0)
+        ->with(['gameTitles'])
+        ->orderBy('start_date', 'asc')
+        ->take(4)
+        ->get();
 
     $sponsors = Sponsor::where('is_active', true)
         ->where(function ($query) use ($activeTournament) {
@@ -35,49 +43,28 @@ Route::get('/', function () {
             return strtolower($partner->level ?: 'official');
         });
 
-    // Strictly load only the game titles linked to the active tournament
     $gameTitles = $activeTournament ? $activeTournament->gameTitles : collect();
 
-    $challongeService = new ChallongeService;
-    $gameChallongeEmbeds = [];
+    // Approved contender teams for the active tournament
+    $approvedRegistrations = $activeTournament ? TournamentRegistration::where('tournament_id', $activeTournament->id)
+        ->where('status', 'approved')
+        ->with(['team.gameTitle', 'registeredBy'])
+        ->latest()
+        ->take(12)
+        ->get() : collect();
 
-    foreach ($gameTitles as $game) {
-        $rawChallonge = $game->pivot?->challonge_url;
-        $items = [];
-
-        if (is_array($rawChallonge)) {
-            $items = $rawChallonge;
-        } elseif (is_string($rawChallonge) && ! empty($rawChallonge)) {
-            $decoded = json_decode($rawChallonge, true);
-            if (is_array($decoded)) {
-                $items = $decoded;
-            } else {
-                $items = ['Official Bracket' => $rawChallonge];
-            }
-        }
-
-        $parsedLinks = [];
-        foreach ($items as $label => $url) {
-            if (empty($url)) {
-                continue;
-            }
-            $embed = str_contains($url, '/module') ? $url : $challongeService->getEmbedUrl($url);
-            $parsedLinks[] = [
-                'label' => is_numeric($label) ? 'Bracket' : $label,
-                'url' => $url,
-                'embed_url' => $embed,
-            ];
-        }
-
-        $gameChallongeEmbeds[$game->id] = $parsedLinks;
-    }
+    $registrationCount = $activeTournament
+        ? TournamentRegistration::where('tournament_id', $activeTournament->id)->count()
+        : 0;
 
     return view('welcome', compact(
         'sponsors',
         'partners',
         'gameTitles',
         'activeTournament',
-        'gameChallongeEmbeds'
+        'otherTournaments',
+        'approvedRegistrations',
+        'registrationCount'
     ));
 });
 

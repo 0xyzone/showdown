@@ -59,7 +59,7 @@ class UsersTable
             ])
             ->filters([
                 Filter::make('active')
-                    ->query(fn(Builder $query) => $query->where('is_active', true)),
+                    ->query(fn (Builder $query) => $query->where('is_active', true)),
                 SelectFilter::make('roles')
                     ->relationship('roles', 'name'),
             ])

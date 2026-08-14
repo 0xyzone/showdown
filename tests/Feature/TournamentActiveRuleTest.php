@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\GameTitle;
 use App\Models\Tournament;
-use App\Services\ChallongeService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -53,11 +52,21 @@ class TournamentActiveRuleTest extends TestCase
         $this->assertTrue($t1->fresh()->is_active);
     }
 
-    public function test_challonge_service_embed_url(): void
+    public function test_tournament_has_game_titles_relationship(): void
     {
-        $service = new ChallongeService;
-        $url = $service->getEmbedUrl('https://challonge.com/outlaw_showdown_2026');
+        $game = GameTitle::create(['name' => 'PUBG Mobile', 'slug' => 'pubg-mobile', 'game_type' => 'battle_royale']);
 
-        $this->assertEquals('https://challonge.com/outlaw_showdown_2026/module', $url);
+        $t1 = Tournament::create([
+            'name' => 'Tournament 1',
+            'slug' => 'tournament-1',
+            'is_active' => true,
+        ]);
+        $t1->gameTitles()->attach($game, [
+            'prize_pool' => 50000,
+            'prize_distribution' => json_encode(['1st Place' => '30000']),
+        ]);
+
+        $this->assertCount(1, $t1->fresh()->gameTitles);
+        $this->assertEquals(50000, $t1->fresh()->gameTitles->first()->pivot->prize_pool);
     }
 }

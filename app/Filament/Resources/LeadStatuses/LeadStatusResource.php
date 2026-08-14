@@ -20,6 +20,7 @@ class LeadStatusResource extends Resource
     protected static ?string $model = LeadStatus::class;
 
     protected static string|UnitEnum|null $navigationGroup = 'Leads';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';

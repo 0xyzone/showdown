@@ -86,7 +86,7 @@ class Tournament extends Model
     public function gameTitles(): BelongsToMany
     {
         return $this->belongsToMany(GameTitle::class)
-            ->withPivot(['prize_pool', 'prize_distribution', 'challonge_url'])
+            ->withPivot(['prize_pool', 'prize_distribution'])
             ->withTimestamps();
     }
 

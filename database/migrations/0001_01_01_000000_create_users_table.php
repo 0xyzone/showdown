@@ -25,11 +25,11 @@ return new class extends Migration
             $table->string('citizenship_number')->unique()->nullable();
             $table->string('citizenship_image')->nullable();
             $table->string('qr_code_image')->nullable();
-            
+
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
 
-            $table->boolean('is_active')->default(TRUE);
+            $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();
         });

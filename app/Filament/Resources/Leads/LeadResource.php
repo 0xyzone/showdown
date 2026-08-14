@@ -20,6 +20,7 @@ class LeadResource extends Resource
     protected static ?string $model = Lead::class;
 
     protected static string|UnitEnum|null $navigationGroup = 'Leads';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'company_name';

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Models\Lead;
 use App\Observers\UserObserver;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
@@ -76,8 +75,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     /**
      * Get all of the leads for the User
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function leads(): HasMany
     {

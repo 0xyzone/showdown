@@ -78,7 +78,7 @@ class EsportsTournamentSeeder extends Seeder
 
         $t1->update([
             'hero_headline' => 'UNLEASH THE LEGEND, CLAIM YOUR GLORY',
-            'hero_subheadline' => "Nepal's premier national esports championship stage is live! Register your squad for multi-game title disciplines and follow live brackets on Challonge.com.",
+            'hero_subheadline' => "Nepal's premier national esports championship stage is live! Register your squad for multi-game title disciplines.",
             'entry_fee' => 100.00,
             'is_active' => true,
             'min_main_players' => 5,
@@ -90,32 +90,26 @@ class EsportsTournamentSeeder extends Seeder
             $pubg->id => [
                 'prize_pool' => 150000.00,
                 'prize_distribution' => json_encode(['1st Place' => '80000', '2nd Place' => '45000', '3rd Place' => '25000']),
-                'challonge_url' => json_encode(['Group A' => 'https://challonge.com/outlaw_pubg_group_a', 'Grand Finals' => 'https://challonge.com/outlaw_pubg_finals']),
             ],
             $mlbbOpen->id => [
                 'prize_pool' => 120000.00,
                 'prize_distribution' => json_encode(['1st Place' => '65000', '2nd Place' => '35000', '3rd Place' => '20000']),
-                'challonge_url' => json_encode(['Playoffs' => 'https://challonge.com/outlaw_mlbb_playoffs']),
             ],
             $mlbbWomens->id => [
                 'prize_pool' => 80000.00,
                 'prize_distribution' => json_encode(['1st Place' => '45000', '2nd Place' => '25000', '3rd Place' => '10000']),
-                'challonge_url' => json_encode(['Main Bracket' => 'https://challonge.com/outlaw_mlbb_women']),
             ],
             $efootball->id => [
                 'prize_pool' => 50000.00,
                 'prize_distribution' => json_encode(['1st Place' => '30000', '2nd Place' => '15000', '3rd Place' => '5000']),
-                'challonge_url' => json_encode(['Swiss Stage' => 'https://challonge.com/outlaw_efootball_swiss']),
             ],
             $valorant->id => [
                 'prize_pool' => 80000.00,
                 'prize_distribution' => json_encode(['1st Place' => '45000', '2nd Place' => '25000', '3rd Place' => '10000']),
-                'challonge_url' => json_encode(['Knockout Stage' => 'https://challonge.com/outlaw_valorant_ko']),
             ],
             $cosplay->id => [
                 'prize_pool' => 20000.00,
                 'prize_distribution' => json_encode(['Best Cosplayer' => '12000', 'Runner-up' => '8000']),
-                'challonge_url' => null,
             ],
         ]);
 

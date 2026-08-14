@@ -5,210 +5,136 @@
 @source '../../resources/views/**/*.blade.php';
 
 @theme {
-    --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
-    --font-orbitron: 'Orbitron', sans-serif;
+    --font-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+    --font-display: 'Orbitron', 'Space Grotesk', sans-serif;
+    --font-mono: 'Space Grotesk', monospace;
 }
 
-/* Deep Cyber-Neon Base */
-.cyber-bg {
-    background-color: #0b0e14;
+/* Master Precision Dark Theme Variables */
+:root {
+    --bg-dark: #05070a;
+    --bg-card: rgba(13, 17, 24, 0.7);
+    --bg-card-hover: rgba(18, 23, 33, 0.9);
+    --bg-elevated: #0f131a;
+    --border-hairline: rgba(255, 255, 255, 0.07);
+    --border-highlight: rgba(255, 255, 255, 0.16);
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: #e2e8f0;
+    font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    letter-spacing: -0.015em;
+}
+
+.font-display {
+    font-family: 'Orbitron', sans-serif;
+}
+
+.font-mono-tech {
+    font-family: 'Space Grotesk', monospace;
+}
+
+/* Technical Precision Background Mesh */
+.editorial-bg {
+    background-color: var(--bg-dark);
     background-image: 
-        radial-gradient(circle at 50% 10%, rgba(var(--accent-rgb, 0, 240, 255), 0.16) 0%, transparent 60%),
-        radial-gradient(circle at 85% 85%, rgba(255, 0, 85, 0.12) 0%, transparent 55%),
-        linear-gradient(to right, rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
-    background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        radial-gradient(ellipse 90% 40% at 50% 0%, rgba(var(--primary-rgb), 0.16) 0%, transparent 60%),
+        linear-gradient(180deg, rgba(5, 7, 10, 0) 0%, var(--bg-dark) 100%);
+    background-attachment: fixed;
 }
 
-.font-orbitron {
-    font-family: 'Orbitron', 'Outfit', sans-serif;
+/* Technical Grid Lines */
+.tech-grid {
+    background-size: 48px 48px;
+    background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
 }
 
-/* Neon Text Strokes matching image_0.png */
-.text-neon-cyan {
-    color: #00f0ff;
-    text-shadow: 0 0 15px rgba(0, 240, 255, 0.7), 0 0 30px rgba(0, 240, 255, 0.4);
-}
-
-.text-neon-pink {
-    color: #ff0055;
-    text-shadow: 0 0 15px rgba(255, 0, 85, 0.7), 0 0 30px rgba(255, 0, 85, 0.4);
-}
-
-.text-stroke-cyan {
-    -webkit-text-stroke: 1.8px #00f0ff;
-    color: transparent;
-    text-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
-}
-
-.text-stroke-pink {
-    -webkit-text-stroke: 1.8px #ff0055;
-    color: transparent;
-    text-shadow: 0 0 20px rgba(255, 0, 85, 0.6);
-}
-
-/* Image 0 Glassmorphism Cards */
-.esports-card-v2 {
-    background: rgba(15, 22, 36, 0.88);
-    -webkit-backdrop-filter: blur(20px);
+/* Precision Component Framing */
+.editorial-card {
+    background: var(--bg-card);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(0, 240, 255, 0.25);
-    border-radius: 24px;
-    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.5);
-    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-hairline);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.esports-card-v2:hover {
-    border-color: rgba(0, 240, 255, 0.75);
-    box-shadow: 0 20px 50px -10px rgba(0, 240, 255, 0.35);
+.editorial-card:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(var(--primary-rgb), 0.35);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.8), 0 0 25px -5px rgba(var(--primary-rgb), 0.15);
 }
 
-/* Primary Button Styling matching image_0.png */
-.btn-primary-cyan {
-    background: #00f0ff;
-    color: #0b0e14;
-    font-weight: 900;
-    box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
-    transition: all 0.3s ease;
+.editorial-card-featured {
+    background: linear-gradient(135deg, rgba(16, 21, 30, 0.85) 0%, rgba(10, 13, 19, 0.95) 100%);
+    border: 1px solid rgba(var(--primary-rgb), 0.3);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 40px -10px rgba(var(--primary-rgb), 0.2);
 }
 
-.btn-primary-cyan:hover {
-    background: #33f3ff;
-    box-shadow: 0 0 40px rgba(0, 240, 255, 0.9);
-    transform: translateY(-2px);
-}
-
-.btn-purple-discord {
-    background: #5865F2;
-    color: #ffffff;
+/* High-Impact Master Action Button */
+.btn-primary-action {
+    background-color: var(--primary);
+    color: var(--text-on-primary);
     font-weight: 800;
-    box-shadow: 0 0 25px rgba(88, 101, 242, 0.5);
-    transition: all 0.3s ease;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 20px -3px rgba(var(--primary-rgb), 0.45);
 }
 
-.btn-purple-discord:hover {
-    background: #6975f4;
-    box-shadow: 0 0 40px rgba(88, 101, 242, 0.8);
-    transform: translateY(-2px);
+.btn-primary-action:hover {
+    filter: brightness(1.12);
+    box-shadow: 0 8px 30px -4px rgba(var(--primary-rgb), 0.7);
+    transform: translateY(-1px);
 }
 
-.clip-corner-sm {
-    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+.btn-primary-action:active {
+    transform: translateY(0);
 }
 
-.scanlines {
-    background: linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0),
-        rgba(255, 255, 255, 0) 50%,
-        rgba(0, 240, 255, 0.03) 50%,
-        rgba(0, 240, 255, 0.03)
-    );
-    background-size: 100% 4px;
+.btn-secondary-action {
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
+    border: 1px solid var(--border-hairline);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    transition: all 0.2s ease;
 }
 
-/* Reactive Cursor Ring */
-#cursor-dot {
-    width: 8px;
-    height: 8px;
-    background-color: #00f0ff;
-    border-radius: 50%;
-    position: fixed;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    transition: transform 0.05s ease-out;
-    box-shadow: 0 0 12px #00f0ff;
+.btn-secondary-action:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(var(--primary-rgb), 0.4);
+    color: #ffffff;
+    transform: translateY(-1px);
 }
 
-#cursor-ring {
-    width: 36px;
-    height: 36px;
-    border: 2px solid rgba(0, 240, 255, 0.6);
-    border-radius: 50%;
-    position: fixed;
-    pointer-events: none;
-    z-index: 9998;
-    transform: translate(-50%, -50%);
-    transition: transform 0.15s ease-out;
-    box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+/* Precision Badges */
+.status-pill {
+    background-color: rgba(var(--primary-rgb), 0.12);
+    color: var(--primary);
+    border: 1px solid rgba(var(--primary-rgb), 0.28);
 }
 
-/* Float Animations matching Requirement 2 */
-@keyframes float-mascot-left {
-    0%, 100% { transform: translateY(0px) rotate(-2deg); }
-    50% { transform: translateY(-16px) rotate(3deg); }
+/* Clean Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
 }
 
-.animate-float-left {
-    animation: float-mascot-left 5.5s ease-in-out infinite;
-    will-change: transform;
+::-webkit-scrollbar-track {
+    background: #05070a;
 }
 
-@keyframes float-mascot-right {
-    0%, 100% { transform: translateY(0px) rotate(2deg); }
-    50% { transform: translateY(-20px) rotate(-3deg); }
+::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 3px;
 }
 
-.animate-float-right {
-    animation: float-mascot-right 6s ease-in-out infinite;
-    will-change: transform;
-}
-
-@keyframes float-gentle {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-}
-
-.animate-float-gentle {
-    animation: float-gentle 4.5s ease-in-out infinite;
-}
-
-/* Continuous Infinite Marquee Loop */
-@keyframes infinite-scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-}
-
-.animate-infinite-scroll {
-    animation: infinite-scroll 25s linear infinite;
-    width: max-content;
-}
-
-.animate-infinite-scroll:hover {
-    animation-play-state: paused;
-}
-
-/* Gold Sweep Light Effect for Partners & Sponsors */
-@keyframes gold-shine-sweep {
-    0% { transform: translateX(-150%) skewX(-25deg); }
-    100% { transform: translateX(250%) skewX(-25deg); }
-}
-
-.animate-gold-shine {
-    animation: gold-shine-sweep 4s ease-in-out infinite;
-}
-
-/* Gold Glow Pulse */
-@keyframes gold-pulse-glow {
-    0%, 100% { box-shadow: 0 0 20px rgba(234, 179, 8, 0.2), inset 0 0 15px rgba(234, 179, 8, 0.1); }
-    50% { box-shadow: 0 0 35px rgba(234, 179, 8, 0.45), inset 0 0 25px rgba(234, 179, 8, 0.25); }
-}
-
-.gold-glow-card {
-    animation: gold-pulse-glow 3.5s ease-in-out infinite;
-}
-
-/* Scroll Reveal */
-.reveal-on-scroll {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: opacity, transform;
-}
-
-.reveal-on-scroll.active {
-    opacity: 1;
-    transform: translateY(0px);
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--primary-rgb), 0.6);
 }
