@@ -107,6 +107,11 @@ class Tournament extends Model
         return $this->hasMany(Ticket::class);
     }
 
+    public function paymentMethods(): BelongsToMany
+    {
+        return $this->belongsToMany(PaymentMethod::class);
+    }
+
     public function registrations(): HasMany
     {
         return $this->hasMany(TournamentRegistration::class);

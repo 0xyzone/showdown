@@ -139,7 +139,7 @@ class TournamentForm
                                 ]),
                             ]),
 
-                        Tab::make('Sponsors & Partners Setup')
+                        Tab::make('Sponsors, Partners & Payment Methods')
                             ->icon('heroicon-o-building-office-2')
                             ->schema([
                                 Grid::make(2)->schema([
@@ -155,6 +155,13 @@ class TournamentForm
                                         ->multiple()
                                         ->preload()
                                         ->helperText('Select the media and event partners assigned to this tournament.'),
+                                    Select::make('paymentMethods')
+                                        ->label('Allowed Payment Methods for Ticket Sales & Registration')
+                                        ->relationship('paymentMethods', 'name')
+                                        ->multiple()
+                                        ->preload()
+                                        ->helperText('Choose which payment methods are accepted for this tournament.')
+                                        ->columnSpanFull(),
                                 ]),
                             ]),
 

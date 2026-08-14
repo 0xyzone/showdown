@@ -21,32 +21,54 @@ class TicketPurchaseForm
     {
         return $schema
             ->components([
-                Section::make('Customer & Tournament')
-                    ->description('Enter attendee details and tournament selection. Customer account NOT required.')
-                    ->icon('heroicon-o-ticket')
+                Section::make('Tournament Selection')
+                    ->description('Select the tournament first to unlock customer details, pricing, and available payment methods.')
+                    ->icon('heroicon-o-trophy')
                     ->schema([
-                        Grid::make(3)->schema([
-                            Select::make('tournament_id')
-                                ->label('Tournament')
-                                ->relationship('tournament', 'name')
-                                ->searchable()
-                                ->preload()
-                                ->required()
-                                ->live()
-                                ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
-                                    if ($state) {
-                                        $t = Tournament::find($state);
-                                        $price = $t ? (float) $t->ticket_price : 0;
-                                        $set('unit_price', $price);
-                                        $qty = (int) ($get('quantity') ?: 1);
-                                        $set('total_amount', $qty * $price);
-                                    }
-                                }),
+                        Select::make('tournament_id')
+                            ->label('Select Tournament')
+                            ->relationship('tournament', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                if ($state) {
+                                    $t = Tournament::find($state);
+                                    $price = $t ? (float) $t->ticket_price : 0;
+                                    $set('unit_price', $price);
+                                    $qty = (int) ($get('quantity') ?: 1);
+                                    $set('total_amount', $qty * $price);
 
+                                    // Reset selected payment method if it does not belong to new tournament
+                                    $currentMethodId = $get('payment_method_id');
+                                    if ($currentMethodId && $t) {
+                                        $allowed = $t->paymentMethods()->where('payment_methods.id', $currentMethodId)->exists();
+                                        if (! $allowed) {
+                                            $set('payment_method_id', null);
+                                            $set('payment_source', null);
+                                        }
+                                    }
+                                } else {
+                                    $set('unit_price', 0);
+                                    $set('total_amount', 0);
+                                    $set('payment_method_id', null);
+                                    $set('payment_source', null);
+                                }
+                            }),
+                    ]),
+
+                Section::make('Customer Details')
+                    ->description('Customer account NOT required. Enter attendee contact information.')
+                    ->icon('heroicon-o-user')
+                    ->disabled(fn (Get $get): bool => ! filled($get('tournament_id')))
+                    ->schema([
+                        Grid::make(2)->schema([
                             TextInput::make('customer_name')
                                 ->label('Customer Name')
                                 ->placeholder('Full Name of Purchaser')
                                 ->required()
+                                ->disabled(fn (Get $get): bool => ! filled($get('tournament_id')))
                                 ->maxLength(255),
 
                             TextInput::make('customer_phone')
@@ -54,13 +76,15 @@ class TicketPurchaseForm
                                 ->placeholder('e.g. 98XXXXXXXX')
                                 ->required()
                                 ->tel()
+                                ->disabled(fn (Get $get): bool => ! filled($get('tournament_id')))
                                 ->maxLength(20),
                         ]),
                     ]),
 
                 Section::make('Ticket Quantity & Pricing Calculation')
-                    ->description('Specify ticket count and automatic amount calculation.')
+                    ->description('Ticket count and automatic total calculation based on tournament price.')
                     ->icon('heroicon-o-calculator')
+                    ->disabled(fn (Get $get): bool => ! filled($get('tournament_id')))
                     ->schema([
                         Grid::make(3)->schema([
                             TextInput::make('quantity')
@@ -70,6 +94,7 @@ class TicketPurchaseForm
                                 ->maxValue(50)
                                 ->default(1)
                                 ->required()
+                                ->disabled(fn (Get $get): bool => ! filled($get('tournament_id')))
                                 ->live()
                                 ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
                                     $qty = (int) ($state ?: 1);
@@ -82,6 +107,7 @@ class TicketPurchaseForm
                                 ->numeric()
                                 ->prefix('Rs.')
                                 ->required()
+                                ->disabled(fn (Get $get): bool => ! filled($get('tournament_id')))
                                 ->live()
                                 ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
                                     $unitPrice = (float) ($state ?: 0);
@@ -99,17 +125,42 @@ class TicketPurchaseForm
                         ]),
                     ]),
 
-                Section::make('Manual Payment Confirmation & Receipt')
-                    ->description('Select payment source and record receipt.')
+                Section::make('Payment Method & Receipt')
+                    ->description('Select payment source allowed for this tournament and record receipt.')
                     ->icon('heroicon-o-banknotes')
+                    ->disabled(fn (Get $get): bool => ! filled($get('tournament_id')))
                     ->schema([
                         Grid::make(2)->schema([
                             Select::make('payment_method_id')
-                                ->label('Payment Source / Method')
-                                ->options(PaymentMethod::where('is_active', true)->orderBy('order')->pluck('name', 'id'))
+                                ->label('Tournament Payment Method')
+                                ->options(function (Get $get) {
+                                    $tournamentId = $get('tournament_id');
+                                    if (! $tournamentId) {
+                                        return [];
+                                    }
+
+                                    $tournament = Tournament::find($tournamentId);
+                                    if (! $tournament) {
+                                        return [];
+                                    }
+
+                                    // Get payment methods specifically assigned to this tournament
+                                    $methods = $tournament->paymentMethods()
+                                        ->where('is_active', true)
+                                        ->orderBy('order')
+                                        ->get();
+
+                                    // Fallback: If no tournament-specific methods assigned, provide all active methods
+                                    if ($methods->isEmpty()) {
+                                        $methods = PaymentMethod::where('is_active', true)->orderBy('order')->get();
+                                    }
+
+                                    return $methods->pluck('name', 'id');
+                                })
                                 ->searchable()
                                 ->preload()
                                 ->required()
+                                ->disabled(fn (Get $get): bool => ! filled($get('tournament_id')))
                                 ->live()
                                 ->afterStateUpdated(function (Set $set, ?string $state) {
                                     if ($state) {
@@ -121,16 +172,18 @@ class TicketPurchaseForm
                             Select::make('payment_status')
                                 ->label('Payment Confirmation Status')
                                 ->options([
-                                    'paid' => '✅ Paid (Issue Tickets Immediately)',
+                                    'paid' => '✅ Paid (Generate Admission Tickets)',
                                     'unpaid' => '⏳ Unpaid (Hold Order - No Tickets Issued)',
                                     'cancelled' => '❌ Cancelled / Void',
                                 ])
                                 ->required()
+                                ->disabled(fn (Get $get): bool => ! filled($get('tournament_id')))
                                 ->default('paid'),
 
                             TextInput::make('payment_reference')
                                 ->label('Transaction ID / Ref #')
-                                ->placeholder('e.g. Cash Counter / eSewa Txn #')
+                                ->placeholder('e.g. Cash Counter / Txn #')
+                                ->disabled(fn (Get $get): bool => ! filled($get('tournament_id')))
                                 ->maxLength(255),
 
                             FileUpload::make('payment_receipt_path')
@@ -139,12 +192,14 @@ class TicketPurchaseForm
                                 ->directory('receipts')
                                 ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])
                                 ->maxSize(5120)
+                                ->disabled(fn (Get $get): bool => ! filled($get('tournament_id')))
                                 ->nullable(),
 
                             Textarea::make('notes')
                                 ->label('Admin Notes')
                                 ->placeholder('Special admission notes or cashier logs...')
                                 ->rows(2)
+                                ->disabled(fn (Get $get): bool => ! filled($get('tournament_id')))
                                 ->columnSpanFull(),
                         ]),
 
