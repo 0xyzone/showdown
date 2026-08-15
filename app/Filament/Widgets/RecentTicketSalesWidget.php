@@ -13,7 +13,7 @@ class RecentTicketSalesWidget extends BaseWidget
 {
     use HasWidgetShield;
 
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 25;
 
     protected int|string|array $columnSpan = 'full';
 

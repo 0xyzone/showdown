@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\StaffAttendanceController;
 use App\Http\Controllers\TicketVerificationController;
 use App\Models\Partner;
 use App\Models\Sponsor;
@@ -85,3 +86,16 @@ Route::post('/ticket/verify/{token}/check-in', [TicketVerificationController::cl
 // Secure Admin Ticket & Receipt Downloads
 Route::get('/admin/ticket-purchases/{purchase}/pdf', [TicketVerificationController::class, 'downloadPdf'])->name('admin.ticket-purchases.pdf');
 Route::get('/admin/ticket-purchases/{purchase}/receipt', [TicketVerificationController::class, 'downloadReceipt'])->name('admin.ticket-purchases.receipt');
+
+// Staff Attendance & Timesheet Terminal
+Route::middleware(['auth:web'])->group(function () {
+    Route::get('/attendance', [StaffAttendanceController::class, 'index'])->name('attendance.index');
+    Route::post('/attendance/punch-in', [StaffAttendanceController::class, 'punchIn'])->name('attendance.punch-in');
+    Route::post('/attendance/punch-out', [StaffAttendanceController::class, 'punchOut'])->name('attendance.punch-out');
+
+    // WebAuthn Passkey Registration & Verification
+    Route::post('/attendance/webauthn/register/options', [StaffAttendanceController::class, 'registerOptions'])->name('attendance.webauthn.register.options');
+    Route::post('/attendance/webauthn/register/verify', [StaffAttendanceController::class, 'registerVerify'])->name('attendance.webauthn.register.verify');
+    Route::post('/attendance/webauthn/auth/options', [StaffAttendanceController::class, 'authOptions'])->name('attendance.webauthn.auth.options');
+    Route::delete('/attendance/devices/{credential}', [StaffAttendanceController::class, 'revokeDevice'])->name('attendance.devices.revoke');
+});

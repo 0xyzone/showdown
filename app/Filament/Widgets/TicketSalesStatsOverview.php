@@ -13,7 +13,7 @@ class TicketSalesStatsOverview extends BaseWidget
 {
     use HasWidgetShield;
 
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 12;
 
     protected function getStats(): array
     {

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
@@ -94,5 +95,30 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function ticketAttendances(): HasMany
     {
         return $this->hasMany(TicketAttendance::class, 'verified_by');
+    }
+
+    public function attendanceProfile(): HasOne
+    {
+        return $this->hasOne(StaffAttendanceProfile::class);
+    }
+
+    public function biometricCredentials(): HasMany
+    {
+        return $this->hasMany(StaffBiometricCredential::class);
+    }
+
+    public function staffAttendances(): HasMany
+    {
+        return $this->hasMany(StaffAttendance::class);
+    }
+
+    public function staffPunchEvents(): HasMany
+    {
+        return $this->hasMany(StaffPunchEvent::class);
+    }
+
+    public function todayAttendance(): ?StaffAttendance
+    {
+        return $this->staffAttendances()->whereDate('date', today())->first();
     }
 }

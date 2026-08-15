@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Filament\Resources\StaffAttendanceProfiles\Pages;
+
+use App\Filament\Resources\StaffAttendanceProfiles\StaffAttendanceProfileResource;
+use Filament\Resources\Pages\ListRecords;
+
+class ListStaffAttendanceProfiles extends ListRecords
+{
+    protected static string $resource = StaffAttendanceProfileResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [];
+    }
+}

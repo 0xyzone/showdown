@@ -12,7 +12,7 @@ class FinanceOverviewStats extends BaseWidget
 {
     use HasWidgetShield;
 
-    protected static ?int $sort = 1;
+    protected static ?int $sort = 15;
 
     protected function getStats(): array
     {

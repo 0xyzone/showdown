@@ -12,6 +12,8 @@ class LatestRegistrationsWidget extends BaseWidget
 {
     use HasWidgetShield;
 
+    protected static ?int $sort = 30;
+
     protected int|string|array $columnSpan = 'full';
 
     protected static ?string $heading = 'Recent Team Registrations';

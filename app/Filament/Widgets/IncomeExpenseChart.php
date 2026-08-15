@@ -13,7 +13,7 @@ class IncomeExpenseChart extends ChartWidget
 {
     use HasWidgetShield;
 
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 20;
 
     public function getHeading(): string|Htmlable|null
     {

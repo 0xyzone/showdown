@@ -13,6 +13,8 @@ class TournamentStatsOverview extends BaseWidget
 {
     use HasWidgetShield;
 
+    protected static ?int $sort = 10;
+
     protected function getStats(): array
     {
         $activeTournament = Tournament::where('is_active', true)->first();
