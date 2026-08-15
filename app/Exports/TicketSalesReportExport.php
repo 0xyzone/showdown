@@ -20,8 +20,18 @@ class TicketSalesReportExport implements FromCollection, ShouldAutoSize, WithHea
 
     public function collection()
     {
+        $user = auth()->user();
         $query = TicketPurchase::with(['tournament', 'seller', 'ticketPackage', 'paymentMethod', 'tickets.attendances.eventDay'])
             ->orderBy('created_at', 'desc');
+
+        if ($user && ! $user->hasRole('super_admin')) {
+            $query->where(function ($q) use ($user) {
+                $q->where('seller_id', $user->id)
+                    ->orWhere('created_by', $user->id);
+            });
+        } elseif (! empty($this->filters['seller_id'])) {
+            $query->where('seller_id', $this->filters['seller_id']);
+        }
 
         if (! empty($this->filters['tournament_id'])) {
             $query->where('tournament_id', $this->filters['tournament_id']);
@@ -29,10 +39,6 @@ class TicketSalesReportExport implements FromCollection, ShouldAutoSize, WithHea
 
         if (! empty($this->filters['ticket_package_id'])) {
             $query->where('ticket_package_id', $this->filters['ticket_package_id']);
-        }
-
-        if (! empty($this->filters['seller_id'])) {
-            $query->where('seller_id', $this->filters['seller_id']);
         }
 
         if (! empty($this->filters['payment_status'])) {

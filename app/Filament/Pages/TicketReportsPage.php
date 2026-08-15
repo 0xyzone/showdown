@@ -79,8 +79,18 @@ class TicketReportsPage extends Page implements HasForms
 
     public function getFilteredPurchasesQuery()
     {
+        $user = auth()->user();
         $query = TicketPurchase::with(['tournament', 'seller', 'ticketPackage', 'paymentMethod', 'tickets'])
             ->orderBy('created_at', 'desc');
+
+        if ($user && ! $user->hasRole('super_admin')) {
+            $query->where(function ($q) use ($user) {
+                $q->where('seller_id', $user->id)
+                    ->orWhere('created_by', $user->id);
+            });
+        } elseif ($this->seller_id) {
+            $query->where('seller_id', $this->seller_id);
+        }
 
         if ($this->tournament_id) {
             $query->where('tournament_id', $this->tournament_id);
@@ -88,10 +98,6 @@ class TicketReportsPage extends Page implements HasForms
 
         if ($this->ticket_package_id) {
             $query->where('ticket_package_id', $this->ticket_package_id);
-        }
-
-        if ($this->seller_id) {
-            $query->where('seller_id', $this->seller_id);
         }
 
         if ($this->payment_status) {
@@ -174,14 +180,32 @@ class TicketReportsPage extends Page implements HasForms
 
     public function getEventDayAttendanceSummary(): array
     {
+        $user = auth()->user();
         $tournamentId = $this->tournament_id;
         $eventDays = TournamentEventDay::when($tournamentId, fn ($q) => $q->where('tournament_id', $tournamentId))
             ->orderBy('event_date')
             ->get();
 
-        return $eventDays->map(function ($day) {
-            $checkedInCount = TicketAttendance::where('tournament_event_day_id', $day->id)->count();
-            $validTicketsCount = DB::table('ticket_event_day')->where('tournament_event_day_id', $day->id)->count();
+        $userPurchasesIds = null;
+        if ($user && ! $user->hasRole('super_admin')) {
+            $userPurchasesIds = TicketPurchase::where(function ($q) use ($user) {
+                $q->where('seller_id', $user->id)->orWhere('created_by', $user->id);
+            })->pluck('id');
+        }
+
+        return $eventDays->map(function ($day) use ($userPurchasesIds) {
+            $attendanceQuery = TicketAttendance::where('tournament_event_day_id', $day->id);
+            $validQuery = DB::table('ticket_event_day')
+                ->join('tickets', 'tickets.id', '=', 'ticket_event_day.ticket_id')
+                ->where('ticket_event_day.tournament_event_day_id', $day->id);
+
+            if ($userPurchasesIds !== null) {
+                $attendanceQuery->whereHas('ticket', fn ($q) => $q->whereIn('ticket_purchase_id', $userPurchasesIds));
+                $validQuery->whereIn('tickets.ticket_purchase_id', $userPurchasesIds);
+            }
+
+            $checkedInCount = $attendanceQuery->count();
+            $validTicketsCount = $validQuery->count();
 
             return [
                 'day_name' => $day->day_name,
@@ -194,10 +218,12 @@ class TicketReportsPage extends Page implements HasForms
 
     public function exportExcel()
     {
+        $user = auth()->user();
+
         $filters = [
             'tournament_id' => $this->tournament_id,
             'ticket_package_id' => $this->ticket_package_id,
-            'seller_id' => $this->seller_id,
+            'seller_id' => ($user && ! $user->hasRole('super_admin')) ? $user->id : $this->seller_id,
             'payment_status' => $this->payment_status,
             'payment_method_id' => $this->payment_method_id,
             'date_from' => $this->date_from,

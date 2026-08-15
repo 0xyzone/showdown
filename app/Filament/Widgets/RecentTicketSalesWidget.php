@@ -26,8 +26,11 @@ class RecentTicketSalesWidget extends BaseWidget
                 $user = auth()->user();
                 $query = TicketPurchase::query()->with(['tournament', 'seller', 'ticketPackage'])->latest();
 
-                if ($user && ! $user->hasRole('super_admin') && ! $user->can('ViewAny:TicketPurchase')) {
-                    $query->where('seller_id', $user->id);
+                if ($user && ! $user->hasRole('super_admin')) {
+                    $query->where(function (Builder $q) use ($user) {
+                        $q->where('seller_id', $user->id)
+                            ->orWhere('created_by', $user->id);
+                    });
                 }
 
                 return $query;

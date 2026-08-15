@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Pages\TicketReportsPage;
 use App\Models\PaymentMethod;
 use App\Models\Ticket;
 use App\Models\TicketAttendance;
@@ -315,6 +316,93 @@ class TicketSystemTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Ticket Reports & Analytics');
         $response->assertSee('Excel Tester');
+    }
+
+    public function test_sales_staff_only_sees_own_sales_data_in_reports_and_cannot_see_other_staff_sales(): void
+    {
+        $otherStaff = User::factory()->create(['name' => 'Other Staff Seller', 'email' => 'other@showdown.test']);
+        $otherStaff->assignRole('ticket_sales_staff');
+
+        // Sales by Jane (logged-in sales staff)
+        $janePurchase = TicketPurchase::create([
+            'tournament_id' => $this->tournament->id,
+            'customer_name' => 'Jane Customer A',
+            'customer_phone' => '9800000011',
+            'quantity' => 1,
+            'unit_price' => 200.00,
+            'total_amount' => 200.00,
+            'payment_status' => 'paid',
+            'seller_id' => $this->salesStaff->id,
+        ]);
+
+        // Sales by Other Staff
+        $otherPurchase = TicketPurchase::create([
+            'tournament_id' => $this->tournament->id,
+            'customer_name' => 'Other Staff Customer B',
+            'customer_phone' => '9800000022',
+            'quantity' => 3,
+            'unit_price' => 200.00,
+            'total_amount' => 600.00,
+            'payment_status' => 'paid',
+            'seller_id' => $otherStaff->id,
+        ]);
+
+        // When Jane views the reports page:
+        $response = $this->actingAs($this->salesStaff, 'web')
+            ->get('/maidan/ticket-reports-page');
+
+        $response->assertStatus(200);
+        $response->assertSee('Jane Customer A');
+        $response->assertDontSee('Other Staff Customer B');
+
+        // Verify report calculations for Jane
+        $page = new TicketReportsPage;
+        $stats = $page->getSummaryStats();
+        $this->assertEquals(1, $stats['total_purchases']);
+        $this->assertEquals(1, $stats['total_tickets_sold']);
+        $this->assertEquals(200.00, $stats['total_revenue']);
+    }
+
+    public function test_super_admin_sees_all_sales_data_across_all_staff(): void
+    {
+        $otherStaff = User::factory()->create(['name' => 'Staff 2', 'email' => 'staff2@showdown.test']);
+        $otherStaff->assignRole('ticket_sales_staff');
+
+        TicketPurchase::create([
+            'tournament_id' => $this->tournament->id,
+            'customer_name' => 'Customer Alpha',
+            'customer_phone' => '9800000033',
+            'quantity' => 1,
+            'unit_price' => 200.00,
+            'total_amount' => 200.00,
+            'payment_status' => 'paid',
+            'seller_id' => $this->salesStaff->id,
+        ]);
+
+        TicketPurchase::create([
+            'tournament_id' => $this->tournament->id,
+            'customer_name' => 'Customer Beta',
+            'customer_phone' => '9800000044',
+            'quantity' => 2,
+            'unit_price' => 200.00,
+            'total_amount' => 400.00,
+            'payment_status' => 'paid',
+            'seller_id' => $otherStaff->id,
+        ]);
+
+        // Super Admin access
+        $response = $this->actingAs($this->superAdmin, 'web')
+            ->get('/maidan/ticket-reports-page');
+
+        $response->assertStatus(200);
+        $response->assertSee('Customer Alpha');
+        $response->assertSee('Customer Beta');
+
+        $page = new TicketReportsPage;
+        $stats = $page->getSummaryStats();
+        $this->assertEquals(2, $stats['total_purchases']);
+        $this->assertEquals(3, $stats['total_tickets_sold']);
+        $this->assertEquals(600.00, $stats['total_revenue']);
     }
 
     public function test_admin_can_download_ticket_pdf(): void

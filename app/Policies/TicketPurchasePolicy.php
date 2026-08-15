@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\TicketPurchase;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Foundation\Auth\User as AuthUser;
 
 class TicketPurchasePolicy
 {
     use HandlesAuthorization;
-    
+
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:TicketPurchase');
@@ -19,7 +19,12 @@ class TicketPurchasePolicy
 
     public function view(AuthUser $authUser, TicketPurchase $ticketPurchase): bool
     {
-        return $authUser->can('View:TicketPurchase');
+        if ($authUser->hasRole('super_admin')) {
+            return true;
+        }
+
+        return $authUser->can('View:TicketPurchase')
+            && ($ticketPurchase->seller_id === $authUser->id || $ticketPurchase->created_by === $authUser->id);
     }
 
     public function create(AuthUser $authUser): bool
@@ -29,12 +34,22 @@ class TicketPurchasePolicy
 
     public function update(AuthUser $authUser, TicketPurchase $ticketPurchase): bool
     {
-        return $authUser->can('Update:TicketPurchase');
+        if ($authUser->hasRole('super_admin')) {
+            return true;
+        }
+
+        return $authUser->can('Update:TicketPurchase')
+            && ($ticketPurchase->seller_id === $authUser->id || $ticketPurchase->created_by === $authUser->id);
     }
 
     public function delete(AuthUser $authUser, TicketPurchase $ticketPurchase): bool
     {
-        return $authUser->can('Delete:TicketPurchase');
+        if ($authUser->hasRole('super_admin')) {
+            return true;
+        }
+
+        return $authUser->can('Delete:TicketPurchase')
+            && ($ticketPurchase->seller_id === $authUser->id || $ticketPurchase->created_by === $authUser->id);
     }
 
     public function deleteAny(AuthUser $authUser): bool
@@ -71,5 +86,4 @@ class TicketPurchasePolicy
     {
         return $authUser->can('Reorder:TicketPurchase');
     }
-
 }

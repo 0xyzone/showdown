@@ -24,8 +24,11 @@ class TicketPurchasesTable
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $user = auth()->user();
-                if ($user && ! $user->hasRole('super_admin') && ! $user->can('ViewAny:TicketPurchase')) {
-                    $query->where('seller_id', $user->id);
+                if ($user && ! $user->hasRole('super_admin')) {
+                    $query->where(function (Builder $q) use ($user) {
+                        $q->where('seller_id', $user->id)
+                            ->orWhere('created_by', $user->id);
+                    });
                 }
             })
             ->columns([
@@ -122,7 +125,7 @@ class TicketPurchasesTable
                 SelectFilter::make('seller_id')
                     ->label('Sold By Staff')
                     ->options(User::pluck('name', 'id'))
-                    ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') || auth()->user()?->can('ViewAny:TicketPurchase')),
+                    ->visible(fn (): bool => (bool) auth()->user()?->hasRole('super_admin')),
 
                 SelectFilter::make('payment_status')
                     ->label('Payment Status')

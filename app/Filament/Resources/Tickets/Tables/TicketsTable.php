@@ -12,12 +12,22 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TicketsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = auth()->user();
+                if ($user && ! $user->hasRole('super_admin')) {
+                    $query->whereHas('ticketPurchase', function ($q) use ($user) {
+                        $q->where('seller_id', $user->id)
+                            ->orWhere('created_by', $user->id);
+                    });
+                }
+            })
             ->columns([
                 TextColumn::make('ticket_number')
                     ->label('Ticket #')

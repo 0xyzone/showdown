@@ -40,7 +40,7 @@
                     </select>
                 </div>
 
-                @if(auth()->user()?->hasRole('super_admin') || auth()->user()?->can('ViewAny:TicketPurchase'))
+                @if(auth()->user()?->hasRole('super_admin'))
                     <div>
                         <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Sold By Staff</label>
                         <select wire:model.live="seller_id" class="w-full px-3 py-2 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white focus:border-emerald-500 focus:outline-none">

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Ticket;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Foundation\Auth\User as AuthUser;
 
 class TicketPolicy
 {
     use HandlesAuthorization;
-    
+
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:Ticket');
@@ -19,7 +19,13 @@ class TicketPolicy
 
     public function view(AuthUser $authUser, Ticket $ticket): bool
     {
-        return $authUser->can('View:Ticket');
+        if ($authUser->hasRole('super_admin') || $authUser->hasRole('ticket_verification_staff') || $authUser->can('Verify:Ticket')) {
+            return true;
+        }
+
+        return $authUser->can('View:Ticket')
+            && $ticket->ticketPurchase
+            && ($ticket->ticketPurchase->seller_id === $authUser->id || $ticket->ticketPurchase->created_by === $authUser->id);
     }
 
     public function create(AuthUser $authUser): bool
@@ -71,5 +77,4 @@ class TicketPolicy
     {
         return $authUser->can('Reorder:Ticket');
     }
-
 }

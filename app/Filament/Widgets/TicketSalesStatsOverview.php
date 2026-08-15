@@ -18,7 +18,7 @@ class TicketSalesStatsOverview extends BaseWidget
     protected function getStats(): array
     {
         $user = auth()->user();
-        $isSuperAdmin = $user?->hasRole('super_admin') || $user?->can('ViewAny:TicketPurchase');
+        $isSuperAdmin = (bool) $user?->hasRole('super_admin');
 
         if (! $isSuperAdmin) {
             // Staff-specific scoped metrics
