@@ -3,7 +3,10 @@
 namespace App\Filament\Resources\TicketPurchases\Schemas;
 
 use App\Models\PaymentMethod;
+use App\Models\TicketPackage;
 use App\Models\Tournament;
+use App\Models\TournamentEventDay;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -22,7 +25,7 @@ class TicketPurchaseForm
         return $schema
             ->components([
                 Section::make('Tournament Selection')
-                    ->description('Select the tournament first to unlock customer details, pricing, and available payment methods.')
+                    ->description('Select the tournament first to unlock packages, admission pricing, and available payment methods.')
                     ->icon('heroicon-o-trophy')
                     ->schema([
                         Select::make('tournament_id')
@@ -35,6 +38,9 @@ class TicketPurchaseForm
                             ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
                                 if ($state) {
                                     $t = Tournament::find($state);
+                                    $set('ticket_package_id', null);
+                                    $set('package_name', null);
+
                                     $price = $t ? (float) $t->ticket_price : 0;
                                     $set('unit_price', $price);
                                     $qty = (int) ($get('quantity') ?: 1);
@@ -49,13 +55,98 @@ class TicketPurchaseForm
                                             $set('payment_source', null);
                                         }
                                     }
+
+                                    // Default all event days if tournament has them
+                                    if ($t) {
+                                        $allDayIds = $t->eventDays()->where('is_active', true)->pluck('id')->toArray();
+                                        $set('custom_event_day_ids', $allDayIds);
+                                    }
                                 } else {
                                     $set('unit_price', 0);
                                     $set('total_amount', 0);
                                     $set('payment_method_id', null);
                                     $set('payment_source', null);
+                                    $set('ticket_package_id', null);
+                                    $set('package_name', null);
+                                    $set('custom_event_day_ids', []);
                                 }
                             }),
+                    ]),
+
+                Section::make('Ticket Package & Event Days Validity')
+                    ->description('Choose a ticket package tier and event-day admission coverage.')
+                    ->icon('heroicon-o-gift')
+                    ->disabled(fn (Get $get): bool => ! filled($get('tournament_id')))
+                    ->schema([
+                        Grid::make(2)->schema([
+                            Select::make('ticket_package_id')
+                                ->label('Ticket Package / Admission Tier')
+                                ->options(function (Get $get) {
+                                    $tournamentId = $get('tournament_id');
+                                    if (! $tournamentId) {
+                                        return [];
+                                    }
+
+                                    return TicketPackage::where('tournament_id', $tournamentId)
+                                        ->where('is_active', true)
+                                        ->orderBy('order')
+                                        ->get()
+                                        ->mapWithKeys(fn ($pkg) => [$pkg->id => "{$pkg->name} (Rs. ".number_format($pkg->price, 2).')']);
+                                })
+                                ->searchable()
+                                ->preload()
+                                ->placeholder('Standard Tournament Admission (Default)')
+                                ->live()
+                                ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                    $tournamentId = $get('tournament_id');
+                                    $qty = (int) ($get('quantity') ?: 1);
+
+                                    if ($state) {
+                                        $pkg = TicketPackage::with('eventDays')->find($state);
+                                        if ($pkg) {
+                                            $set('package_name', $pkg->name);
+                                            $set('unit_price', (float) $pkg->price);
+                                            $set('total_amount', $qty * (float) $pkg->price);
+
+                                            if ($pkg->eventDays->isNotEmpty()) {
+                                                $set('custom_event_day_ids', $pkg->eventDays->pluck('id')->toArray());
+                                            }
+                                        }
+                                    } else {
+                                        $set('package_name', 'Standard Admission');
+                                        $t = Tournament::find($tournamentId);
+                                        $price = $t ? (float) $t->ticket_price : 0;
+                                        $set('unit_price', $price);
+                                        $set('total_amount', $qty * $price);
+                                    }
+                                }),
+
+                            CheckboxList::make('custom_event_day_ids')
+                                ->label('Authorized Event Days')
+                                ->options(function (Get $get) {
+                                    $tournamentId = $get('tournament_id');
+                                    if (! $tournamentId) {
+                                        return [];
+                                    }
+
+                                    return TournamentEventDay::where('tournament_id', $tournamentId)
+                                        ->where('is_active', true)
+                                        ->orderBy('order')
+                                        ->orderBy('event_date')
+                                        ->get()
+                                        ->mapWithKeys(fn ($day) => [$day->id => "{$day->day_name} (".($day->event_date ? $day->event_date->format('M d, Y') : '').')']);
+                                })
+                                ->columns(2)
+                                ->helperText('Tick which specific days this ticket purchase is valid for.')
+                                ->visible(function (Get $get): bool {
+                                    $tournamentId = $get('tournament_id');
+                                    if (! $tournamentId) {
+                                        return false;
+                                    }
+
+                                    return TournamentEventDay::where('tournament_id', $tournamentId)->exists();
+                                }),
+                        ]),
                     ]),
 
                 Section::make('Customer Details')
@@ -82,7 +173,7 @@ class TicketPurchaseForm
                     ]),
 
                 Section::make('Ticket Quantity & Pricing Calculation')
-                    ->description('Ticket count and automatic total calculation based on tournament price.')
+                    ->description('Ticket count and automatic total calculation.')
                     ->icon('heroicon-o-calculator')
                     ->disabled(fn (Get $get): bool => ! filled($get('tournament_id')))
                     ->schema([
@@ -107,7 +198,8 @@ class TicketPurchaseForm
                                 ->numeric()
                                 ->prefix('Rs.')
                                 ->required()
-                                ->disabled(fn (Get $get): bool => ! filled($get('tournament_id')))
+                                ->disabled()
+                                ->dehydrated()
                                 ->live()
                                 ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
                                     $unitPrice = (float) ($state ?: 0);
@@ -120,6 +212,8 @@ class TicketPurchaseForm
                                 ->numeric()
                                 ->prefix('Rs.')
                                 ->readOnly()
+                                ->disabled()
+                                ->dehydrated()
                                 ->extraInputAttributes(['class' => 'font-bold text-emerald-400'])
                                 ->required(),
                         ]),
@@ -144,13 +238,11 @@ class TicketPurchaseForm
                                         return [];
                                     }
 
-                                    // Get payment methods specifically assigned to this tournament
                                     $methods = $tournament->paymentMethods()
                                         ->where('is_active', true)
                                         ->orderBy('order')
                                         ->get();
 
-                                    // Fallback: If no tournament-specific methods assigned, provide all active methods
                                     if ($methods->isEmpty()) {
                                         $methods = PaymentMethod::where('is_active', true)->orderBy('order')->get();
                                     }
@@ -203,7 +295,9 @@ class TicketPurchaseForm
                                 ->columnSpanFull(),
                         ]),
 
+                        Hidden::make('package_name'),
                         Hidden::make('payment_source'),
+                        Hidden::make('seller_id')->default(fn () => auth()->id()),
                         Hidden::make('created_by')->default(fn () => auth()->id()),
                     ]),
             ]);

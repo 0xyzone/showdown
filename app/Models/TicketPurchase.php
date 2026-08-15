@@ -11,7 +11,10 @@ use Illuminate\Support\Str;
 
 #[Fillable([
     'tournament_id',
+    'ticket_package_id',
+    'package_name',
     'created_by',
+    'seller_id',
     'payment_method_id',
     'order_number',
     'customer_name',
@@ -46,6 +49,12 @@ class TicketPurchase extends Model
             if (empty($purchase->order_number)) {
                 $purchase->order_number = 'ORD-'.strtoupper(Str::random(4)).'-'.strtoupper(Str::random(4));
             }
+            if (empty($purchase->seller_id)) {
+                $purchase->seller_id = $purchase->created_by ?? (auth()->check() ? auth()->id() : null);
+            }
+            if (empty($purchase->created_by)) {
+                $purchase->created_by = $purchase->seller_id ?? (auth()->check() ? auth()->id() : null);
+            }
         });
     }
 
@@ -54,9 +63,19 @@ class TicketPurchase extends Model
         return $this->belongsTo(Tournament::class);
     }
 
+    public function ticketPackage(): BelongsTo
+    {
+        return $this->belongsTo(TicketPackage::class);
+    }
+
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function seller(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'seller_id');
     }
 
     public function paymentMethod(): BelongsTo

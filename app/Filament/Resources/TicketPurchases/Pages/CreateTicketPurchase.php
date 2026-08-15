@@ -18,7 +18,8 @@ class CreateTicketPurchase extends CreateRecord
         $record = $this->record;
 
         if ($record->payment_status === 'paid') {
-            app(TicketService::class)->issueTicketsForPurchase($record);
+            $eventDayIds = is_array($this->data['custom_event_day_ids'] ?? null) ? $this->data['custom_event_day_ids'] : [];
+            app(TicketService::class)->issueTicketsForPurchase($record, $eventDayIds);
 
             Notification::make()
                 ->title('Tickets Issued Successfully')

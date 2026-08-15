@@ -107,6 +107,16 @@ class Tournament extends Model
         return $this->hasMany(Ticket::class);
     }
 
+    public function eventDays(): HasMany
+    {
+        return $this->hasMany(TournamentEventDay::class)->orderBy('order')->orderBy('event_date');
+    }
+
+    public function ticketPackages(): HasMany
+    {
+        return $this->hasMany(TicketPackage::class)->orderBy('order');
+    }
+
     public function paymentMethods(): BelongsToMany
     {
         return $this->belongsToMany(PaymentMethod::class);

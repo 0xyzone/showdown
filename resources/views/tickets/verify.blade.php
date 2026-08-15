@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Event Gate — Ticket Verification</title>
+    <title>Event Gate — Gate Verification Terminal</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,8 +35,8 @@
                 GT
             </div>
             <div>
-                <h1 class="font-display font-bold text-sm text-white uppercase tracking-wider">Event Gate Verification</h1>
-                <span class="text-[11px] text-gray-400">Staff Check-In Terminal</span>
+                <h1 class="font-display font-bold text-sm text-white uppercase tracking-wider">Gate Check-In</h1>
+                <span class="text-[11px] text-gray-400">Staff Scanner Terminal</span>
             </div>
         </div>
 
@@ -54,7 +54,7 @@
     </header>
 
     <!-- MAIN INTERACTION AREA -->
-    <main class="max-w-md mx-auto w-full my-auto py-6 space-y-6">
+    <main class="max-w-md mx-auto w-full my-auto py-6 space-y-5">
 
         <!-- SCANNER ACTIVATOR & CAMERA VIEW -->
         <div class="bg-gray-900/90 border border-gray-800 rounded-2xl p-5 shadow-2xl space-y-4">
@@ -84,21 +84,43 @@
         <div id="result-card-container">
             @if(isset($ticket) && $ticket)
                 @php
-                    $isUsed = $ticket->is_used || $ticket->status === 'used';
                     $isCancelled = $ticket->status === 'cancelled';
+                    $hasEventDays = $allEventDays->isNotEmpty();
+                    $targetDayId = $activeEventDay ? $activeEventDay->id : null;
                 @endphp
 
-                <div class="rounded-2xl p-6 border shadow-2xl space-y-5 transition-all {{ $isUsed ? 'bg-amber-950/40 border-amber-500/40' : ($isCancelled ? 'bg-red-950/40 border-red-500/40' : 'bg-emerald-950/40 border-emerald-500/50') }}">
+                <div class="rounded-2xl p-6 border shadow-2xl space-y-5 transition-all {{ (! $isTodayValid || $isCancelled) ? 'bg-red-950/40 border-red-500/50' : ($isCheckedInToday ? 'bg-amber-950/40 border-amber-500/50' : 'bg-emerald-950/40 border-emerald-500/50') }}">
                     
                     <!-- STATUS BANNER -->
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="text-2xl">{{ $isUsed ? '⚠️' : ($isCancelled ? '❌' : '✅') }}</span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl">
+                                @if($isCancelled)
+                                    ❌
+                                @elseif(! $isTodayValid)
+                                    🚫
+                                @elseif($isCheckedInToday)
+                                    ⚠️
+                                @else
+                                    ✅
+                                @endif
+                            </span>
                             <div>
-                                <h2 class="font-display font-black text-lg tracking-wide uppercase {{ $isUsed ? 'text-amber-400' : ($isCancelled ? 'text-red-400' : 'text-emerald-400') }}">
-                                    {{ $isUsed ? 'ALREADY USED' : ($isCancelled ? 'TICKET CANCELLED' : 'VALID ADMISSION TICKET') }}
+                                <h2 class="font-display font-black text-lg tracking-wide uppercase {{ (! $isTodayValid || $isCancelled) ? 'text-red-400' : ($isCheckedInToday ? 'text-amber-400' : 'text-emerald-400') }}">
+                                    @if($isCancelled)
+                                        TICKET CANCELLED
+                                    @elseif(! $isTodayValid)
+                                        NOT VALID FOR TODAY
+                                    @elseif($isCheckedInToday)
+                                        ALREADY CHECKED IN TODAY
+                                    @else
+                                        VALID ADMISSION TICKET
+                                    @endif
                                 </h2>
-                                <span class="text-[11px] font-mono text-gray-400">{{ $ticket->ticket_number }}</span>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[11px] font-mono text-gray-300">{{ $ticket->ticket_number }}</span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-gray-800 text-emerald-400 font-bold uppercase">{{ $ticket->package_name ?? 'Standard Pass' }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -107,7 +129,7 @@
                     <div class="bg-gray-950/80 rounded-xl p-4 border border-gray-800/80 space-y-3 text-xs">
                         <div class="flex justify-between border-b border-gray-800 pb-2">
                             <span class="text-gray-400 font-bold uppercase text-[10px]">Tournament:</span>
-                            <span class="font-bold text-white text-right">{{ $ticket->tournament->name ?? 'Esports Event' }}</span>
+                            <span class="font-bold text-white text-right">{{ $ticket->tournament->name ?? 'Esports Championship' }}</span>
                         </div>
                         <div class="flex justify-between border-b border-gray-800 pb-2">
                             <span class="text-gray-400 font-bold uppercase text-[10px]">Attendee Name:</span>
@@ -117,29 +139,54 @@
                             <span class="text-gray-400 font-bold uppercase text-[10px]">Customer Phone:</span>
                             <span class="font-mono text-gray-300 text-right">{{ $ticket->customer_phone }}</span>
                         </div>
-                        <div class="flex justify-between border-b border-gray-800 pb-2">
-                            <span class="text-gray-400 font-bold uppercase text-[10px]">Price:</span>
-                            <span class="font-bold text-emerald-400 text-right">Rs. {{ number_format($ticket->price, 2) }}</span>
+
+                        <!-- EVENT DAY CONTEXT -->
+                        @if($activeEventDay)
+                            <div class="flex justify-between border-b border-gray-800 pb-2">
+                                <span class="text-emerald-400 font-bold uppercase text-[10px]">Today's Gate Session:</span>
+                                <span class="font-bold text-emerald-300 text-right">{{ $activeEventDay->day_name }} ({{ $activeEventDay->formatted_date }})</span>
+                            </div>
+                        @endif
+
+                        <!-- VALIDITY SCHEDULE -->
+                        <div class="border-b border-gray-800 pb-2">
+                            <span class="text-gray-400 font-bold uppercase text-[10px] block mb-1">Authorized Event Days:</span>
+                            @if($ticket->validEventDays->isNotEmpty())
+                                <div class="flex flex-wrap gap-1.5">
+                                    @foreach($ticket->validEventDays as $vDay)
+                                        @php
+                                            $isThisDay = $activeEventDay && $activeEventDay->id === $vDay->id;
+                                            $isDayAttended = $ticket->isCheckedInForDay($vDay);
+                                        @endphp
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold border {{ $isThisDay ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300' : 'bg-gray-900 border-gray-700 text-gray-400' }}">
+                                            {{ $vDay->day_name }} {{ $isDayAttended ? '✓ [Attended]' : '' }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @else
+                                <span class="font-bold text-emerald-400">All Event Days (Full Tournament Pass)</span>
+                            @endif
                         </div>
 
-                        @if($isUsed)
+                        <!-- ALREADY CHECKED IN INFO -->
+                        @if($isCheckedInToday && $todayAttendance)
                             <div class="flex justify-between border-b border-gray-800 pb-2">
-                                <span class="text-amber-400 font-bold uppercase text-[10px]">Checked In At:</span>
-                                <span class="font-mono text-amber-300 text-right">{{ $ticket->used_at ? $ticket->used_at->format('M d, Y • h:i:s A') : 'Recorded' }}</span>
+                                <span class="text-amber-400 font-bold uppercase text-[10px]">Today's Check-In At:</span>
+                                <span class="font-mono text-amber-300 text-right">{{ $todayAttendance->verified_at ? $todayAttendance->verified_at->timezone(config('app.timezone', 'Asia/Kathmandu'))->format('M d, Y • h:i:s A') : 'Recorded' }}</span>
                             </div>
-                            @if($ticket->verifiedBy)
+                            @if($todayAttendance->verifiedBy)
                                 <div class="flex justify-between">
-                                    <span class="text-gray-400 font-bold uppercase text-[10px]">Verified By:</span>
-                                    <span class="font-bold text-gray-300 text-right">{{ $ticket->verifiedBy->name }}</span>
+                                    <span class="text-gray-400 font-bold uppercase text-[10px]">Verified By Staff:</span>
+                                    <span class="font-bold text-gray-300 text-right">{{ $todayAttendance->verifiedBy->name }}</span>
                                 </div>
                             @endif
                         @endif
                     </div>
 
                     <!-- ACTION BUTTON -->
-                    @if(! $isUsed && ! $isCancelled)
+                    @if($isTodayValid && ! $isCheckedInToday && ! $isCancelled)
                         @if($user)
-                            <button id="checkin-btn" onclick="executeCheckIn('{{ $ticket->verification_token }}')" class="w-full py-4 rounded-xl font-display font-black text-sm uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-gray-950 shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all cursor-pointer">
+                            <button id="checkin-btn" onclick="executeCheckIn('{{ $ticket->verification_token }}', '{{ $targetDayId }}')" class="w-full py-4 rounded-xl font-display font-black text-sm uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-gray-950 shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all cursor-pointer">
                                 MARK AS ATTENDED (CHECK IN)
                             </button>
                         @else
@@ -147,9 +194,13 @@
                                 Staff login required to record attendance. <a href="{{ url('/maidan/login') }}" class="font-bold underline ml-1">Login here</a>
                             </div>
                         @endif
-                    @elseif($isUsed)
+                    @elseif(! $isTodayValid)
+                        <div class="p-3.5 bg-red-500/10 border border-red-500/30 rounded-xl text-center font-bold text-xs text-red-400 uppercase">
+                            Ticket Not Authorized for Today's Event Day
+                        </div>
+                    @elseif($isCheckedInToday)
                         <div class="p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center font-bold text-xs text-amber-400 uppercase">
-                            Double Entry Prevented &bull; Ticket Voided
+                            Double Entry Prevented &bull; Attendance Already Recorded Today
                         </div>
                     @endif
 
@@ -166,7 +217,7 @@
                 <div class="rounded-2xl p-8 bg-gray-900/40 border border-gray-800 text-center space-y-3">
                     <div class="text-3xl opacity-60">🎟️</div>
                     <div class="font-display font-bold text-xs uppercase tracking-widest text-gray-400">Terminal Ready</div>
-                    <p class="text-xs text-gray-500 max-w-xs mx-auto">Scan QR code using camera or physical laser scanner to begin verification.</p>
+                    <p class="text-xs text-gray-500 max-w-xs mx-auto">Scan QR code using camera or physical laser scanner to begin gate admission verification.</p>
                 </div>
             @endif
         </div>
@@ -253,11 +304,11 @@
             window.location.href = `/ticket/verify/${inputVal}`;
         }
 
-        function executeCheckIn(token) {
+        function executeCheckIn(token, eventDayId) {
             const btn = document.getElementById('checkin-btn');
             if (btn) {
                 btn.disabled = true;
-                btn.innerText = 'PROCESSING CHECK-IN...';
+                btn.innerText = 'RECORDING ADMISSION...';
                 btn.classList.add('opacity-50');
             }
 
@@ -268,12 +319,15 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({ method: 'qr_scan' })
+                body: JSON.stringify({
+                    method: 'qr_scan',
+                    event_day_id: eventDayId || null
+                })
             })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    alert('SUCCESS: Ticket attendance recorded!');
+                    alert('SUCCESS: ' + data.message);
                     window.location.reload();
                 } else {
                     alert('ERROR: ' + data.message);

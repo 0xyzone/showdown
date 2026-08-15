@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Tournaments\Schemas;
 
 use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -191,6 +192,46 @@ class TournamentForm
                                         TextInput::make('url')->url()->required(),
                                     ])
                                     ->columns(2)
+                                    ->columnSpanFull(),
+                            ]),
+
+                        Tab::make('Event Schedule Days')
+                            ->icon('heroicon-o-calendar-days')
+                            ->schema([
+                                Repeater::make('eventDays')
+                                    ->relationship('eventDays')
+                                    ->schema([
+                                        TextInput::make('day_name')
+                                            ->label('Day Label / Name')
+                                            ->placeholder('e.g. Day 1 - Group Stage')
+                                            ->required()
+                                            ->columnSpan(2),
+
+                                        DatePicker::make('event_date')
+                                            ->label('Event Date')
+                                            ->required()
+                                            ->columnSpan(1),
+
+                                        TextInput::make('order')
+                                            ->label('Order #')
+                                            ->numeric()
+                                            ->default(1)
+                                            ->columnSpan(1),
+
+                                        Toggle::make('is_active')
+                                            ->label('Active Day')
+                                            ->default(true)
+                                            ->columnSpan(1),
+
+                                        TextInput::make('notes')
+                                            ->label('Day Notes / Highlights')
+                                            ->placeholder('Special matches, gate timings, VIP entry...')
+                                            ->columnSpanFull(),
+                                    ])
+                                    ->columns(5)
+                                    ->defaultItems(1)
+                                    ->addActionLabel('Add Event Day')
+                                    ->reorderable('order')
                                     ->columnSpanFull(),
                             ]),
 

@@ -80,4 +80,19 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         return $this->hasMany(Lead::class);
     }
+
+    public function ticketSales(): HasMany
+    {
+        return $this->hasMany(TicketPurchase::class, 'seller_id');
+    }
+
+    public function verifiedTickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class, 'verified_by');
+    }
+
+    public function ticketAttendances(): HasMany
+    {
+        return $this->hasMany(TicketAttendance::class, 'verified_by');
+    }
 }

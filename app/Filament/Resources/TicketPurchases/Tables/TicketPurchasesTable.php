@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\TicketPurchases\Tables;
 
 use App\Models\PaymentMethod;
+use App\Models\TicketPackage;
 use App\Models\TicketPurchase;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -13,12 +15,19 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TicketPurchasesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = auth()->user();
+                if ($user && ! $user->hasRole('super_admin') && ! $user->can('ViewAny:TicketPurchase')) {
+                    $query->where('seller_id', $user->id);
+                }
+            })
             ->columns([
                 TextColumn::make('order_number')
                     ->label('Order #')
@@ -32,7 +41,14 @@ class TicketPurchasesTable
                     ->label('Tournament')
                     ->searchable()
                     ->sortable()
-                    ->limit(25),
+                    ->limit(20),
+
+                TextColumn::make('package_name')
+                    ->label('Package Tier')
+                    ->badge()
+                    ->color('info')
+                    ->placeholder('Standard')
+                    ->searchable(),
 
                 TextColumn::make('customer_name')
                     ->label('Customer')
@@ -67,10 +83,16 @@ class TicketPurchasesTable
                 TextColumn::make('payment_source')
                     ->label('Source')
                     ->badge()
-                    ->color('info'),
+                    ->color('primary'),
+
+                TextColumn::make('seller.name')
+                    ->label('Sold By Staff')
+                    ->badge()
+                    ->color('gray')
+                    ->searchable(),
 
                 TextColumn::make('tickets_summary')
-                    ->label('Attendance')
+                    ->label('Gate Attendance')
                     ->state(function (TicketPurchase $record): string {
                         $total = $record->tickets()->count();
                         if ($total === 0) {
@@ -81,14 +103,10 @@ class TicketPurchasesTable
                         return "{$used}/{$total} used";
                     })
                     ->badge()
-                    ->color(fn (string $state): string => str_contains($state, '0/') ? 'gray' : 'primary'),
-
-                TextColumn::make('createdBy.name')
-                    ->label('Admin Cashier')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->color(fn (string $state): string => str_contains($state, '0/') ? 'gray' : 'success'),
 
                 TextColumn::make('created_at')
-                    ->label('Date')
+                    ->label('Sold At')
                     ->dateTime('M d, Y • h:i A')
                     ->sortable(),
             ])
@@ -96,6 +114,15 @@ class TicketPurchasesTable
                 SelectFilter::make('tournament_id')
                     ->label('Tournament')
                     ->relationship('tournament', 'name'),
+
+                SelectFilter::make('ticket_package_id')
+                    ->label('Ticket Package')
+                    ->options(TicketPackage::pluck('name', 'id')),
+
+                SelectFilter::make('seller_id')
+                    ->label('Sold By Staff')
+                    ->options(User::pluck('name', 'id'))
+                    ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') || auth()->user()?->can('ViewAny:TicketPurchase')),
 
                 SelectFilter::make('payment_status')
                     ->label('Payment Status')
