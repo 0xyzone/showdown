@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\TicketPurchase;
 use Carbon\Carbon;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -18,7 +19,7 @@ class TicketSalesReportExport implements FromCollection, ShouldAutoSize, WithHea
         protected array $filters = []
     ) {}
 
-    public function collection()
+    public function collection(): Enumerable
     {
         $user = auth()->user();
         $query = TicketPurchase::with(['tournament', 'seller', 'ticketPackage', 'paymentMethod', 'tickets.attendances.eventDay'])
@@ -81,31 +82,32 @@ class TicketSalesReportExport implements FromCollection, ShouldAutoSize, WithHea
     }
 
     /**
-     * @param  TicketPurchase  $purchase
+     * @param  TicketPurchase  $row
      */
-    public function map($purchase): array
+    public function map(mixed $row): array
     {
-        $checkedInCount = $purchase->tickets->where('is_used', true)->count();
+        /** @var TicketPurchase $row */
+        $checkedInCount = $row->tickets->where('is_used', true)->count();
 
         return [
-            $purchase->order_number,
-            $purchase->tournament?->name ?? 'N/A',
-            $purchase->package_name ?? ($purchase->ticketPackage?->name ?? 'Standard'),
-            $purchase->customer_name,
-            $purchase->customer_phone,
-            $purchase->quantity,
-            number_format((float) $purchase->unit_price, 2, '.', ''),
-            number_format((float) $purchase->total_amount, 2, '.', ''),
-            strtoupper($purchase->payment_status),
-            $purchase->payment_source ?? 'N/A',
-            $purchase->payment_reference ?? '—',
-            $purchase->seller?->name ?? 'Admin',
-            "{$checkedInCount}/{$purchase->quantity}",
-            $purchase->created_at ? $purchase->created_at->format('Y-m-d H:i:s') : 'N/A',
+            $row->order_number,
+            $row->tournament?->name ?? 'N/A',
+            $row->package_name ?? ($row->ticketPackage?->name ?? 'Standard'),
+            $row->customer_name,
+            $row->customer_phone,
+            $row->quantity,
+            number_format((float) $row->unit_price, 2, '.', ''),
+            number_format((float) $row->total_amount, 2, '.', ''),
+            strtoupper($row->payment_status),
+            $row->payment_source ?? 'N/A',
+            $row->payment_reference ?? '—',
+            $row->seller?->name ?? 'Admin',
+            "{$checkedInCount}/{$row->quantity}",
+            $row->created_at ? $row->created_at->format('Y-m-d H:i:s') : 'N/A',
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): ?array
     {
         return [
             1 => [
