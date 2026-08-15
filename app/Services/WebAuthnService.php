@@ -22,8 +22,7 @@ class WebAuthnService
      */
     public function getRelyingParty(): array
     {
-        $appUrl = config('app.url', 'http://localhost');
-        $host = parse_url($appUrl, PHP_URL_HOST) ?: 'localhost';
+        $host = request()->getHost() ?: (parse_url(config('app.url', 'http://localhost'), PHP_URL_HOST) ?: 'localhost');
 
         return [
             'name' => config('app.name', 'Showdown Staff Attendance'),
@@ -101,7 +100,7 @@ class WebAuthnService
             throw new Exception('Missing credential ID.');
         }
 
-        // Parse attestationObject
+        // Parse attestationObject using CBOR decoder
         $attestationObjectRaw = $this->base64UrlDecode($response['attestationObject'] ?? '');
         $parsedAuthData = $this->parseAttestationObject($attestationObjectRaw);
 
@@ -198,14 +197,19 @@ class WebAuthnService
         // Extract counter (bytes 33..36 uint32 big-endian)
         $counter = unpack('N', substr($authenticatorDataRaw, 33, 4))[1];
 
-        // Verify signature: Signature covers authenticatorData + SHA256(clientDataJSON)
+        // Signature covers authenticatorData + SHA256(clientDataJSON)
         $signatureRaw = $this->base64UrlDecode($response['signature'] ?? '');
         $signedData = $authenticatorDataRaw.hash('sha256', $clientDataJSON, true);
 
+        // Verify signature with OpenSSL (try direct DER and raw P1363 formats)
         $verified = openssl_verify($signedData, $signatureRaw, $credential->public_key, OPENSSL_ALGO_SHA256);
+        if ($verified !== 1 && strlen($signatureRaw) === 64) {
+            $derSig = $this->rawSignatureToDer($signatureRaw);
+            $verified = openssl_verify($signedData, $derSig, $credential->public_key, OPENSSL_ALGO_SHA256);
+        }
+
         if ($verified !== 1) {
-            // Check if OpenSSL needs signature converted from DER or raw
-            Log::warning("WebAuthn signature verification returned: {$verified}");
+            Log::warning("WebAuthn signature verification failed for user {$user->id} on credential {$credential->id}. Return code: {$verified}");
             throw new Exception('Cryptographic biometric signature verification failed.');
         }
 
@@ -223,29 +227,27 @@ class WebAuthnService
      */
     protected function parseAttestationObject(string $attestationObjectRaw): array
     {
-        // Simple and robust parser for standard 'none' attestation & COSE ECDSA P-256 / RSA keys
-        $authDataOffset = strpos($attestationObjectRaw, 'authData');
-        if ($authDataOffset === false) {
-            // Fallback direct raw authData if attestationObject is already stripped
+        try {
+            $decoder = new CborDecoder($attestationObjectRaw);
+            $attestation = $decoder->decode();
+            $authData = $attestation['authData'] ?? $attestationObjectRaw;
+        } catch (Exception $e) {
             $authData = $attestationObjectRaw;
-        } else {
-            // Slice authData after string header
-            $authData = substr($attestationObjectRaw, $authDataOffset + 8);
-            // Skip CBOR byte string header if present
-            if (isset($authData[0]) && ord($authData[0]) >= 0x40 && ord($authData[0]) <= 0x5B) {
-                $authData = substr($authData, 2);
-            }
         }
 
-        // Flags byte is at index 32
-        $aaguid = null;
-        if (strlen($authData) >= 55) {
-            $aaguid = bin2hex(substr($authData, 37, 16));
-            $credIdLen = unpack('n', substr($authData, 53, 2))[1];
-            $coseKeyRaw = substr($authData, 55 + $credIdLen);
-        } else {
-            $coseKeyRaw = substr($authData, 37);
+        // If authData was wrapped or fallback
+        if (is_array($authData)) {
+            $authData = $attestationObjectRaw;
         }
+
+        // Ensure minimum length (37 bytes header + 16 bytes AAGUID + 2 bytes credIdLen)
+        if (strlen($authData) < 55) {
+            throw new Exception('Invalid authData structure in attestation object.');
+        }
+
+        $aaguid = bin2hex(substr($authData, 37, 16));
+        $credIdLen = unpack('n', substr($authData, 53, 2))[1];
+        $coseKeyRaw = substr($authData, 55 + $credIdLen);
 
         $publicKeyPem = $this->coseToPem($coseKeyRaw);
 
@@ -261,36 +263,117 @@ class WebAuthnService
      */
     public function coseToPem(string $coseKeyRaw): string
     {
-        // Extract X and Y coordinates for EC2 P-256 curve (COSE kty: 2, crv: 1)
-        // In CBOR / COSE representation, x is preceded by 0x20 and y by 0x21
-        // Search for 32-byte byte string tokens (0x58, 0x20)
-        $xPos = strpos($coseKeyRaw, "\x20\x58\x20");
-        $yPos = strpos($coseKeyRaw, "\x21\x58\x20");
+        try {
+            $decoder = new CborDecoder($coseKeyRaw);
+            $coseMap = $decoder->decode();
 
-        if ($xPos !== false && $yPos !== false) {
-            $x = substr($coseKeyRaw, $xPos + 3, 32);
-            $y = substr($coseKeyRaw, $yPos + 3, 32);
+            if (is_array($coseMap)) {
+                $kty = $coseMap[1] ?? null;
 
-            // Construct uncompressed point: 0x04 || X || Y
-            $uncompressedPoint = "\x04".$x.$y;
+                // EC2 key (ECDSA P-256)
+                if ($kty === 2) {
+                    $x = $coseMap[-2] ?? null;
+                    $y = $coseMap[-3] ?? null;
 
-            // ASN.1 DER header for EC (secp256r1 / prime256v1)
-            $derHeader = hex2bin('3059301306072a8648ce3d020106082a8648ce3d030107034200');
-            $der = $derHeader.$uncompressedPoint;
+                    if ($x && $y && strlen($x) === 32 && strlen($y) === 32) {
+                        $uncompressedPoint = "\x04".$x.$y;
+                        $derHeader = hex2bin('3059301306072a8648ce3d020106082a8648ce3d030107034200');
+                        $der = $derHeader.$uncompressedPoint;
 
-            return "-----BEGIN PUBLIC KEY-----\n".chunk_split(base64_encode($der), 64, "\n")."-----END PUBLIC KEY-----\n";
+                        return "-----BEGIN PUBLIC KEY-----\n".chunk_split(base64_encode($der), 64, "\n")."-----END PUBLIC KEY-----\n";
+                    }
+                }
+
+                // RSA key (RS256)
+                if ($kty === 3) {
+                    $n = $coseMap[-1] ?? null;
+                    $e = $coseMap[-2] ?? null;
+
+                    if ($n && $e) {
+                        return $this->rsaModExpToPem($n, $e);
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            Log::warning('COSE decoder error: '.$e->getMessage());
         }
 
-        // If direct PEM passed or RSA fallback
+        // Direct PEM fallback
         if (str_contains($coseKeyRaw, 'BEGIN PUBLIC KEY')) {
             return $coseKeyRaw;
         }
 
-        // Generate standard dummy secure PEM if parser fails in test environments
-        $res = openssl_pkey_new(['private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_EC, 'curve_name' => 'prime256v1']);
-        $details = openssl_pkey_get_details($res);
+        throw new Exception('Unable to parse biometric public key from authenticator.');
+    }
 
-        return $details['key'] ?? '';
+    /**
+     * Convert RSA Modulus & Exponent to SubjectPublicKeyInfo PEM.
+     */
+    protected function rsaModExpToPem(string $n, string $e): string
+    {
+        $n = ltrim($n, "\x00");
+        $e = ltrim($e, "\x00");
+
+        if (ord($n[0]) >= 0x80) {
+            $n = "\x00".$n;
+        }
+        if (ord($e[0]) >= 0x80) {
+            $e = "\x00".$e;
+        }
+
+        $nDer = "\x02".$this->asn1Length(strlen($n)).$n;
+        $eDer = "\x02".$this->asn1Length(strlen($e)).$e;
+        $rsaPubKey = "\x30".$this->asn1Length(strlen($nDer.$eDer)).$nDer.$eDer;
+
+        $bitString = "\x03".$this->asn1Length(strlen($rsaPubKey) + 1)."\x00".$rsaPubKey;
+        $algId = hex2bin('300d06092a864886f70d0101010500'); // rsaEncryption, null
+        $spki = "\x30".$this->asn1Length(strlen($algId.$bitString)).$algId.$bitString;
+
+        return "-----BEGIN PUBLIC KEY-----\n".chunk_split(base64_encode($spki), 64, "\n")."-----END PUBLIC KEY-----\n";
+    }
+
+    /**
+     * Convert IEEE P1363 (r || s) 64-byte signature to ASN.1 DER sequence.
+     */
+    protected function rawSignatureToDer(string $sig): string
+    {
+        if (strlen($sig) !== 64) {
+            return $sig;
+        }
+
+        $r = substr($sig, 0, 32);
+        $s = substr($sig, 32, 32);
+
+        $r = ltrim($r, "\x00");
+        $s = ltrim($s, "\x00");
+
+        if (empty($r) || ord($r[0]) >= 0x80) {
+            $r = "\x00".$r;
+        }
+        if (empty($s) || ord($s[0]) >= 0x80) {
+            $s = "\x00".$s;
+        }
+
+        $rDer = "\x02".$this->asn1Length(strlen($r)).$r;
+        $sDer = "\x02".$this->asn1Length(strlen($s)).$s;
+        $seq = $rDer.$sDer;
+
+        return "\x30".$this->asn1Length(strlen($seq)).$seq;
+    }
+
+    protected function asn1Length(int $length): string
+    {
+        if ($length < 128) {
+            return chr($length);
+        }
+
+        $temp = '';
+        while ($length > 0) {
+            $temp = chr($length & 0xFF).$temp;
+            $length >>= 8;
+        }
+
+        return chr(0x80 | strlen($temp)).$temp;
     }
 
     /**
@@ -312,5 +395,92 @@ class WebAuthnService
         }
 
         return base64_decode(strtr($data, '-_', '+/')) ?: '';
+    }
+}
+
+/**
+ * Lightweight & Robust Recursive CBOR Decoder (RFC 8949)
+ */
+class CborDecoder
+{
+    private int $offset = 0;
+
+    public function __construct(private string $data)
+    {
+        $this->offset = 0;
+    }
+
+    public function decode(): mixed
+    {
+        if ($this->offset >= strlen($this->data)) {
+            return null;
+        }
+
+        $initialByte = ord($this->data[$this->offset++]);
+        $majorType = $initialByte >> 5;
+        $additionalInfo = $initialByte & 0x1F;
+
+        $length = $this->readLength($additionalInfo);
+
+        return match ($majorType) {
+            0 => $length,                     // Unsigned integer
+            1 => -1 - $length,                // Negative integer
+            2, 3 => $this->readBytes($length), // 2: byte string, 3: text string (utf-8)
+            4 => $this->readArray($length),   // Array
+            5 => $this->readMap($length),     // Map
+            6 => $this->decode(),             // Semantic tag (skip tag and decode value)
+            7 => match ($additionalInfo) {
+                20 => false,
+                21 => true,
+                22 => null,
+                default => null,
+            },
+            default => null,
+        };
+    }
+
+    private function readLength(int $additionalInfo): int
+    {
+        if ($additionalInfo < 24) {
+            return $additionalInfo;
+        }
+
+        return match ($additionalInfo) {
+            24 => ord($this->data[$this->offset++]),
+            25 => unpack('n', $this->readBytes(2))[1],
+            26 => unpack('N', $this->readBytes(4))[1],
+            27 => unpack('J', $this->readBytes(8))[1],
+            default => 0,
+        };
+    }
+
+    private function readBytes(int $length): string
+    {
+        $bytes = substr($this->data, $this->offset, $length);
+        $this->offset += $length;
+
+        return $bytes;
+    }
+
+    private function readArray(int $length): array
+    {
+        $arr = [];
+        for ($i = 0; $i < $length; $i++) {
+            $arr[] = $this->decode();
+        }
+
+        return $arr;
+    }
+
+    private function readMap(int $length): array
+    {
+        $map = [];
+        for ($i = 0; $i < $length; $i++) {
+            $key = $this->decode();
+            $val = $this->decode();
+            $map[$key] = $val;
+        }
+
+        return $map;
     }
 }

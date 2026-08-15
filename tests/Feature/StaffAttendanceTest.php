@@ -8,6 +8,7 @@ use App\Models\StaffAttendance;
 use App\Models\StaffAttendanceProfile;
 use App\Models\User;
 use App\Services\StaffAttendanceService;
+use App\Services\WebAuthnService;
 use Carbon\Carbon;
 use Database\Seeders\StaffAttendanceRolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -321,5 +322,74 @@ class StaffAttendanceTest extends TestCase
         $collection = $export->collection();
         $this->assertGreaterThanOrEqual(1, $collection->count());
         $this->assertNotNull($export->styles(new Worksheet));
+    }
+
+    public function test_webauthn_passkey_registration_and_authentication_signature_verification(): void
+    {
+        $service = app(WebAuthnService::class);
+
+        // 1. Generate an ECDSA P-256 key pair to simulate a physical WebAuthn device
+        $ecKey = openssl_pkey_new(['curve_name' => 'prime256v1', 'private_key_type' => OPENSSL_KEYTYPE_EC]);
+        $details = openssl_pkey_get_details($ecKey);
+        $x = $details['ec']['x'];
+        $y = $details['ec']['y'];
+
+        // Build CBOR COSE key map: 1 => 2 (EC2), 3 => -7 (ES256), -1 => 1 (P-256), -2 => X (32B), -3 => Y (32B)
+        $coseKeyBytes = "\xa5\x01\x02\x03\x26\x20\x01\x21\x58\x20".$x."\x22\x58\x20".$y;
+
+        $rpIdHash = hash('sha256', 'localhost', true);
+        $flags = chr(0x45); // UP + UV + AT
+        $signCount = pack('N', 0);
+        $aaguid = random_bytes(16);
+        $credId = random_bytes(32);
+        $credIdLen = pack('n', strlen($credId));
+
+        $authData = $rpIdHash.$flags.$signCount.$aaguid.$credIdLen.$credId.$coseKeyBytes;
+        $attestationBytes = "\xa3\x63fmt\x64none\x67attStmt\xa0\x68authData\x59".pack('n', strlen($authData)).$authData;
+
+        $regChallenge = $service->generateChallenge();
+        session(['webauthn_register_challenge' => $regChallenge]);
+
+        $clientDataJSON = json_encode([
+            'type' => 'webauthn.create',
+            'challenge' => $regChallenge,
+            'origin' => 'http://localhost',
+        ]);
+
+        $credential = $service->verifyRegistration($this->staffUser, [
+            'id' => $service->base64UrlEncode($credId),
+            'clientDataJSON' => $service->base64UrlEncode($clientDataJSON),
+            'attestationObject' => $service->base64UrlEncode($attestationBytes),
+        ], 'MacBook Touch ID');
+
+        $this->assertNotNull($credential);
+        $this->assertEquals('MacBook Touch ID', $credential->name);
+        $this->assertStringContainsString('BEGIN PUBLIC KEY', $credential->public_key);
+
+        // 2. Simulate WebAuthn Authentication during Punch In
+        $authChallenge = $service->generateChallenge();
+        session(['webauthn_auth_challenge' => $authChallenge]);
+
+        $authClientDataJSON = json_encode([
+            'type' => 'webauthn.get',
+            'challenge' => $authChallenge,
+            'origin' => 'http://localhost',
+        ]);
+
+        $authAuthenticatorData = $rpIdHash.chr(0x01).pack('N', 1); // UP flag set
+        $dataToSign = $authAuthenticatorData.hash('sha256', $authClientDataJSON, true);
+
+        openssl_sign($dataToSign, $signature, $ecKey, OPENSSL_ALGO_SHA256);
+
+        $authPayload = [
+            'id' => $service->base64UrlEncode($credId),
+            'clientDataJSON' => $service->base64UrlEncode($authClientDataJSON),
+            'authenticatorData' => $service->base64UrlEncode($authAuthenticatorData),
+            'signature' => $service->base64UrlEncode($signature),
+        ];
+
+        $verifiedCred = $service->verifyAuthentication($this->staffUser, $authPayload);
+        $this->assertEquals($credential->id, $verifiedCred->id);
+        $this->assertEquals(1, $verifiedCred->counter);
     }
 }
