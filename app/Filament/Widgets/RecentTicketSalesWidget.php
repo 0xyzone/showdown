@@ -3,12 +3,14 @@
 namespace App\Filament\Widgets;
 
 use App\Models\TicketPurchase;
+use App\Models\User;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class RecentTicketSalesWidget extends BaseWidget
 {
@@ -24,7 +26,8 @@ class RecentTicketSalesWidget extends BaseWidget
     {
         return $table
             ->query(function () {
-                $user = auth()->user();
+                /** @var User|null $user */
+                $user = Auth::user();
                 $query = TicketPurchase::query()->with(['tournament', 'seller', 'ticketPackage'])->latest();
 
                 if ($user && ! $user->hasRole('super_admin')) {

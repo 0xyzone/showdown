@@ -3,13 +3,13 @@
 namespace App\Filament\Resources\Incomes\Schemas;
 
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class IncomeForm
 {
@@ -62,7 +62,7 @@ class IncomeForm
                             Select::make('entered_by')
                                 ->label('Entered By')
                                 ->relationship('enteredBy', 'name')
-                                ->default(fn () => auth()->id())
+                                ->default(fn () => Auth::id())
                                 ->disabled()
                                 ->dehydrated()
                                 ->required()
@@ -73,9 +73,6 @@ class IncomeForm
                             ->label('Additional Notes')
                             ->rows(3)
                             ->columnSpanFull(),
-
-                        Hidden::make('entered_by')
-                            ->default(fn () => auth()->id()),
                     ]),
             ]);
     }

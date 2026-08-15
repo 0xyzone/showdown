@@ -17,6 +17,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class TicketPurchaseForm
 {
@@ -297,8 +298,8 @@ class TicketPurchaseForm
 
                         Hidden::make('package_name'),
                         Hidden::make('payment_source'),
-                        Hidden::make('seller_id')->default(fn () => auth()->id()),
-                        Hidden::make('created_by')->default(fn () => auth()->id()),
+                        Hidden::make('seller_id')->default(fn () => Auth::id()),
+                        Hidden::make('created_by')->default(fn () => Auth::id()),
                     ]),
             ]);
     }

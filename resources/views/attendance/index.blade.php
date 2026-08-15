@@ -16,12 +16,12 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="min-h-full flex flex-col justify-between bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black p-4 sm:p-6 lg:p-8" x-data="staffAttendance()" x-init="initTerminal()">
+<body class="min-h-full flex flex-col justify-between bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black p-4 sm:p-6 lg:p-8" x-data="staffAttendance()" x-init="initTerminal()">
 
     <!-- TOP NAVIGATION BAR -->
     <header class="max-w-xl mx-auto w-full flex items-center justify-between py-2 border-b border-slate-800/80 mb-6">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-emerald-500 p-0.5 shadow-lg shadow-emerald-500/10 flex items-center justify-center">
+            <div class="w-10 h-10 rounded-xl bg-linear-to-br from-amber-500 to-emerald-500 p-0.5 shadow-lg shadow-emerald-500/10 flex items-center justify-center">
                 <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center font-black text-amber-400 text-lg">
                     ⚡
                 </div>
@@ -48,7 +48,7 @@
     <main class="max-w-xl mx-auto w-full space-y-6 flex-1 flex flex-col justify-center">
 
         <!-- TIME & GREETING CARD -->
-        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-b from-slate-900/90 to-slate-900/40 border border-slate-800 p-6 sm:p-8 backdrop-blur-xl text-center shadow-2xl space-y-3">
+        <div class="relative overflow-hidden rounded-3xl bg-linear-to-b from-slate-900/90 to-slate-900/40 border border-slate-800 p-6 sm:p-8 backdrop-blur-xl text-center shadow-2xl space-y-3">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700/60 text-xs font-bold text-slate-300 uppercase tracking-widest">
                 <span class="w-2 h-2 rounded-full animate-ping" :class="isClockedIn ? 'bg-emerald-400' : 'bg-amber-400'"></span>
                 <span x-text="greetingText"></span>
@@ -112,7 +112,7 @@
                 <button
                     @click="handlePunchIn()"
                     :disabled="isLoading || (!isRemoteAllowed && locationStatus === 'outside')"
-                    class="w-full py-5 px-6 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-lg uppercase tracking-wider shadow-xl shadow-emerald-950/50 flex items-center justify-center gap-3 transition-all transform active:scale-[0.99] cursor-pointer"
+                    class="w-full py-5 px-6 rounded-2xl bg-linear-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-lg uppercase tracking-wider shadow-xl shadow-emerald-950/50 flex items-center justify-center gap-3 transition-all transform active:scale-[0.99] cursor-pointer"
                 >
                     <template x-if="isLoading">
                         <div class="flex items-center gap-2">
@@ -146,7 +146,7 @@
                     <button
                         @click="handlePunchOut()"
                         :disabled="isLoading"
-                        class="w-full py-5 px-6 rounded-2xl bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 disabled:opacity-50 text-white font-black text-lg uppercase tracking-wider shadow-xl shadow-rose-950/50 flex items-center justify-center gap-3 transition-all transform active:scale-[0.99] cursor-pointer"
+                        class="w-full py-5 px-6 rounded-2xl bg-linear-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 disabled:opacity-50 text-white font-black text-lg uppercase tracking-wider shadow-xl shadow-rose-950/50 flex items-center justify-center gap-3 transition-all transform active:scale-[0.99] cursor-pointer"
                     >
                         <template x-if="isLoading">
                             <div class="flex items-center gap-2">

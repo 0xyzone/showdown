@@ -39,9 +39,4 @@ class Team extends Model
     {
         return $this->hasMany(TournamentRegistration::class);
     }
-
-    public function standings(): HasMany
-    {
-        return $this->hasMany(TournamentStandings::class);
-    }
 }

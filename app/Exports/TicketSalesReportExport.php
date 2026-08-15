@@ -3,8 +3,10 @@
 namespace App\Exports;
 
 use App\Models\TicketPurchase;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Enumerable;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -21,7 +23,8 @@ class TicketSalesReportExport implements FromCollection, ShouldAutoSize, WithHea
 
     public function collection(): Enumerable
     {
-        $user = auth()->user();
+        /** @var User|null $user */
+        $user = Auth::user();
         $query = TicketPurchase::with(['tournament', 'seller', 'ticketPackage', 'paymentMethod', 'tickets.attendances.eventDay'])
             ->orderBy('created_at', 'desc');
 

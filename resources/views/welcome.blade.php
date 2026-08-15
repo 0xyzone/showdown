@@ -109,7 +109,7 @@
                 @endif
 
                 <div class="min-w-0">
-                    <span class="font-display font-black text-xs sm:text-base lg:text-lg tracking-wider text-white block uppercase truncate max-w-[130px] sm:max-w-[220px] md:max-w-none">
+                    <span class="font-display font-black text-xs sm:text-base lg:text-lg tracking-wider text-white block uppercase truncate max-w-32.5 sm:max-w-55 md:max-w-none">
                         {{ $tournamentName }}
                     </span>
                     <span class="text-[9px] sm:text-[10px] font-mono-tech tracking-widest text-slate-400 hidden xs:block uppercase truncate">
@@ -578,7 +578,7 @@
     </main>
 
     <!-- LIVEWIRE SPONSOR INQUIRY MODAL -->
-    <div id="sponsor-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+    <div id="sponsor-modal" class="fixed inset-0 z-50 items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden [&:not(.hidden)]:flex">
         <div class="relative w-full max-w-lg rounded-xl bg-[#0e131d] border border-white/15 p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
             <button onclick="document.getElementById('sponsor-modal').classList.add('hidden')" class="absolute top-5 right-5 text-slate-400 hover:text-white text-xl font-bold cursor-pointer">✕</button>
             <div class="text-center mb-6">

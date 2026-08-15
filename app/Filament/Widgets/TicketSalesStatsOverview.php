@@ -4,10 +4,12 @@ namespace App\Filament\Widgets;
 
 use App\Models\Ticket;
 use App\Models\TicketPurchase;
+use App\Models\User;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Auth;
 
 class TicketSalesStatsOverview extends BaseWidget
 {
@@ -17,7 +19,8 @@ class TicketSalesStatsOverview extends BaseWidget
 
     protected function getStats(): array
     {
-        $user = auth()->user();
+        /** @var User|null $user */
+        $user = Auth::user();
         $isSuperAdmin = (bool) $user?->hasRole('super_admin');
 
         if (! $isSuperAdmin) {

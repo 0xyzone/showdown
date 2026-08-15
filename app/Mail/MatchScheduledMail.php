@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\MatchSeries;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -14,7 +13,7 @@ class MatchScheduledMail extends Mailable
     use Queueable, SerializesModels;
 
     public function __construct(
-        public MatchSeries $series,
+        public mixed $series,
         public string $lobbyDetails = ''
     ) {}
 

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Tickets\Tables;
 
 use App\Models\Ticket;
 use App\Models\TicketPackage;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -13,6 +14,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class TicketsTable
 {
@@ -20,7 +22,8 @@ class TicketsTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $user = auth()->user();
+                /** @var User|null $user */
+                $user = Auth::user();
                 if ($user && ! $user->hasRole('super_admin')) {
                     $query->whereHas('ticketPurchase', function ($q) use ($user) {
                         $q->where('seller_id', $user->id)
