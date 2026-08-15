@@ -20,6 +20,7 @@ class OfficialMembersResourceTest extends TestCase
         parent::setUp();
 
         Role::create(['name' => 'super_admin']);
+        Role::create(['name' => 'staff']);
     }
 
     public function test_super_admin_can_render_official_members_list_page(): void
@@ -55,6 +56,11 @@ class OfficialMembersResourceTest extends TestCase
             'email' => 'newmember@example.com',
             'username' => 'newmember',
         ]);
+
+        $newMember = User::where('email', 'newmember@example.com')->first();
+        $this->assertNotNull($newMember);
+        $this->assertTrue($newMember->hasRole('staff'));
+        $this->assertNotNull($newMember->attendanceProfile);
     }
 
     public function test_super_admin_can_edit_official_member(): void

@@ -10,6 +10,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserForm
 {
@@ -43,7 +44,12 @@ class UserForm
                                 ->relationship('roles', 'name')
                                 ->multiple()
                                 ->preload()
-                                ->searchable(),
+                                ->searchable()
+                                ->default(function () {
+                                    $staff = Role::where('name', 'staff')->where('guard_name', 'web')->first();
+
+                                    return $staff ? [$staff->id] : [];
+                                }),
                             Toggle::make('is_active')
                                 ->label('Active Account Status')
                                 ->default(true)

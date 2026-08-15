@@ -2,8 +2,10 @@
 
 namespace App\Observers;
 
+use App\Models\StaffAttendanceProfile;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Models\Role;
 
 class UserObserver
 {
@@ -17,6 +19,27 @@ class UserObserver
         'citizenship_image',
         'qr_code_image',
     ];
+
+    /**
+     * Handle the User "created" event.
+     */
+    public function created(User $user): void
+    {
+        // Automatically give 'staff' role to newly created official members if no role assigned
+        if ($user->roles()->count() === 0) {
+            $staffRole = Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web']);
+            $user->assignRole($staffRole);
+        }
+
+        // Ensure attendance profile is initialized
+        StaffAttendanceProfile::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'attendance_mode' => 'office_only',
+                'is_biometric_exempt' => false,
+            ]
+        );
+    }
 
     /**
      * Handle the User "updating" event.
