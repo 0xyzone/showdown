@@ -78,6 +78,13 @@ class StaffAttendanceTest extends TestCase
         ]);
     }
 
+    public function test_guest_is_redirected_to_login_when_accessing_attendance_terminal(): void
+    {
+        $response = $this->get(route('attendance.index'));
+
+        $response->assertRedirect('/maidan/login');
+    }
+
     public function test_staff_can_view_attendance_terminal_when_authenticated(): void
     {
         $response = $this->actingAs($this->staffUser, 'web')

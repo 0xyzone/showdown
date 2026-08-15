@@ -70,6 +70,11 @@ Route::get('/', function () {
     ));
 });
 
+// Fallback named login route redirecting to Filament admin login
+Route::get('/login', function () {
+    return redirect()->route('filament.maidan.auth.login');
+})->name('login');
+
 // Preview routes for testing the custom esports error pages
 Route::get('/test-error/{code}', function ($code) {
     $validCodes = ['403', '404', '419', '429', '500', '503'];
