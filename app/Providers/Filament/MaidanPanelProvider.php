@@ -16,6 +16,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -40,7 +41,12 @@ class MaidanPanelProvider extends PanelProvider
             ->login(CustomLogin::class)
             ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth(Width::Full)
+            ->globalSearch(false)
             ->databaseNotifications()
+            ->renderHook(
+                PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+                fn () => view('filament.components.topbar-attendance-badge')
+            )
             ->userMenuItems([
                 'edit-profile' => MenuItem::make()
                     ->label('Edit Profile')
