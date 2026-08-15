@@ -38,7 +38,7 @@
                 <span class="hidden sm:inline">Passkeys</span>
                 <span class="px-1.5 py-0.2 bg-emerald-950 text-emerald-400 rounded text-[10px] font-bold border border-emerald-800">{{ count($credentials) }}</span>
             </button>
-            <a href="{{ route('filament.maidan.pages.dashboard') }}" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-600 text-xs font-semibold text-slate-300 flex items-center gap-1 transition">
+            <a href="{{ route('filament.maidan.pages.dashboard') }}" class="shrink-0 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-600 text-xs font-semibold text-slate-300 flex items-center gap-1 transition">
                 <span>Portal &rarr;</span>
             </a>
         </div>
