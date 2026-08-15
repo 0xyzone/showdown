@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 #[Fillable([
     'user_id',
@@ -27,6 +28,18 @@ class StaffAttendanceProfile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function biometricCredentials(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            StaffBiometricCredential::class,
+            User::class,
+            'id',
+            'user_id',
+            'user_id',
+            'id'
+        );
     }
 
     public function isRemoteAllowed(): bool

@@ -392,4 +392,14 @@ class StaffAttendanceTest extends TestCase
         $this->assertEquals($credential->id, $verifiedCred->id);
         $this->assertEquals(1, $verifiedCred->counter);
     }
+
+    public function test_admin_can_view_staff_attendance_profiles_resource(): void
+    {
+        $response = $this->actingAs($this->superAdmin, 'web')
+            ->get('/maidan/staff-attendance-profiles');
+
+        $response->assertStatus(200);
+        $response->assertSee('Staff Attendance Policies');
+        $response->assertSee('Office Staff John');
+    }
 }

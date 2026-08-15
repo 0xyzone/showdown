@@ -104,9 +104,9 @@ class StaffAttendanceProfileResource extends Resource
                     ->trueColor('warning')
                     ->falseColor('success'),
 
-                TextColumn::make('user.biometric_credentials_count')
+                TextColumn::make('registered_devices')
                     ->label('Registered Devices')
-                    ->counts('user.biometricCredentials')
+                    ->state(fn (StaffAttendanceProfile $record): int => $record->user?->biometricCredentials()->where('is_active', true)->count() ?? 0)
                     ->badge()
                     ->color('gray'),
 
