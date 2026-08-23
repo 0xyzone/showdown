@@ -29,8 +29,11 @@ class OngoingTournamentWidget extends Widget implements HasActions, HasForms
 
     public function mount(): void
     {
-        $this->tournament = Tournament::where('is_active', true)
-            ->orWhere('status', 'registration_open')
+        $this->tournament = Tournament::where('status', '!=', 'draft')
+            ->where(function ($query) {
+                $query->where('is_active', true)
+                    ->orWhere('status', 'registration_open');
+            })
             ->first();
 
         if ($this->tournament) {

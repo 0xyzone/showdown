@@ -15,6 +15,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
@@ -95,6 +96,41 @@ class TournamentForm
                                         ->directory('tournaments'),
                                     RichEditor::make('description')
                                         ->label('Tournament Description')
+                                        ->columnSpanFull(),
+                                ]),
+                            ]),
+
+                        Tab::make('LAN Venue & Stadium')
+                            ->icon('heroicon-o-map-pin')
+                            ->schema([
+                                Grid::make(2)->schema([
+                                    Toggle::make('is_lan')
+                                        ->label('Is Offline / LAN Championship Event?')
+                                        ->helperText('Enable to display physical LAN venue information and map navigation on the website.')
+                                        ->live()
+                                        ->columnSpanFull(),
+                                    TextInput::make('venue_name')
+                                        ->label('Venue / Stadium Name')
+                                        ->placeholder('e.g. Bhrikutimandap Exhibition Hall')
+                                        ->visible(fn (Get $get): bool => (bool) $get('is_lan'))
+                                        ->maxLength(255),
+                                    TextInput::make('venue_map_url')
+                                        ->label('Google Maps Navigation / Location URL')
+                                        ->placeholder('e.g. https://maps.app.goo.gl/... or https://maps.google.com/?q=...')
+                                        ->url()
+                                        ->visible(fn (Get $get): bool => (bool) $get('is_lan'))
+                                        ->maxLength(500),
+                                    TextInput::make('venue_address')
+                                        ->label('Physical Address')
+                                        ->placeholder('e.g. Pradarshani Marg, Kathmandu, Nepal')
+                                        ->visible(fn (Get $get): bool => (bool) $get('is_lan'))
+                                        ->columnSpanFull()
+                                        ->maxLength(255),
+                                    Textarea::make('venue_notes')
+                                        ->label('Venue Spectator Guidelines & Entry Notes')
+                                        ->placeholder('e.g. Gate 2 Spectator Entry, Free spectator seating, parking available...')
+                                        ->visible(fn (Get $get): bool => (bool) $get('is_lan'))
+                                        ->rows(3)
                                         ->columnSpanFull(),
                                 ]),
                             ]),

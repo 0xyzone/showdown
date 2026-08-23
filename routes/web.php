@@ -12,10 +12,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     $activeTournament = Tournament::where('is_active', true)
+        ->where('status', '!=', 'draft')
         ->with(['gameTitles', 'eventDays', 'ticketPackages'])
         ->first();
 
     $otherTournaments = Tournament::where('id', '!=', $activeTournament?->id ?? 0)
+        ->where('status', '!=', 'draft')
         ->with(['gameTitles'])
         ->orderBy('start_date', 'asc')
         ->take(4)
@@ -80,6 +82,7 @@ Route::get('/login', function () {
 // Public Legal & Knowledge Base Pages
 Route::get('/guide', function () {
     $activeTournament = Tournament::where('is_active', true)
+        ->where('status', '!=', 'draft')
         ->with(['gameTitles', 'eventDays'])
         ->first();
 

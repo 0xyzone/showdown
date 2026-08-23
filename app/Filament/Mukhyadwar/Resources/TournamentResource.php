@@ -22,6 +22,7 @@ use Filament\Tables\Actions\Action as TableAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class TournamentResource extends Resource
@@ -101,7 +102,8 @@ class TournamentResource extends Resource
                     ->visible(fn (Tournament $record): bool => in_array($record->status, ['registration_open', 'ongoing']) || $record->is_active)
                     ->form(fn (Tournament $record) => static::getRegistrationFormSchema($record))
                     ->action(fn (array $data, Tournament $record) => static::processTeamRegistration($data, $record)),
-            ]);
+            ])
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('status', '!=', 'draft'));
     }
 
     public static function getRegistrationFormSchema(Tournament $tournament): array

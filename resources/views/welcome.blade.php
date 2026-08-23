@@ -313,6 +313,44 @@
             </div>
         </section>
 
+        <!-- KINETIC SCROLLING MARQUEE TICKER 1 -->
+        <div class="w-full bg-[#03070d] border-y border-white/10 py-3.5 overflow-hidden">
+            <div class="marquee-container">
+                <div class="marquee-content text-xs sm:text-sm font-mono-tech font-bold uppercase tracking-widest text-slate-300">
+                    <span class="flex items-center gap-2.5"><span class="text-emerald-400">⚡</span> NEPAL'S BIGGEST ESPORTS BATTLE</span>
+                    <span class="text-slate-600">//</span>
+                    <span class="flex items-center gap-2.5"><span class="text-cyan-400">🎮</span> PUBG MOBILE • MLBB OPEN & WOMEN'S • VALORANT</span>
+                    <span class="text-slate-600">//</span>
+                    <span class="flex items-center gap-2.5"><span class="text-amber-400">🏆</span> RS. {{ $prizePool > 0 ? number_format($prizePool) : '500,000+' }} PRIZE POOL</span>
+                    <span class="text-slate-600">//</span>
+                    @if($activeTournament && $activeTournament->is_lan && $activeTournament->venue_name)
+                        <span class="flex items-center gap-2.5"><span class="text-purple-400">📍</span> LAN FINALS AT {{ strtoupper($activeTournament->venue_name) }}</span>
+                    @else
+                        <span class="flex items-center gap-2.5"><span class="text-purple-400">📍</span> NATIONAL CHAMPIONSHIP FINALS</span>
+                    @endif
+                    <span class="text-slate-600">//</span>
+                    <span class="flex items-center gap-2.5"><span class="text-emerald-400">🔥</span> ZERO ANTI-CHEAT TOLERANCE</span>
+                    <span class="text-slate-600">//</span>
+                </div>
+                <div class="marquee-content text-xs sm:text-sm font-mono-tech font-bold uppercase tracking-widest text-slate-300" aria-hidden="true">
+                    <span class="flex items-center gap-2.5"><span class="text-emerald-400">⚡</span> NEPAL'S BIGGEST ESPORTS BATTLE</span>
+                    <span class="text-slate-600">//</span>
+                    <span class="flex items-center gap-2.5"><span class="text-cyan-400">🎮</span> PUBG MOBILE • MLBB OPEN & WOMEN'S • VALORANT</span>
+                    <span class="text-slate-600">//</span>
+                    <span class="flex items-center gap-2.5"><span class="text-amber-400">🏆</span> RS. {{ $prizePool > 0 ? number_format($prizePool) : '500,000+' }} PRIZE POOL</span>
+                    <span class="text-slate-600">//</span>
+                    @if($activeTournament && $activeTournament->is_lan && $activeTournament->venue_name)
+                        <span class="flex items-center gap-2.5"><span class="text-purple-400">📍</span> LAN FINALS AT {{ strtoupper($activeTournament->venue_name) }}</span>
+                    @else
+                        <span class="flex items-center gap-2.5"><span class="text-purple-400">📍</span> NATIONAL CHAMPIONSHIP FINALS</span>
+                    @endif
+                    <span class="text-slate-600">//</span>
+                    <span class="flex items-center gap-2.5"><span class="text-emerald-400">🔥</span> ZERO ANTI-CHEAT TOLERANCE</span>
+                    <span class="text-slate-600">//</span>
+                </div>
+            </div>
+        </div>
+
         <!-- 2. GAME DISCIPLINES (DYNAMIC ONLY) -->
         @if($gameTitles->isNotEmpty())
             <section id="games" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
@@ -497,7 +535,393 @@
             </section>
         @endif
 
-        <!-- 5. SPONSORS & PARTNERS (UNBOXED HIGH-VISIBILITY SHOWCASE) -->
+        <!-- 5. OFFICIAL COMMUNITY SOCIALS HUB (INSTAGRAM, TIKTOK & FACEBOOK) -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="border-b border-white/10 pb-4 mb-8 sm:mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+                <div>
+                    <span class="text-xs font-mono-tech font-bold uppercase tracking-widest text-pink-400 block mb-1">
+                        OFFICIAL COMMUNITY & SOCIAL FEEDS
+                    </span>
+                    <h2 class="font-display text-2xl sm:text-4xl font-black uppercase text-white">
+                        Follow Outlaw Esports
+                    </h2>
+                </div>
+                <span class="text-xs font-mono-tech text-slate-400">Live feeds from our official Instagram, TikTok & Facebook channels</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 1. INSTAGRAM FEED -->
+                <div class="editorial-card rounded-3xl p-6 sm:p-7 space-y-5 relative overflow-hidden group flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-4 border-b border-white/10">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 p-0.5 shadow-lg shrink-0">
+                                    <div class="w-full h-full bg-[#080c14] rounded-2xl flex items-center justify-center text-lg">
+                                        📸
+                                    </div>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="font-display font-black text-sm text-white truncate">@outlaw_esportsnepal</h3>
+                                    <span class="text-[10px] font-mono-tech text-pink-400 uppercase font-bold block">Instagram Feed</span>
+                                </div>
+                            </div>
+                            <a href="https://www.instagram.com/outlaw_esportsnepal/" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white text-[11px] font-mono-tech font-bold uppercase tracking-wider transition-all shrink-0">
+                                Follow ↗
+                            </a>
+                        </div>
+
+                        <!-- LATEST INSTAGRAM POSTS PREVIEW TILES -->
+                        <div class="grid grid-cols-2 gap-2.5 mt-4">
+                            <a href="https://www.instagram.com/outlaw_esportsnepal/" target="_blank" rel="noopener noreferrer" class="rounded-xl overflow-hidden bg-[#040608] border border-white/10 p-3 text-center group/item hover:border-pink-500/50 transition-all flex flex-col items-center justify-center min-h-[110px]">
+                                <span class="text-2xl mb-1.5">🏆</span>
+                                <span class="text-[10px] font-mono-tech text-white font-bold uppercase block">Trophy Reveal</span>
+                                <span class="text-[9px] font-mono-tech text-slate-400 mt-0.5">Showdown 2026</span>
+                            </a>
+                            <a href="https://www.instagram.com/outlaw_esportsnepal/" target="_blank" rel="noopener noreferrer" class="rounded-xl overflow-hidden bg-[#040608] border border-white/10 p-3 text-center group/item hover:border-pink-500/50 transition-all flex flex-col items-center justify-center min-h-[110px]">
+                                <span class="text-2xl mb-1.5">🔥</span>
+                                <span class="text-[10px] font-mono-tech text-white font-bold uppercase block">Match Schedules</span>
+                                <span class="text-[9px] font-mono-tech text-slate-400 mt-0.5">Live Brackets</span>
+                            </a>
+                            <a href="https://www.instagram.com/outlaw_esportsnepal/" target="_blank" rel="noopener noreferrer" class="rounded-xl overflow-hidden bg-[#040608] border border-white/10 p-3 text-center group/item hover:border-pink-500/50 transition-all flex flex-col items-center justify-center min-h-[110px]">
+                                <span class="text-2xl mb-1.5">👑</span>
+                                <span class="text-[10px] font-mono-tech text-white font-bold uppercase block">MVP Leaderboards</span>
+                                <span class="text-[9px] font-mono-tech text-slate-400 mt-0.5">Top Fraggers</span>
+                            </a>
+                            <a href="https://www.instagram.com/outlaw_esportsnepal/" target="_blank" rel="noopener noreferrer" class="rounded-xl overflow-hidden bg-[#040608] border border-white/10 p-3 text-center group/item hover:border-pink-500/50 transition-all flex flex-col items-center justify-center min-h-[110px]">
+                                <span class="text-2xl mb-1.5">🎬</span>
+                                <span class="text-[10px] font-mono-tech text-white font-bold uppercase block">Stage Highlights</span>
+                                <span class="text-[9px] font-mono-tech text-slate-400 mt-0.5">Photo Gallery</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-white/5">
+                        <a href="https://www.instagram.com/outlaw_esportsnepal/" target="_blank" rel="noopener noreferrer" class="text-xs font-mono-tech text-slate-300 hover:text-pink-400 transition-colors flex items-center justify-between">
+                            <span>View All Instagram Posts</span>
+                            <span>→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 2. TIKTOK FEED -->
+                <div class="editorial-card rounded-3xl p-6 sm:p-7 space-y-5 relative overflow-hidden group flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-4 border-b border-white/10">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-400 to-pink-500 p-0.5 shadow-lg shrink-0">
+                                    <div class="w-full h-full bg-[#080c14] rounded-2xl flex items-center justify-center text-lg">
+                                        🎵
+                                    </div>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="font-display font-black text-sm text-white truncate">@outlaw.esports6</h3>
+                                    <span class="text-[10px] font-mono-tech text-cyan-400 uppercase font-bold block">TikTok Reels</span>
+                                </div>
+                            </div>
+                            <a href="https://www.tiktok.com/@outlaw.esports6" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-200 text-black text-[11px] font-mono-tech font-bold uppercase tracking-wider transition-all shrink-0">
+                                Watch ↗
+                            </a>
+                        </div>
+
+                        <!-- LATEST TIKTOK VIRAL REELS TILES -->
+                        <div class="grid grid-cols-2 gap-2.5 mt-4">
+                            <a href="https://www.tiktok.com/@outlaw.esports6" target="_blank" rel="noopener noreferrer" class="rounded-xl overflow-hidden bg-[#040608] border border-white/10 p-3 text-center group/item hover:border-cyan-400/50 transition-all flex flex-col items-center justify-center min-h-[110px]">
+                                <span class="text-2xl mb-1.5">⚡</span>
+                                <span class="text-[10px] font-mono-tech text-white font-bold uppercase block">1v4 Clutch Ace</span>
+                                <span class="text-[9px] font-mono-tech text-cyan-400 mt-0.5">Viral Clip</span>
+                            </a>
+                            <a href="https://www.tiktok.com/@outlaw.esports6" target="_blank" rel="noopener noreferrer" class="rounded-xl overflow-hidden bg-[#040608] border border-white/10 p-3 text-center group/item hover:border-cyan-400/50 transition-all flex flex-col items-center justify-center min-h-[110px]">
+                                <span class="text-2xl mb-1.5">🎮</span>
+                                <span class="text-[10px] font-mono-tech text-white font-bold uppercase block">LAN Walkouts</span>
+                                <span class="text-[9px] font-mono-tech text-cyan-400 mt-0.5">Player Intros</span>
+                            </a>
+                            <a href="https://www.tiktok.com/@outlaw.esports6" target="_blank" rel="noopener noreferrer" class="rounded-xl overflow-hidden bg-[#040608] border border-white/10 p-3 text-center group/item hover:border-cyan-400/50 transition-all flex flex-col items-center justify-center min-h-[110px]">
+                                <span class="text-2xl mb-1.5">🗣️</span>
+                                <span class="text-[10px] font-mono-tech text-white font-bold uppercase block">Mic'd Up Teams</span>
+                                <span class="text-[9px] font-mono-tech text-cyan-400 mt-0.5">Voice Comms</span>
+                            </a>
+                            <a href="https://www.tiktok.com/@outlaw.esports6" target="_blank" rel="noopener noreferrer" class="rounded-xl overflow-hidden bg-[#040608] border border-white/10 p-3 text-center group/item hover:border-cyan-400/50 transition-all flex flex-col items-center justify-center min-h-[110px]">
+                                <span class="text-2xl mb-1.5">💥</span>
+                                <span class="text-[10px] font-mono-tech text-white font-bold uppercase block">Crowd Reactions</span>
+                                <span class="text-[9px] font-mono-tech text-cyan-400 mt-0.5">Stadium Energy</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-white/5">
+                        <a href="https://www.tiktok.com/@outlaw.esports6" target="_blank" rel="noopener noreferrer" class="text-xs font-mono-tech text-slate-300 hover:text-cyan-400 transition-colors flex items-center justify-between">
+                            <span>Watch All TikTok Videos</span>
+                            <span>→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 3. FACEBOOK COMMUNITY FEED -->
+                <div class="editorial-card rounded-3xl p-6 sm:p-7 space-y-5 relative overflow-hidden group flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-4 border-b border-white/10">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 p-0.5 shadow-lg shrink-0">
+                                    <div class="w-full h-full bg-[#080c14] rounded-2xl flex items-center justify-center text-lg text-blue-500 font-black">
+                                        f
+                                    </div>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="font-display font-black text-sm text-white truncate">Outlaw Esports</h3>
+                                    <span class="text-[10px] font-mono-tech text-blue-400 uppercase font-bold block">Facebook Page</span>
+                                </div>
+                            </div>
+                            <a href="https://www.facebook.com/OutlawESports" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-mono-tech font-bold uppercase tracking-wider transition-all shrink-0">
+                                Join ↗
+                            </a>
+                        </div>
+
+                        <!-- LATEST FACEBOOK COMMUNITY TILES -->
+                        <div class="grid grid-cols-2 gap-2.5 mt-4">
+                            <a href="https://www.facebook.com/OutlawESports" target="_blank" rel="noopener noreferrer" class="rounded-xl overflow-hidden bg-[#040608] border border-white/10 p-3 text-center group/item hover:border-blue-500/50 transition-all flex flex-col items-center justify-center min-h-[110px]">
+                                <span class="text-2xl mb-1.5">📢</span>
+                                <span class="text-[10px] font-mono-tech text-white font-bold uppercase block">Official Updates</span>
+                                <span class="text-[9px] font-mono-tech text-blue-400 mt-0.5">Press Releases</span>
+                            </a>
+                            <a href="https://www.facebook.com/OutlawESports" target="_blank" rel="noopener noreferrer" class="rounded-xl overflow-hidden bg-[#040608] border border-white/10 p-3 text-center group/item hover:border-blue-500/50 transition-all flex flex-col items-center justify-center min-h-[110px]">
+                                <span class="text-2xl mb-1.5">🎫</span>
+                                <span class="text-[10px] font-mono-tech text-white font-bold uppercase block">Ticket Passes</span>
+                                <span class="text-[9px] font-mono-tech text-blue-400 mt-0.5">Early Bird Entry</span>
+                            </a>
+                            <a href="https://www.facebook.com/OutlawESports" target="_blank" rel="noopener noreferrer" class="rounded-xl overflow-hidden bg-[#040608] border border-white/10 p-3 text-center group/item hover:border-blue-500/50 transition-all flex flex-col items-center justify-center min-h-[110px]">
+                                <span class="text-2xl mb-1.5">🤝</span>
+                                <span class="text-[10px] font-mono-tech text-white font-bold uppercase block">Partner News</span>
+                                <span class="text-[9px] font-mono-tech text-blue-400 mt-0.5">Brand Alliances</span>
+                            </a>
+                            <a href="https://www.facebook.com/OutlawESports" target="_blank" rel="noopener noreferrer" class="rounded-xl overflow-hidden bg-[#040608] border border-white/10 p-3 text-center group/item hover:border-blue-500/50 transition-all flex flex-col items-center justify-center min-h-[110px]">
+                                <span class="text-2xl mb-1.5">💬</span>
+                                <span class="text-[10px] font-mono-tech text-white font-bold uppercase block">Fan Discussions</span>
+                                <span class="text-[9px] font-mono-tech text-blue-400 mt-0.5">Community Hub</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-white/5">
+                        <a href="https://www.facebook.com/OutlawESports" target="_blank" rel="noopener noreferrer" class="text-xs font-mono-tech text-slate-300 hover:text-blue-400 transition-colors flex items-center justify-between">
+                            <span>Open Facebook Page</span>
+                            <span>→</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. DYNAMIC LAN ARENA & VENUE EXPERIENCE + GOOGLE MAPS (ONLY SHOWN IF CONFIGURED AS LAN EVENT) -->
+        @if($activeTournament && $activeTournament->is_lan && ($activeTournament->venue_name || $activeTournament->venue_map_url))
+            @php
+                $venueQuery = urlencode($activeTournament->venue_address ?: ($activeTournament->venue_name ?: 'Bhrikutimandap, Kathmandu'));
+                $venueDirectionLink = $activeTournament->venue_map_url ?: 'https://maps.google.com/?q=' . $venueQuery;
+            @endphp
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="border-b border-white/10 pb-4 mb-8 sm:mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+                    <div>
+                        <span class="text-xs font-mono-tech font-bold uppercase tracking-widest text-emerald-400 block mb-1">
+                            OFFICIAL LAN CHAMPIONSHIP VENUE
+                        </span>
+                        <h2 class="font-display text-2xl sm:text-4xl font-black uppercase text-white">
+                            {{ $activeTournament->venue_name ?: 'LAN Grand Finals Arena' }}
+                        </h2>
+                    </div>
+                    <a href="{{ $venueDirectionLink }}" target="_blank" rel="noopener noreferrer" class="text-xs font-mono-tech font-bold uppercase text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1.5">
+                        <span>Get Directions on Google Maps</span>
+                        <span>↗</span>
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                    <!-- VENUE SPECS & HIGHLIGHTS -->
+                    <div class="lg:col-span-5 space-y-6 flex flex-col justify-between">
+                        <div class="editorial-card rounded-3xl p-6 sm:p-8 space-y-6">
+                            <div>
+                                <span class="px-2.5 py-0.5 rounded text-[10px] font-mono-tech uppercase font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 inline-block mb-2">
+                                    Offline Finals Stadium • Kathmandu
+                                </span>
+                                <h3 class="font-display text-xl sm:text-2xl font-black text-white">
+                                    {{ $activeTournament->venue_name }}
+                                </h3>
+                                @if($activeTournament->venue_address)
+                                    <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mt-2 font-mono-tech">
+                                        📍 {{ $activeTournament->venue_address }}
+                                    </p>
+                                @endif
+                                @if($activeTournament->venue_notes)
+                                    <p class="text-emerald-400/90 text-xs font-mono-tech mt-2.5 p-2.5 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                                        ℹ️ {{ $activeTournament->venue_notes }}
+                                    </p>
+                                @endif
+                            </div>
+
+                            <div class="space-y-3.5 text-xs font-mono-tech">
+                                <div class="flex items-start gap-3">
+                                    <span class="text-emerald-400 font-bold text-base">🖥️</span>
+                                    <div>
+                                        <span class="text-white font-bold block">240Hz Pro Tournament Stations</span>
+                                        <span class="text-slate-400 text-[11px]">Standardized esports tournament PC rigs & mobile gaming setups.</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <span class="text-cyan-400 font-bold text-base">🎧</span>
+                                    <div>
+                                        <span class="text-white font-bold block">Sound-Isolated Stage Pods</span>
+                                        <span class="text-slate-400 text-[11px]">Studio-grade voice communication and noise cancellation.</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <span class="text-purple-400 font-bold text-base">📺</span>
+                                    <div>
+                                        <span class="text-white font-bold block">Ultra HD Spectator LED Stage</span>
+                                        <span class="text-slate-400 text-[11px]">High-fidelity live multi-angle tournament stadium display.</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <span class="text-amber-400 font-bold text-base">⚡</span>
+                                    <div>
+                                        <span class="text-white font-bold block">Low-Latency Dedicated Fiber</span>
+                                        <span class="text-slate-400 text-[11px]">Redundant gigabit connectivity for zero-ping competitive play.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-2">
+                                <a href="{{ $venueDirectionLink }}" target="_blank" rel="noopener noreferrer" class="w-full py-3 rounded-xl btn-primary-action text-xs font-black text-center block uppercase tracking-wider">
+                                    Open in Google Maps ↗
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GOOGLE MAPS INTERACTIVE EMBED -->
+                    <div class="lg:col-span-7 editorial-card rounded-3xl p-2.5 overflow-hidden min-h-[380px] flex">
+                        <iframe 
+                            src="https://maps.google.com/maps?q={{ $venueQuery }}&hl=en&z=16&output=embed" 
+                            width="100%" 
+                            height="100%" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade" 
+                            class="w-full h-full min-h-[360px] sm:min-h-[440px] rounded-2xl grayscale contrast-125 opacity-85 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                        </iframe>
+                    </div>
+                </div>
+            </section>
+        @endif
+
+        <!-- 8. FREQUENTLY ASKED QUESTIONS -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="border-b border-white/10 pb-4 mb-8 sm:mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+                <div>
+                    <span class="text-xs font-mono-tech font-bold uppercase tracking-widest text-emerald-400 block mb-1">
+                        QUESTIONS & OPERATIONAL INTEL
+                    </span>
+                    <h2 class="font-display text-2xl sm:text-4xl font-black uppercase text-white">
+                        Frequently Asked Questions
+                    </h2>
+                </div>
+                <a href="{{ url('/guide') }}" class="text-xs font-mono-tech font-bold uppercase text-emerald-400 hover:text-emerald-300 transition-colors">
+                    Read Manager Guide →
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <details class="editorial-card rounded-2xl p-5 text-xs font-mono-tech group cursor-pointer">
+                    <summary class="font-display font-bold text-sm text-white flex items-center justify-between list-none">
+                        <span>How do team managers register their squads?</span>
+                        <span class="text-emerald-400 text-lg transition-transform group-open:rotate-45">+</span>
+                    </summary>
+                    <p class="mt-3 text-slate-300 leading-relaxed pt-2 border-t border-white/5">
+                        Team Managers create an account on the Player Portal (<a href="{{ url('/mukhyadwar/register') }}" class="text-emerald-400 font-bold underline">/mukhyadwar/register</a>), create their squad profile under "My Teams", add player IGNs and photos, and submit entry with payment receipt screenshot.
+                    </p>
+                </details>
+
+                <details class="editorial-card rounded-2xl p-5 text-xs font-mono-tech group cursor-pointer">
+                    <summary class="font-display font-bold text-sm text-white flex items-center justify-between list-none">
+                        <span>What device rules apply for PUBG Mobile & Valorant?</span>
+                        <span class="text-emerald-400 text-lg transition-transform group-open:rotate-45">+</span>
+                    </summary>
+                    <p class="mt-3 text-slate-300 leading-relaxed pt-2 border-t border-white/5">
+                        PUBG Mobile is strictly handheld phones only (iOS & Android). iPads, tablets, and emulators are strictly prohibited. Valorant requires standard PC with active Riot Vanguard anti-cheat.
+                    </p>
+                </details>
+
+                <details class="editorial-card rounded-2xl p-5 text-xs font-mono-tech group cursor-pointer">
+                    <summary class="font-display font-bold text-sm text-white flex items-center justify-between list-none">
+                        <span>How is the tournament prize pool paid out?</span>
+                        <span class="text-emerald-400 text-lg transition-transform group-open:rotate-45">+</span>
+                    </summary>
+                    <p class="mt-3 text-slate-300 leading-relaxed pt-2 border-t border-white/5">
+                        Prize pools are transferred directly to verified Team Managers via official bank transfer or digital wallet (eSewa/Khalti) within 7 business days following tournament grand finals verification.
+                    </p>
+                </details>
+
+                <details class="editorial-card rounded-2xl p-5 text-xs font-mono-tech group cursor-pointer">
+                    <summary class="font-display font-bold text-sm text-white flex items-center justify-between list-none">
+                        <span>Can spectators attend the LAN Finals in person?</span>
+                        <span class="text-emerald-400 text-lg transition-transform group-open:rotate-45">+</span>
+                    </summary>
+                    <p class="mt-3 text-slate-300 leading-relaxed pt-2 border-t border-white/5">
+                        Yes! In-person spectator attendance is hosted at Outlaw Gaming & Tech LAN arena in Kathmandu. Limited VIP and general spectator passes will be announced on our social channels.
+                    </p>
+                </details>
+
+                <details class="editorial-card rounded-2xl p-5 text-xs font-mono-tech group cursor-pointer">
+                    <summary class="font-display font-bold text-sm text-white flex items-center justify-between list-none">
+                        <span>What happens if a player disconnects during match play?</span>
+                        <span class="text-emerald-400 text-lg transition-transform group-open:rotate-45">+</span>
+                    </summary>
+                    <p class="mt-3 text-slate-300 leading-relaxed pt-2 border-t border-white/5">
+                        Official tournament referee pause protocols apply as specified in the tournament rulebook. Teams are permitted up to 2 substitutes who can be rotated in between matches.
+                    </p>
+                </details>
+
+                <details class="editorial-card rounded-2xl p-5 text-xs font-mono-tech group cursor-pointer">
+                    <summary class="font-display font-bold text-sm text-white flex items-center justify-between list-none">
+                        <span>Where do teams receive match room IDs & passwords?</span>
+                        <span class="text-emerald-400 text-lg transition-transform group-open:rotate-45">+</span>
+                    </summary>
+                    <p class="mt-3 text-slate-300 leading-relaxed pt-2 border-t border-white/5">
+                        Custom match room credentials and schedule calls are distributed exclusively in the verified Team Captains channel on the Outlaw Esports Nepal Discord server 15-30 minutes before match time.
+                    </p>
+                </details>
+            </div>
+        </section>
+
+        <!-- KINETIC SCROLLING MARQUEE TICKER 2 -->
+        <div class="w-full bg-[#03070d] border-y border-white/10 py-3.5 overflow-hidden">
+            <div class="marquee-container marquee-reverse">
+                <div class="marquee-content text-xs sm:text-sm font-mono-tech font-bold uppercase tracking-widest text-slate-300">
+                    <span class="flex items-center gap-2.5"><span class="text-emerald-400">🏆</span> CHAMPIONS RISE HERE</span>
+                    <span class="text-slate-600">//</span>
+                    <span class="flex items-center gap-2.5"><span class="text-cyan-400">🛡️</span> ZERO TOLERANCE ANTI-CHEAT</span>
+                    <span class="text-slate-600">//</span>
+                    <span class="flex items-center gap-2.5"><span class="text-purple-400">🔥</span> 100% VERIFIED NATIONAL ROSTERS</span>
+                    <span class="text-slate-600">//</span>
+                    <span class="flex items-center gap-2.5"><span class="text-amber-400">👑</span> BE LEGENDARY • OUTLAW ESPORTS NEPAL</span>
+                    <span class="text-slate-600">//</span>
+                    <span class="flex items-center gap-2.5"><span class="text-emerald-400">⚡</span> PRO ESPORTS CULTURE & COMMUNITY</span>
+                    <span class="text-slate-600">//</span>
+                </div>
+                <div class="marquee-content text-xs sm:text-sm font-mono-tech font-bold uppercase tracking-widest text-slate-300" aria-hidden="true">
+                    <span class="flex items-center gap-2.5"><span class="text-emerald-400">🏆</span> CHAMPIONS RISE HERE</span>
+                    <span class="text-slate-600">//</span>
+                    <span class="flex items-center gap-2.5"><span class="text-cyan-400">🛡️</span> ZERO TOLERANCE ANTI-CHEAT</span>
+                    <span class="text-slate-600">//</span>
+                    <span class="flex items-center gap-2.5"><span class="text-purple-400">🔥</span> 100% VERIFIED NATIONAL ROSTERS</span>
+                    <span class="text-slate-600">//</span>
+                    <span class="flex items-center gap-2.5"><span class="text-amber-400">👑</span> BE LEGENDARY • OUTLAW ESPORTS NEPAL</span>
+                    <span class="text-slate-600">//</span>
+                    <span class="flex items-center gap-2.5"><span class="text-emerald-400">⚡</span> PRO ESPORTS CULTURE & COMMUNITY</span>
+                    <span class="text-slate-600">//</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. SPONSORS & PARTNERS (UNBOXED HIGH-VISIBILITY SHOWCASE) -->
         @if($sponsors->isNotEmpty() || $partners->isNotEmpty())
             @php
                 $resolveLogo = function (?string $url) {
@@ -780,20 +1204,51 @@
     </div>
 
     <!-- CLEAN FOOTER -->
-    <footer class="border-t border-white/5 bg-[#020406] py-8 text-xs font-mono-tech text-slate-400 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-2.5 text-center sm:text-left">
-                <span class="font-display font-black text-white text-xs uppercase">{{ $tournamentName }}</span>
-                <span class="text-slate-600">•</span>
-                <span class="text-slate-400">© {{ date('Y') }} Outlaw Esports Nepal</span>
+    <footer class="border-t border-white/5 bg-[#020406] py-10 text-xs font-mono-tech text-slate-400 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-6 pb-6 border-b border-white/5">
+                <div class="flex items-center gap-3 text-center sm:text-left">
+                    <span class="font-display font-black text-white text-sm uppercase tracking-wider">{{ $tournamentName }}</span>
+                    <span class="text-slate-600">•</span>
+                    <span class="text-slate-400 text-xs">Outlaw Esports Nepal</span>
+                </div>
+
+                <!-- SOCIAL CHANNELS -->
+                <div class="flex flex-wrap items-center justify-center gap-4 text-xs">
+                    <a href="https://www.facebook.com/OutlawESports" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5">
+                        <span>Facebook</span>
+                        <span>↗</span>
+                    </a>
+                    <a href="https://www.instagram.com/outlaw_esportsnepal/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-pink-400 transition-colors flex items-center gap-1.5">
+                        <span>Instagram</span>
+                        <span>↗</span>
+                    </a>
+                    <a href="https://www.tiktok.com/@outlaw.esports6" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-1.5">
+                        <span>TikTok</span>
+                        <span>↗</span>
+                    </a>
+                    <a href="https://www.youtube.com/@Outlawesportsnepal/featured?sub_confirmation=1" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-red-400 transition-colors flex items-center gap-1.5">
+                        <span>YouTube</span>
+                        <span>↗</span>
+                    </a>
+                    @if($activeTournament && $activeTournament->is_lan && ($activeTournament->venue_map_url || $activeTournament->venue_address || $activeTournament->venue_name))
+                        <a href="{{ $activeTournament->venue_map_url ?: ('https://maps.google.com/?q=' . urlencode($activeTournament->venue_address ?: $activeTournament->venue_name)) }}" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+                            <span>LAN Venue Map</span>
+                            <span>↗</span>
+                        </a>
+                    @endif
+                </div>
             </div>
 
-            <div class="flex flex-wrap items-center justify-center gap-5 text-[11px]">
-                <a href="{{ url('/guide') }}" class="hover:text-emerald-400 transition-colors">Manager Guide</a>
-                <a href="{{ url('/privacy-policy') }}" class="hover:text-emerald-400 transition-colors">Privacy</a>
-                <a href="{{ url('/terms-of-service') }}" class="hover:text-emerald-400 transition-colors">Terms</a>
-                <a href="{{ url('/mukhyadwar/login') }}" class="hover:text-emerald-400 transition-colors">Player Portal</a>
-                <a href="{{ url('/maidan/login') }}" class="hover:text-emerald-400 transition-colors">Admin</a>
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+                <span>© {{ date('Y') }} Outlaw Esports Nepal. All rights reserved.</span>
+                <div class="flex flex-wrap items-center justify-center gap-5 text-slate-400">
+                    <a href="{{ url('/guide') }}" class="hover:text-emerald-400 transition-colors">Manager Guide</a>
+                    <a href="{{ url('/privacy-policy') }}" class="hover:text-emerald-400 transition-colors">Privacy Policy</a>
+                    <a href="{{ url('/terms-of-service') }}" class="hover:text-emerald-400 transition-colors">Terms of Service</a>
+                    <a href="{{ url('/mukhyadwar/login') }}" class="hover:text-emerald-400 transition-colors">Player Portal</a>
+                    <a href="{{ url('/maidan/login') }}" class="hover:text-emerald-400 transition-colors">Admin Login</a>
+                </div>
             </div>
         </div>
     </footer>

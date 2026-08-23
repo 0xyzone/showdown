@@ -48,7 +48,7 @@ class RegistrationResource extends Resource
                         Grid::make(2)->schema([
                             Select::make('tournament_id')
                                 ->label('Active Tournament')
-                                ->options(Tournament::where('is_active', true)->orWhere('status', 'registration_open')->pluck('name', 'id'))
+                                ->options(Tournament::where('status', '!=', 'draft')->where(fn ($query) => $query->where('is_active', true)->orWhere('status', 'registration_open'))->pluck('name', 'id'))
                                 ->required(),
                             Select::make('team_id')
                                 ->label('My Team')
