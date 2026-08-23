@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\Participant;
 use App\Models\Tournament;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Foundation\Auth\User as AuthUser;
@@ -14,16 +15,28 @@ class TournamentPolicy
 
     public function viewAny(AuthUser $authUser): bool
     {
+        if ($authUser instanceof Participant) {
+            return true;
+        }
+
         return $authUser->can('ViewAny:Tournament');
     }
 
     public function view(AuthUser $authUser, Tournament $tournament): bool
     {
+        if ($authUser instanceof Participant) {
+            return true;
+        }
+
         return $authUser->can('View:Tournament');
     }
 
     public function create(AuthUser $authUser): bool
     {
+        if ($authUser instanceof Participant) {
+            return false;
+        }
+
         return $authUser->can('Create:Tournament');
     }
 

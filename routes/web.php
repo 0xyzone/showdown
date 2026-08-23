@@ -3,6 +3,7 @@
 use App\Http\Controllers\GoogleCalendarOAuthController;
 use App\Http\Controllers\StaffAttendanceController;
 use App\Http\Controllers\TicketVerificationController;
+use App\Models\GameTitle;
 use App\Models\Partner;
 use App\Models\Sponsor;
 use App\Models\Tournament;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     $activeTournament = Tournament::where('is_active', true)
-        ->with(['gameTitles'])
+        ->with(['gameTitles', 'eventDays', 'ticketPackages'])
         ->first();
 
     $otherTournaments = Tournament::where('id', '!=', $activeTournament?->id ?? 0)
@@ -76,7 +77,21 @@ Route::get('/login', function () {
     return redirect()->route('filament.maidan.auth.login');
 })->name('login');
 
-// Public Legal Pages (Privacy Policy & Terms of Service)
+// Public Legal & Knowledge Base Pages
+Route::get('/guide', function () {
+    $activeTournament = Tournament::where('is_active', true)
+        ->with(['gameTitles', 'eventDays'])
+        ->first();
+
+    $gameTitles = $activeTournament ? $activeTournament->gameTitles : GameTitle::all();
+
+    return view('guide', compact('activeTournament', 'gameTitles'));
+})->name('guide');
+
+Route::get('/knowledge-base', function () {
+    return redirect()->route('guide');
+});
+
 Route::view('/privacy-policy', 'privacy')->name('privacy-policy');
 Route::view('/terms-of-service', 'terms')->name('terms-of-service');
 

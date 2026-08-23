@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\Participant;
 use App\Models\TournamentRegistration;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Foundation\Auth\User as AuthUser;
@@ -14,26 +15,46 @@ class TournamentRegistrationPolicy
 
     public function viewAny(AuthUser $authUser): bool
     {
+        if ($authUser instanceof Participant) {
+            return true;
+        }
+
         return $authUser->can('ViewAny:TournamentRegistration');
     }
 
     public function view(AuthUser $authUser, TournamentRegistration $tournamentRegistration): bool
     {
+        if ($authUser instanceof Participant) {
+            return $tournamentRegistration->registered_by === $authUser->id;
+        }
+
         return $authUser->can('View:TournamentRegistration');
     }
 
     public function create(AuthUser $authUser): bool
     {
+        if ($authUser instanceof Participant) {
+            return true;
+        }
+
         return $authUser->can('Create:TournamentRegistration');
     }
 
     public function update(AuthUser $authUser, TournamentRegistration $tournamentRegistration): bool
     {
+        if ($authUser instanceof Participant) {
+            return $tournamentRegistration->registered_by === $authUser->id && $tournamentRegistration->status === 'pending';
+        }
+
         return $authUser->can('Update:TournamentRegistration');
     }
 
     public function delete(AuthUser $authUser, TournamentRegistration $tournamentRegistration): bool
     {
+        if ($authUser instanceof Participant) {
+            return $tournamentRegistration->registered_by === $authUser->id && $tournamentRegistration->status === 'pending';
+        }
+
         return $authUser->can('Delete:TournamentRegistration');
     }
 
