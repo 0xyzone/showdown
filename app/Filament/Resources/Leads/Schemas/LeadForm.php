@@ -193,15 +193,9 @@ class LeadForm
                                                         ->autosize()
                                                         ->columnSpanFull(),
 
-                                                    Select::make('user_id')
-                                                        ->label('Host / Scheduled By')
-                                                        ->relationship('user', 'name')
+                                                    Hidden::make('user_id')
                                                         ->default(fn () => Auth::id())
-                                                        ->searchable()
-                                                        ->disabled()
-                                                        ->dehydrated()
-                                                        ->preload()
-                                                        ->columnSpanFull(),
+                                                        ->dehydrated(),
                                                 ]),
                                             ])
                                             ->itemLabel(fn (array $state): ?string => isset($state['title']) ? ($state['title'].' ('.(isset($state['meeting_start']) ? date('M d, H:i', strtotime($state['meeting_start'])) : '').')') : 'New Scheduled Meeting')

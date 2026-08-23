@@ -6,6 +6,7 @@ use App\Models\LeadMeeting;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -148,13 +149,23 @@ class GoogleCalendarService
      */
     public function syncMeeting(LeadMeeting $meeting): ?string
     {
-        $user = $meeting->user;
-        if (! $user || ! $user->isGoogleCalendarConnected()) {
+        $user = $meeting->user ?: ($meeting->lead?->user ?: Auth::user());
+        if (! $user) {
+            Log::info('Google Calendar Sync Skipped: No user associated with meeting #'.$meeting->id);
+
+            return null;
+        }
+
+        if (! $user->isGoogleCalendarConnected()) {
+            Log::info('Google Calendar Sync Skipped: User '.$user->email.' (ID: '.$user->id.') has not connected Google Calendar.');
+
             return null;
         }
 
         $accessToken = $this->getValidAccessToken($user);
         if (! $accessToken) {
+            Log::warning('Google Calendar Sync Skipped: Could not obtain valid access token for user '.$user->email);
+
             return null;
         }
 
@@ -173,7 +184,7 @@ class GoogleCalendarService
         }
 
         $eventPayload = [
-            'summary' => $meeting->title.' - '.$lead?->company_name,
+            'summary' => $meeting->title.' - '.($lead?->company_name ?: 'Lead Meeting'),
             'description' => $description,
             'start' => [
                 'dateTime' => Carbon::parse($meeting->meeting_start)->toRfc3339String(),
@@ -213,22 +224,31 @@ class GoogleCalendarService
             if ($response->successful()) {
                 $createdEvent = $response->json();
                 $googleEventId = $createdEvent['id'] ?? null;
-                $hangoutLink = $createdEvent['hangoutLink'] ?? $meeting->meeting_link;
+                $hangoutLink = $createdEvent['hangoutLink'] ?? ($createdEvent['conferenceData']['entryPoints'][0]['uri'] ?? $meeting->meeting_link);
 
                 $meeting->updateQuietly([
                     'google_event_id' => $googleEventId,
                     'meeting_link' => $hangoutLink ?: $meeting->meeting_link,
                 ]);
 
+                Log::info('Google Calendar Event Synced Successfully', [
+                    'meeting_id' => $meeting->id,
+                    'event_id' => $googleEventId,
+                    'hangout_link' => $hangoutLink,
+                ]);
+
                 return $googleEventId;
             }
 
-            Log::warning('Google Calendar sync failed response', [
+            Log::warning('Google Calendar sync failed response from Google API', [
                 'status' => $response->status(),
                 'body' => $response->body(),
+                'payload' => $eventPayload,
             ]);
         } catch (\Throwable $e) {
-            Log::error('Exception during Google Calendar sync: '.$e->getMessage());
+            Log::error('Exception during Google Calendar sync: '.$e->getMessage(), [
+                'exception' => $e,
+            ]);
         }
 
         return null;
