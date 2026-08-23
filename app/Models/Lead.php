@@ -52,6 +52,28 @@ class Lead extends Model
     }
 
     /**
+     * Get the meetings for the Lead
+     */
+    public function meetings(): HasMany
+    {
+        return $this->hasMany(LeadMeeting::class)->orderBy('meeting_start', 'desc')->orderBy('id', 'desc');
+    }
+
+    /**
+     * Get the next upcoming meeting for the Lead
+     */
+    public function upcomingMeeting(): HasOne
+    {
+        return $this->hasOne(LeadMeeting::class)->ofMany([
+            'meeting_start' => 'min',
+            'id' => 'min',
+        ], function ($query) {
+            $query->where('meeting_start', '>=', now())
+                ->where('status', 'scheduled');
+        });
+    }
+
+    /**
      * Get the followups for the Lead
      */
     public function followups(): HasMany

@@ -34,6 +34,8 @@ use Spatie\Permission\Traits\HasRoles;
     'citizenship_image',
     'qr_code_image',
     'custom_fields',
+    'google_calendar_token',
+    'google_calendar_connected_at',
 ])]
 #[Hidden(['password', 'remember_token'])]
 #[ObservedBy([UserObserver::class])]
@@ -66,7 +68,25 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
             'password' => 'hashed',
             'must_change_password' => 'boolean',
             'custom_fields' => 'array',
+            'google_calendar_token' => 'array',
+            'google_calendar_connected_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Determine if user has connected their Google Calendar.
+     */
+    public function isGoogleCalendarConnected(): bool
+    {
+        return ! empty($this->google_calendar_token) && ! empty($this->google_calendar_token['refresh_token'] ?? $this->google_calendar_token['access_token'] ?? null);
+    }
+
+    /**
+     * Get the connected Google account email.
+     */
+    public function getGoogleCalendarEmail(): ?string
+    {
+        return $this->google_calendar_token['email'] ?? null;
     }
 
     public function canAccessPanel(Panel $panel): bool

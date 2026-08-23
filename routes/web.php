@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GoogleCalendarOAuthController;
 use App\Http\Controllers\StaffAttendanceController;
 use App\Http\Controllers\TicketVerificationController;
 use App\Models\Partner;
@@ -103,4 +104,9 @@ Route::middleware(['auth:web'])->group(function () {
     Route::post('/attendance/webauthn/register/verify', [StaffAttendanceController::class, 'registerVerify'])->name('attendance.webauthn.register.verify');
     Route::post('/attendance/webauthn/auth/options', [StaffAttendanceController::class, 'authOptions'])->name('attendance.webauthn.auth.options');
     Route::delete('/attendance/devices/{credential}', [StaffAttendanceController::class, 'revokeDevice'])->name('attendance.devices.revoke');
+
+    // Google Calendar OAuth & Synchronization
+    Route::get('/auth/google-calendar', [GoogleCalendarOAuthController::class, 'redirect'])->name('google.calendar.redirect');
+    Route::get('/auth/google-calendar/callback', [GoogleCalendarOAuthController::class, 'callback'])->name('google.calendar.callback');
+    Route::get('/auth/google-calendar/disconnect', [GoogleCalendarOAuthController::class, 'disconnect'])->name('google.calendar.disconnect');
 });
