@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
@@ -50,10 +51,20 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function getFilamentAvatarUrl(): ?string
     {
         $avatarColumn = config('filament-edit-profile.avatar_column', 'avatar_url');
+        $avatar = $this->getAttribute($avatarColumn);
 
-        return $this->$avatarColumn
-            ? Storage::disk(config('filament-edit-profile.disk', 'public'))->url($this->$avatarColumn)
-            : null;
+        if (! $avatar) {
+            return null;
+        }
+
+        if (filter_var($avatar, FILTER_VALIDATE_URL)) {
+            return $avatar;
+        }
+
+        /** @var FilesystemAdapter $disk */
+        $disk = Storage::disk(config('filament-edit-profile.disk', 'public'));
+
+        return $disk->url($avatar);
     }
 
     /**

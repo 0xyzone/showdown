@@ -7,7 +7,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -28,7 +27,7 @@ class LeadsTable
                     ->label('Contact')
                     ->searchable()
                     ->sortable()
-                    ->description(fn($record) => $record->phone),
+                    ->description(fn ($record) => $record->phone),
                 TextColumn::make('email')
                     ->label('Email')
                     ->searchable()
@@ -42,7 +41,7 @@ class LeadsTable
                     ->sortable(),
                 TextColumn::make('notes')
                     ->limit(30)
-                    ->tooltip(fn($state) => $state),
+                    ->tooltip(fn ($state) => $state),
                 SelectColumn::make('lead_status_id')
                     ->label('Status')
                     ->options(
@@ -54,7 +53,7 @@ class LeadsTable
                     ->date('M d, Y')
                     ->placeholder('None yet')
                     ->badge()
-                    ->color(fn($state) => $state ? 'primary' : 'gray')
+                    ->color(fn ($state) => $state ? 'primary' : 'gray')
                     ->sortable(),
                 TextColumn::make('followups_count')
                     ->counts('followups')

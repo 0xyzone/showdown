@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Leads\Schemas;
 
+use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
@@ -24,7 +25,6 @@ class LeadForm
             ->components([
                 Hidden::make('user_id')
                     ->default(Auth::id()),
-
                 Grid::make(['default' => 1, 'lg' => 2])
                     ->schema([
                         Grid::make(1)
@@ -55,7 +55,6 @@ class LeadForm
                                                 ->required(),
                                         ]),
                                     ]),
-
                                 Section::make('Company & Contact')
                                     ->icon('heroicon-o-building-office-2')
                                     ->schema([
@@ -79,7 +78,6 @@ class LeadForm
                                                 ->maxLength(255),
                                         ]),
                                     ]),
-
                                 Section::make('Location & Notes')
                                     ->icon('heroicon-o-map-pin')
                                     ->schema([
@@ -98,7 +96,6 @@ class LeadForm
                                     ]),
                             ])
                             ->columnSpan(1),
-
                         Grid::make(1)
                             ->schema([
                                 Section::make('Scheduled Meetings & Google Calendar')
@@ -108,8 +105,9 @@ class LeadForm
                                         Placeholder::make('google_calendar_status')
                                             ->label('')
                                             ->content(function () {
+                                                /** @var User|null $user */
                                                 $user = Auth::user();
-                                                $isConnected = $user && $user->isGoogleCalendarConnected();
+                                                $isConnected = $user?->isGoogleCalendarConnected() ?? false;
                                                 $email = $user?->getGoogleCalendarEmail();
 
                                                 if ($isConnected) {
@@ -137,7 +135,6 @@ class LeadForm
                                                 ');
                                             })
                                             ->columnSpanFull(),
-
                                         Repeater::make('meetings')
                                             ->relationship('meetings')
                                             ->schema([
@@ -147,19 +144,16 @@ class LeadForm
                                                         ->placeholder('e.g. Discovery Pitch, Proposal Review')
                                                         ->required()
                                                         ->columnSpanFull(),
-
                                                     DateTimePicker::make('meeting_start')
                                                         ->label('Start Date & Time')
                                                         ->default(now()->addDay()->setHour(14)->setMinute(0))
                                                         ->required()
                                                         ->native(false),
-
                                                     DateTimePicker::make('meeting_end')
                                                         ->label('End Date & Time')
                                                         ->default(now()->addDay()->setHour(15)->setMinute(0))
                                                         ->required()
                                                         ->native(false),
-
                                                     Select::make('meeting_location_type')
                                                         ->label('Meeting Type')
                                                         ->options([
@@ -169,7 +163,6 @@ class LeadForm
                                                         ])
                                                         ->default('online_meet')
                                                         ->required(),
-
                                                     Select::make('status')
                                                         ->label('Meeting Status')
                                                         ->options([
@@ -180,19 +173,16 @@ class LeadForm
                                                         ])
                                                         ->default('scheduled')
                                                         ->required(),
-
                                                     TextInput::make('meeting_link')
                                                         ->label('Meeting / Conference Link')
                                                         ->placeholder('Auto-generated from Google Meet or custom link')
                                                         ->url()
                                                         ->columnSpanFull(),
-
                                                     Textarea::make('notes')
                                                         ->label('Meeting Agenda & Preparation Notes')
                                                         ->placeholder('Discussion agenda, key objectives, participants...')
                                                         ->autosize()
                                                         ->columnSpanFull(),
-
                                                     Hidden::make('user_id')
                                                         ->default(fn () => Auth::id())
                                                         ->dehydrated(),
@@ -204,7 +194,6 @@ class LeadForm
                                             ->addActionLabel('Schedule Meeting')
                                             ->columnSpanFull(),
                                     ]),
-
                                 Section::make('Follow-ups Tracking')
                                     ->icon('heroicon-o-chat-bubble-left-right')
                                     ->description('Track historical follow-up dates, outcomes, and remarks.')
