@@ -20,9 +20,9 @@ class LeadForm
         return $schema
             ->components([
                 Hidden::make('user_id')
-                    ->default(auth()->id()),
+                    ->default(Auth::id()),
 
-                Grid::make(['default' => 1, 'lg' => 3])
+                Grid::make(['default' => 1, 'lg' => 2])
                     ->schema([
                         Grid::make(1)
                             ->schema([
@@ -94,7 +94,7 @@ class LeadForm
                                         ]),
                                     ]),
                             ])
-                            ->columnSpan(['default' => 1, 'lg' => 1]),
+                            ->columnSpan(1),
 
                         Grid::make(1)
                             ->schema([
@@ -134,7 +134,7 @@ class LeadForm
                                             ->columnSpanFull(),
                                     ]),
                             ])
-                            ->columnSpan(['default' => 1, 'lg' => 2]),
+                            ->columnSpan(1),
                     ])
                     ->columnSpanFull(),
             ]);

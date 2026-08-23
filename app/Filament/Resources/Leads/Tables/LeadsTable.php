@@ -86,10 +86,10 @@ class LeadsTable
             ->recordActions([
                 ViewAction::make()
                     ->slideOver()
-                    ->modalWidth(Width::SevenExtraLarge),
+                    ->modalWidth('7xl'),
                 EditAction::make()
                     ->slideOver()
-                    ->modalWidth(Width::SevenExtraLarge),
+                    ->modalWidth('7xl'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

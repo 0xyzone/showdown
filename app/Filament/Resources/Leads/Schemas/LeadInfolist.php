@@ -14,7 +14,7 @@ class LeadInfolist
     {
         return $schema
             ->components([
-                Grid::make(['default' => 1, 'lg' => 3])
+                Grid::make(['default' => 1, 'lg' => 2])
                     ->schema([
                         Grid::make(1)
                             ->schema([
@@ -83,7 +83,7 @@ class LeadInfolist
                                             ->columnSpanFull(),
                                     ]),
                             ])
-                            ->columnSpan(['default' => 1, 'lg' => 1]),
+                            ->columnSpan(1),
 
                         Grid::make(1)
                             ->schema([
@@ -115,7 +115,7 @@ class LeadInfolist
                                             ->columnSpanFull(),
                                     ]),
                             ])
-                            ->columnSpan(['default' => 1, 'lg' => 2]),
+                            ->columnSpan(1),
                     ])
                     ->columnSpanFull(),
             ]);
