@@ -497,55 +497,210 @@
             </section>
         @endif
 
-        <!-- 5. SPONSORS & PARTNERS (DYNAMIC ONLY) -->
+        <!-- 5. SPONSORS & PARTNERS (UNBOXED HIGH-VISIBILITY SHOWCASE) -->
         @if($sponsors->isNotEmpty() || $partners->isNotEmpty())
+            @php
+                $resolveLogo = function (?string $url) {
+                    if (!$url) return null;
+                    if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+                        return $url;
+                    }
+                    if (file_exists(public_path('storage/' . $url))) {
+                        return asset('storage/' . $url);
+                    }
+                    if (file_exists(public_path($url))) {
+                        return asset($url);
+                    }
+                    return null;
+                };
+
+                $groupedSponsors = $sponsors->toBase();
+                $titleSponsors = $groupedSponsors->get('title', collect());
+                $platinumSponsors = $groupedSponsors->get('platinum', collect());
+                $goldSponsors = $groupedSponsors->get('gold', collect());
+                $silverSponsors = $groupedSponsors->get('silver', collect());
+                $otherSponsors = $groupedSponsors->except(['title', 'platinum', 'gold', 'silver'])->flatten();
+            @endphp
+
             <section id="sponsors" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
-                <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 sm:mb-10 gap-3">
+                
+                <!-- SECTION HEADER -->
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-12 sm:mb-16 gap-4 border-b border-white/10 pb-6">
                     <div>
                         <span class="text-xs font-mono-tech font-bold uppercase tracking-widest text-emerald-400 block mb-1">
-                            ALLIANCES
+                            OFFICIAL ALLIANCES & ECOSYSTEM
                         </span>
-                        <h2 class="font-display text-2xl sm:text-4xl font-black uppercase text-white">
+                        <h2 class="font-display text-2xl sm:text-4xl lg:text-5xl font-black uppercase text-white tracking-tight">
                             Partners & Sponsors
                         </h2>
+                        <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-xl">
+                            Empowering Nepal's premier national esports championship in collaboration with industry-leading brands and media networks.
+                        </p>
                     </div>
-                    <button onclick="document.getElementById('sponsor-modal').classList.remove('hidden')" class="text-xs font-mono-tech font-bold uppercase text-slate-300 hover:text-white cursor-pointer">
-                        Partner Inquiry →
+                    <button onclick="document.getElementById('sponsor-modal').classList.remove('hidden')" class="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 text-xs font-mono-tech font-bold uppercase text-slate-300 hover:text-emerald-400 transition-all cursor-pointer flex items-center gap-2 self-start sm:self-auto shrink-0 shadow-sm">
+                        <span>🤝</span>
+                        <span>Partner Inquiry →</span>
                     </button>
                 </div>
 
-                <div class="space-y-6">
-                    @if($sponsors->isNotEmpty())
-                        <div class="flex flex-wrap items-center justify-center gap-4">
-                            @foreach($sponsors->flatten() as $sponsor)
-                                <a href="{{ $sponsor->website_url ?: '#' }}" target="{{ $sponsor->website_url ? '_blank' : '_self' }}" class="editorial-card rounded-xl p-4 w-40 sm:w-48 h-20 flex items-center justify-center group tilt-card">
-                                    @if($sponsor->logo_url && file_exists(public_path('storage/' . $sponsor->logo_url)))
-                                        <img src="{{ asset('storage/' . $sponsor->logo_url) }}" alt="{{ $sponsor->name }}" class="max-h-10 w-auto object-contain filter grayscale group-hover:grayscale-0 transition-all">
-                                    @else
-                                        <span class="font-display font-bold text-xs text-slate-300 group-hover:text-emerald-400 transition-colors text-center">{{ $sponsor->name }}</span>
-                                    @endif
-                                </a>
-                            @endforeach
+                <div class="space-y-16 sm:space-y-20">
+
+                    <!-- 1. TITLE / HEADLINE SPONSORS (HEROIC SHOWCASE) -->
+                    @if($titleSponsors->isNotEmpty())
+                        <div class="space-y-8 text-center">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-mono-tech font-bold uppercase tracking-widest">
+                                <span>⚡</span> TITLE SPONSOR
+                            </div>
+
+                            <div class="flex flex-wrap items-center justify-center gap-10 sm:gap-16">
+                                @foreach($titleSponsors as $sponsor)
+                                    @php $logoSrc = $resolveLogo($sponsor->logo_url); @endphp
+                                    <a href="{{ $sponsor->website_url ?: '#' }}" target="{{ $sponsor->website_url ? '_blank' : '_self' }}" class="group flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-1.5 focus:outline-none">
+                                        <div class="relative p-2 flex items-center justify-center">
+                                            <div class="absolute inset-0 bg-amber-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                                            @if($logoSrc)
+                                                <img src="{{ $logoSrc }}" alt="{{ $sponsor->name }}" class="h-20 sm:h-28 md:h-32 w-auto max-w-[280px] sm:max-w-[360px] object-contain drop-shadow-[0_8px_30px_rgba(0,0,0,0.8)] transition-transform duration-300 group-hover:scale-105">
+                                            @else
+                                                <div class="font-display font-black text-2xl sm:text-4xl md:text-5xl text-white uppercase tracking-wider group-hover:text-amber-400 transition-colors drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
+                                                    {{ $sponsor->name }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="mt-4 flex items-center gap-2 text-xs font-mono-tech font-bold uppercase text-slate-300 group-hover:text-amber-400 transition-colors">
+                                            <span>{{ $sponsor->name }}</span>
+                                            <span class="text-amber-400 text-sm">↗</span>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
                         </div>
                     @endif
 
-                    @if($partners->isNotEmpty())
-                        <div class="flex flex-wrap items-center justify-center gap-4">
-                            @foreach($partners->flatten() as $partner)
-                                <a href="{{ $partner->website_url ?: '#' }}" target="{{ $partner->website_url ? '_blank' : '_self' }}" class="editorial-card rounded-xl p-4 w-40 sm:w-48 h-20 flex flex-col items-center justify-center group tilt-card">
-                                    @if($partner->logo_url && file_exists(public_path('storage/' . $partner->logo_url)))
-                                        <img src="{{ asset('storage/' . $partner->logo_url) }}" alt="{{ $partner->name }}" class="max-h-8 w-auto object-contain filter grayscale group-hover:grayscale-0 transition-all">
-                                    @else
-                                        <span class="font-display font-bold text-xs text-slate-300 group-hover:text-emerald-400 transition-colors truncate">{{ $partner->name }}</span>
-                                    @endif
-                                    @if($partner->title)
-                                        <span class="text-[9px] font-mono-tech text-slate-400 mt-0.5 truncate">{{ $partner->title }}</span>
-                                    @endif
-                                </a>
-                            @endforeach
+                    <!-- 2. PLATINUM & GOLD SPONSORS -->
+                    @if($platinumSponsors->isNotEmpty() || $goldSponsors->isNotEmpty())
+                        <div class="space-y-8">
+                            <div class="flex items-center gap-4">
+                                <span class="h-px bg-white/10 flex-grow"></span>
+                                <span class="text-[11px] font-mono-tech font-bold uppercase tracking-widest text-slate-400">
+                                    PRINCIPAL SPONSORS
+                                </span>
+                                <span class="h-px bg-white/10 flex-grow"></span>
+                            </div>
+
+                            <div class="flex flex-wrap items-center justify-center gap-8 sm:gap-14 md:gap-20">
+                                @foreach($platinumSponsors->concat($goldSponsors) as $sponsor)
+                                    @php $logoSrc = $resolveLogo($sponsor->logo_url); @endphp
+                                    <a href="{{ $sponsor->website_url ?: '#' }}" target="{{ $sponsor->website_url ? '_blank' : '_self' }}" class="group flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-1 focus:outline-none">
+                                        <div class="relative p-2 flex items-center justify-center">
+                                            <div class="absolute inset-0 bg-emerald-500/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                                            @if($logoSrc)
+                                                <img src="{{ $logoSrc }}" alt="{{ $sponsor->name }}" class="h-14 sm:h-18 md:h-22 w-auto max-w-[220px] sm:max-w-[280px] object-contain drop-shadow-[0_6px_20px_rgba(0,0,0,0.7)] transition-transform duration-300 group-hover:scale-105">
+                                            @else
+                                                <div class="font-display font-black text-xl sm:text-2xl md:text-3xl text-white uppercase tracking-wider group-hover:text-emerald-400 transition-colors drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
+                                                    {{ $sponsor->name }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="mt-3 text-center">
+                                            <div class="font-display font-bold text-xs sm:text-sm text-slate-200 group-hover:text-emerald-400 transition-colors">
+                                                {{ $sponsor->name }}
+                                            </div>
+                                            <span class="inline-block mt-1 px-2 py-0.5 rounded text-[9px] font-mono-tech uppercase font-bold bg-white/5 border border-white/10 text-emerald-400">
+                                                {{ strtoupper($sponsor->level) }} TIER
+                                            </span>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
                         </div>
                     @endif
+
+                    <!-- 3. SILVER & GENERAL SPONSORS -->
+                    @if($silverSponsors->isNotEmpty() || $otherSponsors->isNotEmpty())
+                        <div class="space-y-6">
+                            <div class="flex items-center gap-4">
+                                <span class="h-px bg-white/10 flex-grow"></span>
+                                <span class="text-[10px] font-mono-tech font-bold uppercase tracking-widest text-slate-500">
+                                    SUPPORTING SPONSORS
+                                </span>
+                                <span class="h-px bg-white/10 flex-grow"></span>
+                            </div>
+
+                            <div class="flex flex-wrap items-center justify-center gap-6 sm:gap-10 md:gap-14">
+                                @foreach($silverSponsors->concat($otherSponsors) as $sponsor)
+                                    @php $logoSrc = $resolveLogo($sponsor->logo_url); @endphp
+                                    <a href="{{ $sponsor->website_url ?: '#' }}" target="{{ $sponsor->website_url ? '_blank' : '_self' }}" class="group flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-0.5 focus:outline-none">
+                                        <div class="p-2 flex items-center justify-center">
+                                            @if($logoSrc)
+                                                <img src="{{ $logoSrc }}" alt="{{ $sponsor->name }}" class="h-10 sm:h-14 md:h-16 w-auto max-w-[180px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] transition-transform duration-300 group-hover:scale-105">
+                                            @else
+                                                <div class="font-display font-bold text-base sm:text-xl text-slate-300 uppercase tracking-wide group-hover:text-emerald-400 transition-colors">
+                                                    {{ $sponsor->name }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="mt-2 text-center">
+                                            <span class="text-[10px] font-mono-tech uppercase font-bold text-slate-400 group-hover:text-slate-200 transition-colors block">
+                                                {{ $sponsor->name }}
+                                            </span>
+                                            <span class="text-[9px] font-mono-tech text-slate-500 uppercase">
+                                                {{ strtoupper($sponsor->level ?: 'Sponsor') }}
+                                            </span>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- 4. OFFICIAL ALLIANCES & STRATEGIC PARTNERS -->
+                    @if($partners->isNotEmpty())
+                        <div class="space-y-8 pt-4">
+                            <div class="flex items-center gap-4">
+                                <span class="h-px bg-white/10 flex-grow"></span>
+                                <span class="text-[11px] font-mono-tech font-bold uppercase tracking-widest text-cyan-400">
+                                    STRATEGIC & BROADCAST ALLIANCES
+                                </span>
+                                <span class="h-px bg-white/10 flex-grow"></span>
+                            </div>
+
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 sm:gap-10 items-center justify-center">
+                                @foreach($partners->flatten() as $partner)
+                                    @php $logoSrc = $resolveLogo($partner->logo_url); @endphp
+                                    <a href="{{ $partner->website_url ?: '#' }}" target="{{ $partner->website_url ? '_blank' : '_self' }}" class="group flex flex-col items-center justify-center text-center p-3 transition-all duration-300 hover:-translate-y-1 focus:outline-none">
+                                        <div class="relative p-2 flex items-center justify-center min-h-[60px] sm:min-h-[76px]">
+                                            <div class="absolute inset-0 bg-cyan-500/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                                            @if($logoSrc)
+                                                <img src="{{ $logoSrc }}" alt="{{ $partner->name }}" class="h-12 sm:h-16 md:h-18 w-auto max-w-[180px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.7)] transition-transform duration-300 group-hover:scale-105">
+                                            @else
+                                                <div class="font-display font-black text-sm sm:text-base md:text-lg text-white uppercase tracking-wide group-hover:text-cyan-400 transition-colors drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
+                                                    {{ $partner->name }}
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <div class="mt-3 w-full">
+                                            <div class="font-display font-bold text-xs text-slate-200 group-hover:text-cyan-400 transition-colors truncate">
+                                                {{ $partner->name }}
+                                            </div>
+                                            @if($partner->title)
+                                                <span class="inline-block mt-1 px-2.5 py-0.5 rounded text-[9px] font-mono-tech uppercase font-bold bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 group-hover:bg-cyan-500/20 transition-colors">
+                                                    {{ $partner->title }}
+                                                </span>
+                                            @else
+                                                <span class="text-[9px] font-mono-tech uppercase text-slate-500 mt-1 block">
+                                                    Official Partner
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                 </div>
+
             </section>
         @endif
 
