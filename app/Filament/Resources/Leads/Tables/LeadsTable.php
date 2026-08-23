@@ -40,6 +40,9 @@ class LeadsTable
                     ->color('info')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('notes')
+                    ->limit(30)
+                    ->tooltip(fn($state) => $state),
                 SelectColumn::make('lead_status_id')
                     ->label('Status')
                     ->options(
