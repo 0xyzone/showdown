@@ -599,6 +599,8 @@
             </div>
 
             <div class="flex items-center gap-6 text-[11px]">
+                <a href="{{ url('/privacy-policy') }}" class="hover:text-slate-300">Privacy Policy</a>
+                <a href="{{ url('/terms-of-service') }}" class="hover:text-slate-300">Terms of Service</a>
                 <a href="{{ url('/mukhyadwar/login') }}" class="hover:text-slate-300">Player Login</a>
                 <a href="{{ url('/maidan/login') }}" class="hover:text-slate-300">Admin Control</a>
                 <a href="{{ url('/up') }}" class="hover:text-slate-300">Status</a>
