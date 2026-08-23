@@ -655,7 +655,7 @@
 
                     <!-- 4. OFFICIAL ALLIANCES & STRATEGIC PARTNERS -->
                     @if($partners->isNotEmpty())
-                        <div class="space-y-8 pt-4">
+                        <div class="space-y-8 pt-4 text-center">
                             <div class="flex items-center gap-4">
                                 <span class="h-px bg-white/10 flex-grow"></span>
                                 <span class="text-[11px] font-mono-tech font-bold uppercase tracking-widest text-cyan-400">
@@ -664,23 +664,23 @@
                                 <span class="h-px bg-white/10 flex-grow"></span>
                             </div>
 
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 sm:gap-10 items-center justify-center">
+                            <div class="flex flex-wrap items-center justify-center gap-8 sm:gap-12 md:gap-14">
                                 @foreach($partners->flatten() as $partner)
                                     @php $logoSrc = $resolveLogo($partner->logo_url); @endphp
-                                    <a href="{{ $partner->website_url ?: '#' }}" target="{{ $partner->website_url ? '_blank' : '_self' }}" class="group flex flex-col items-center justify-center text-center p-3 transition-all duration-300 hover:-translate-y-1 focus:outline-none">
+                                    <a href="{{ $partner->website_url ?: '#' }}" target="{{ $partner->website_url ? '_blank' : '_self' }}" class="w-40 sm:w-48 md:w-52 group flex flex-col items-center justify-center text-center p-3 transition-all duration-300 hover:-translate-y-1 focus:outline-none">
                                         <div class="relative p-2 flex items-center justify-center min-h-[60px] sm:min-h-[76px]">
                                             <div class="absolute inset-0 bg-cyan-500/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                                             @if($logoSrc)
-                                                <img src="{{ $logoSrc }}" alt="{{ $partner->name }}" class="h-12 sm:h-16 md:h-18 w-auto max-w-[180px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.7)] transition-transform duration-300 group-hover:scale-105">
+                                                <img src="{{ $logoSrc }}" alt="{{ $partner->name }}" class="h-12 sm:h-16 md:h-18 w-auto max-w-[180px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.7)] transition-transform duration-300 group-hover:scale-105 mx-auto">
                                             @else
-                                                <div class="font-display font-black text-sm sm:text-base md:text-lg text-white uppercase tracking-wide group-hover:text-cyan-400 transition-colors drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
+                                                <div class="font-display font-black text-sm sm:text-base md:text-lg text-white uppercase tracking-wide group-hover:text-cyan-400 transition-colors drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] text-center">
                                                     {{ $partner->name }}
                                                 </div>
                                             @endif
                                         </div>
 
-                                        <div class="mt-3 w-full">
-                                            <div class="font-display font-bold text-xs text-slate-200 group-hover:text-cyan-400 transition-colors truncate">
+                                        <div class="mt-3 w-full text-center">
+                                            <div class="font-display font-bold text-xs text-slate-200 group-hover:text-cyan-400 transition-colors truncate mx-auto">
                                                 {{ $partner->name }}
                                             </div>
                                             @if($partner->title)
