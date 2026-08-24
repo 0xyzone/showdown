@@ -175,7 +175,7 @@
     <main class="space-y-16 sm:space-y-24">
         
         <!-- 1. DYNAMIC TOURNAMENT HERO -->
-        <section id="hero" class="relative min-h-[75vh] lg:min-h-[85vh] flex items-center py-12 sm:py-20 border-b border-white/5 overflow-hidden">
+        <section id="hero" class="relative min-h-[75vh] lg:min-h-[85vh] flex items-center py-12 sm:py-20 border-b border-white/5 overflow-hidden mb-0">
             <canvas id="hero-particle-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
             <div class="absolute inset-0 tech-grid opacity-40 pointer-events-none"></div>
             <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-emerald-500/10 blur-[140px] rounded-full pointer-events-none"></div>

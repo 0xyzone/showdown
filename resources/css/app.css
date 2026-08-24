@@ -181,6 +181,9 @@ body {
 /* Infinite Marquee Tickers */
 .marquee-container {
     overflow: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     user-select: none;
     display: flex;
     gap: 2rem;

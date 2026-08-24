@@ -92,7 +92,7 @@
     </header>
 
     <!-- MAIN GUIDE CONTENT -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-16">
+    <main class="grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-16">
 
         <!-- 1. HERO BANNER -->
         <section class="text-center max-w-3xl mx-auto space-y-4">
