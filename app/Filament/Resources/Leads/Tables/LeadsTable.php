@@ -24,18 +24,12 @@ class LeadsTable
                     ->searchable()
                     ->sortable()
                     ->weight('bold')
-                    ->description(fn($record) => '[' . $record->lead_status->name . ']'),
+                    ->description(fn($record) => '[' . $record->lead_type->name . ']'),
                 TextColumn::make('contact_name')
                     ->label('Contact')
                     ->searchable()
                     ->sortable()
                     ->description(fn($record) => $record->phone . ' • ' . $record->email),
-                TextColumn::make('lead_type.name')
-                    ->label('Type')
-                    ->badge()
-                    ->color('info')
-                    ->searchable()
-                    ->sortable(),
                 TextColumn::make('notes')
                     ->limit(30)
                     ->tooltip(fn($state) => $state),
