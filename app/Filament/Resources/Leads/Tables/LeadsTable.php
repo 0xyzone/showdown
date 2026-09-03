@@ -28,12 +28,7 @@ class LeadsTable
                     ->label('Contact')
                     ->searchable()
                     ->sortable()
-                    ->description(fn ($record) => $record->phone),
-                TextColumn::make('email')
-                    ->label('Email')
-                    ->searchable()
-                    ->copyable()
-                    ->toggleable(),
+                    ->description(fn($record) => $record->phone . ' • ' . $record->email),
                 TextColumn::make('lead_type.name')
                     ->label('Type')
                     ->badge()
@@ -42,7 +37,7 @@ class LeadsTable
                     ->sortable(),
                 TextColumn::make('notes')
                     ->limit(30)
-                    ->tooltip(fn ($state) => $state),
+                    ->tooltip(fn($state) => $state),
                 SelectColumn::make('lead_status_id')
                     ->label('Status')
                     ->options(
@@ -54,7 +49,7 @@ class LeadsTable
                     ->date('M d, Y')
                     ->placeholder('None yet')
                     ->badge()
-                    ->color(fn ($state) => $state ? 'primary' : 'gray')
+                    ->color(fn($state) => $state ? 'primary' : 'gray')
                     ->sortable(),
                 TextColumn::make('followups_count')
                     ->counts('followups')
@@ -85,7 +80,7 @@ class LeadsTable
                     ->label('Status')
                     ->relationship('lead_status', 'name'),
             ])
-            ->defaultSort('id','desc')
+            ->defaultSort('id', 'desc')
             ->recordActions([
                 ViewAction::make()
                     ->slideOver()
