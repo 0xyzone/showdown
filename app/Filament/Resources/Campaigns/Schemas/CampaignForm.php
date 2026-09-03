@@ -95,9 +95,11 @@ class CampaignForm
                                                 ]),
 
                                                 Grid::make(3)->schema([
-                                                    Select::make('platform')
-                                                        ->label('Target Platform')
+                                                    Select::make('platforms')
+                                                        ->label('Target Platforms')
+                                                        ->multiple()
                                                         ->options(MarketingPlatform::class)
+                                                        ->preload()
                                                         ->required(),
 
                                                     DateTimePicker::make('scheduled_at')
@@ -142,12 +144,24 @@ class CampaignForm
                                             ])
                                             ->collapsed()
                                             ->itemLabel(function (array $state): ?string {
-                                                $platform = $state['platform'] ?? null;
-                                                $platformLabel = match (true) {
-                                                    $platform instanceof MarketingPlatform => $platform->getLabel() ?? $platform->value,
-                                                    is_string($platform) => MarketingPlatform::tryFrom($platform)?->getLabel() ?? $platform,
-                                                    default => 'General',
-                                                };
+                                                $platforms = $state['platforms'] ?? ($state['platform'] ?? []);
+                                                if (! is_array($platforms)) {
+                                                    $platforms = $platforms ? [$platforms] : [];
+                                                }
+
+                                                $labels = [];
+                                                foreach ($platforms as $p) {
+                                                    $label = match (true) {
+                                                        $p instanceof MarketingPlatform => $p->getLabel(),
+                                                        is_string($p) => MarketingPlatform::tryFrom($p)?->getLabel() ?? $p,
+                                                        default => null,
+                                                    };
+                                                    if ($label) {
+                                                        $labels[] = $label;
+                                                    }
+                                                }
+
+                                                $platformLabel = ! empty($labels) ? implode(', ', $labels) : 'General';
 
                                                 return ($state['title'] ?? 'New Deliverable').' ('.$platformLabel.')';
                                             })

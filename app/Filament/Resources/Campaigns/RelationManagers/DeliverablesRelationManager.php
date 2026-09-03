@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Campaigns\RelationManagers;
 use App\Enums\DeliverableApprovalStatus;
 use App\Enums\DeliverableType;
 use App\Enums\MarketingPlatform;
+use App\Models\CampaignDeliverable;
 use App\Models\User;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -23,6 +24,7 @@ use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class DeliverablesRelationManager extends RelationManager
 {
@@ -46,9 +48,11 @@ class DeliverablesRelationManager extends RelationManager
                         ->options(DeliverableType::class)
                         ->required(),
 
-                    Select::make('platform')
-                        ->label('Target Platform')
+                    Select::make('platforms')
+                        ->label('Target Platforms')
+                        ->multiple()
                         ->options(MarketingPlatform::class)
+                        ->preload()
                         ->required(),
 
                     DateTimePicker::make('scheduled_at')
@@ -104,8 +108,21 @@ class DeliverablesRelationManager extends RelationManager
                 TextColumn::make('creative_type')
                     ->badge(),
 
-                TextColumn::make('platform')
-                    ->badge(),
+                TextColumn::make('platforms')
+                    ->label('Platforms')
+                    ->badge()
+                    ->formatStateUsing(function ($state, CampaignDeliverable $record) {
+                        $platforms = $record->platforms;
+                        if (! is_array($platforms) || empty($platforms)) {
+                            return null;
+                        }
+
+                        return array_map(function ($p) {
+                            $enum = $p instanceof MarketingPlatform ? $p : MarketingPlatform::tryFrom((string) $p);
+
+                            return $enum ? $enum->getLabel() : ucfirst((string) $p);
+                        }, $platforms);
+                    }),
 
                 SelectColumn::make('approval_status')
                     ->label('Status')
@@ -135,8 +152,17 @@ class DeliverablesRelationManager extends RelationManager
             ->filters([
                 SelectFilter::make('creative_type')
                     ->options(DeliverableType::class),
-                SelectFilter::make('platform')
-                    ->options(MarketingPlatform::class),
+                SelectFilter::make('platforms')
+                    ->label('Platform')
+                    ->options(MarketingPlatform::class)
+                    ->query(function (Builder $query, array $data) {
+                        if (! empty($data['value'])) {
+                            $query->where(function (Builder $q) use ($data) {
+                                $q->whereJsonContains('platforms', $data['value'])
+                                    ->orWhere('platform', $data['value']);
+                            });
+                        }
+                    }),
                 SelectFilter::make('approval_status')
                     ->options(DeliverableApprovalStatus::class),
             ])

@@ -59,6 +59,36 @@ class CampaignResourceTest extends TestCase
         $this->assertEquals($campaign->id, $deliverable->campaign->id);
     }
 
+    public function test_deliverable_can_have_multiple_target_platforms(): void
+    {
+        $campaign = Campaign::create([
+            'title' => 'Cross-Platform Blitz',
+            'slug' => 'cross-platform-blitz',
+            'campaign_code' => 'CMP-MULTI-01',
+            'budget' => 25000,
+            'start_date' => now()->toDateString(),
+            'end_date' => now()->addDays(10)->toDateString(),
+            'status' => CampaignStatus::Running,
+            'priority' => CampaignPriority::High,
+            'owner_id' => $this->adminUser->id,
+        ]);
+
+        $deliverable = CampaignDeliverable::create([
+            'campaign_id' => $campaign->id,
+            'title' => 'Multi-Platform Video Teaser',
+            'platforms' => ['instagram', 'tiktok', 'youtube'],
+            'scheduled_at' => now()->addDays(1),
+        ]);
+
+        $fresh = $deliverable->fresh();
+        $this->assertIsArray($fresh->platforms);
+        $this->assertCount(3, $fresh->platforms);
+        $this->assertContains('instagram', $fresh->platforms);
+        $this->assertContains('tiktok', $fresh->platforms);
+        $this->assertContains('youtube', $fresh->platforms);
+        $this->assertEquals('instagram', $fresh->platform?->value);
+    }
+
     public function test_campaign_routes_are_accessible_by_authenticated_admin(): void
     {
         $response = $this->actingAs($this->adminUser)

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Campaigns\Schemas;
 
+use App\Enums\MarketingPlatform;
+use App\Models\CampaignDeliverable;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
@@ -24,29 +26,21 @@ class CampaignInfolist
                                 Section::make('Campaign Overview')
                                     ->icon('heroicon-o-megaphone')
                                     ->schema([
-                                        TextEntry::make('title')
-                                            ->weight('bold')
-                                            ->size(TextSize::Large),
                                         Grid::make(2)->schema([
+                                            TextEntry::make('title')
+                                                ->size(TextSize::Large)
+                                                ->weight('bold'),
                                             TextEntry::make('campaign_code')
-                                                ->label('Code')
                                                 ->badge()
                                                 ->color('gray'),
-                                            TextEntry::make('slug')
-                                                ->label('Slug')
-                                                ->color('secondary'),
                                         ]),
                                         TextEntry::make('objectives')
-                                            ->label('Objectives')
-                                            ->placeholder('No specific objectives entered.')
-                                            ->columnSpanFull(),
+                                            ->placeholder('No objectives stated.'),
                                         TextEntry::make('target_audience')
-                                            ->label('Target Audience')
-                                            ->placeholder('Not specified.')
-                                            ->columnSpanFull(),
+                                            ->placeholder('No target audience specified.'),
                                     ]),
-                                Section::make('Deliverables')
-                                    ->icon('heroicon-o-document-duplicate')
+                                Section::make('Deliverables Checklist')
+                                    ->icon('heroicon-o-clipboard-document-check')
                                     ->schema([
                                         RepeatableEntry::make('deliverables')
                                             ->schema([
@@ -60,8 +54,21 @@ class CampaignInfolist
                                                         ->badge(),
                                                 ]),
                                                 Grid::make(3)->schema([
-                                                    TextEntry::make('platform')
-                                                        ->badge(),
+                                                    TextEntry::make('platforms')
+                                                        ->label('Platforms')
+                                                        ->badge()
+                                                        ->formatStateUsing(function ($state, CampaignDeliverable $record) {
+                                                            $platforms = $record->platforms;
+                                                            if (! is_array($platforms) || empty($platforms)) {
+                                                                return 'Unspecified';
+                                                            }
+
+                                                            return array_map(function ($p) {
+                                                                $enum = $p instanceof MarketingPlatform ? $p : MarketingPlatform::tryFrom((string) $p);
+
+                                                                return $enum ? $enum->getLabel() : ucfirst((string) $p);
+                                                            }, $platforms);
+                                                        }),
                                                     TextEntry::make('scheduled_at')
                                                         ->dateTime('M d, Y h:i A')
                                                         ->placeholder('Unscheduled'),
