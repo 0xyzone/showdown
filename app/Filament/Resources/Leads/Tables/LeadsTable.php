@@ -84,7 +84,7 @@ class LeadsTable
                     ->label('Status')
                     ->relationship('lead_status', 'name'),
             ])
-            ->poll('10s')
+            ->defaultSort('id')
             ->recordActions([
                 ViewAction::make()
                     ->slideOver()
