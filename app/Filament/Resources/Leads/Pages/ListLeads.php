@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Leads\Pages;
 
 use App\Filament\Resources\Leads\LeadResource;
+use App\Models\Lead;
 use App\Models\LeadStatus;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -27,11 +28,12 @@ class ListLeads extends ListRecords
     {
         $statuses = LeadStatus::all();
         $tabs = [];
+        $tabs['all'] = Tab::make('All');
         foreach ($statuses as $status) {
             $tabs[$status->name] = Tab::make($status->name)
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('lead_status_id', $status->id));
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('lead_status_id', $status->id))
+                ->badge(Lead::where('lead_status_id', $status->id)->count());
         }
-        $tabs['all'] = Tab::make('All');
         return $tabs;
     }
 }
