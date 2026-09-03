@@ -29,7 +29,7 @@ class LeadsTable
                     ->label('Contact')
                     ->searchable()
                     ->sortable()
-                    ->description(fn($record) => $record->phone . ' • ' . $record->email),
+                    ->description(fn($record) => $record->phone . ($record->email ? (' • ' . $record->email) : '')),
                 TextColumn::make('notes')
                     ->limit(30)
                     ->tooltip(fn($state) => $state),
