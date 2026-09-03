@@ -23,7 +23,8 @@ class LeadsTable
                     ->label('Company')
                     ->searchable()
                     ->sortable()
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->description(fn($record) => '[' . $record->lead_status->name . ']'),
                 TextColumn::make('contact_name')
                     ->label('Contact')
                     ->searchable()
