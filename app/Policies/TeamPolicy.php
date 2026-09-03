@@ -4,57 +4,36 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\Participant;
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Team;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Foundation\Auth\User as AuthUser;
 
 class TeamPolicy
 {
     use HandlesAuthorization;
-
+    
     public function viewAny(AuthUser $authUser): bool
     {
-        if ($authUser instanceof Participant) {
-            return true;
-        }
-
         return $authUser->can('ViewAny:Team');
     }
 
     public function view(AuthUser $authUser, Team $team): bool
     {
-        if ($authUser instanceof Participant) {
-            return $team->manager_id === $authUser->id;
-        }
-
         return $authUser->can('View:Team');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        if ($authUser instanceof Participant) {
-            return true;
-        }
-
         return $authUser->can('Create:Team');
     }
 
     public function update(AuthUser $authUser, Team $team): bool
     {
-        if ($authUser instanceof Participant) {
-            return $team->manager_id === $authUser->id;
-        }
-
         return $authUser->can('Update:Team');
     }
 
     public function delete(AuthUser $authUser, Team $team): bool
     {
-        if ($authUser instanceof Participant) {
-            return $team->manager_id === $authUser->id;
-        }
-
         return $authUser->can('Delete:Team');
     }
 
@@ -92,4 +71,5 @@ class TeamPolicy
     {
         return $authUser->can('Reorder:Team');
     }
+
 }

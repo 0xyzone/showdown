@@ -4,75 +4,72 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\StaffAttendance;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Foundation\Auth\User as AuthUser;
 
 class StaffAttendancePolicy
 {
     use HandlesAuthorization;
-
+    
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:StaffAttendance') || $authUser->can('View:StaffAttendance');
+        return $authUser->can('ViewAny:StaffAttendance');
     }
 
     public function view(AuthUser $authUser, StaffAttendance $staffAttendance): bool
     {
-        if ($authUser->hasRole('super_admin') || $authUser->hasRole('attendance_manager') || $authUser->can('ViewAny:StaffAttendance')) {
-            return true;
-        }
-
-        return $staffAttendance->user_id === $authUser->id;
+        return $authUser->can('View:StaffAttendance');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:StaffAttendance') || $authUser->hasRole('super_admin');
+        return $authUser->can('Create:StaffAttendance');
     }
 
     public function update(AuthUser $authUser, StaffAttendance $staffAttendance): bool
     {
-        return $authUser->hasRole('super_admin') || $authUser->hasRole('attendance_manager') || $authUser->can('Correct:StaffAttendance');
+        return $authUser->can('Update:StaffAttendance');
     }
 
     public function delete(AuthUser $authUser, StaffAttendance $staffAttendance): bool
     {
-        return $authUser->hasRole('super_admin');
+        return $authUser->can('Delete:StaffAttendance');
     }
 
     public function deleteAny(AuthUser $authUser): bool
     {
-        return $authUser->hasRole('super_admin');
+        return $authUser->can('DeleteAny:StaffAttendance');
     }
 
     public function restore(AuthUser $authUser, StaffAttendance $staffAttendance): bool
     {
-        return $authUser->hasRole('super_admin');
+        return $authUser->can('Restore:StaffAttendance');
     }
 
     public function forceDelete(AuthUser $authUser, StaffAttendance $staffAttendance): bool
     {
-        return $authUser->hasRole('super_admin');
+        return $authUser->can('ForceDelete:StaffAttendance');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $authUser->hasRole('super_admin');
+        return $authUser->can('ForceDeleteAny:StaffAttendance');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return $authUser->hasRole('super_admin');
+        return $authUser->can('RestoreAny:StaffAttendance');
     }
 
     public function replicate(AuthUser $authUser, StaffAttendance $staffAttendance): bool
     {
-        return $authUser->hasRole('super_admin');
+        return $authUser->can('Replicate:StaffAttendance');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return $authUser->hasRole('super_admin');
+        return $authUser->can('Reorder:StaffAttendance');
     }
+
 }

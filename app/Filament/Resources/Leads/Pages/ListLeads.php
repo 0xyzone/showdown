@@ -34,6 +34,7 @@ class ListLeads extends ListRecords
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('lead_status_id', $status->id))
                 ->badge(Lead::where('lead_status_id', $status->id)->count());
         }
+
         return $tabs;
     }
 }

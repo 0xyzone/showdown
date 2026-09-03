@@ -24,15 +24,15 @@ class LeadsTable
                     ->searchable()
                     ->sortable()
                     ->weight('bold')
-                    ->description(fn($record) => '[' . $record->lead_type->name . ']'),
+                    ->description(fn ($record) => '['.$record->lead_type->name.']'),
                 TextColumn::make('contact_name')
                     ->label('Contact')
                     ->searchable()
                     ->sortable()
-                    ->description(fn($record) => $record->phone . ($record->email ? (' • ' . $record->email) : '')),
+                    ->description(fn ($record) => $record->phone.($record->email ? (' • '.$record->email) : '')),
                 TextColumn::make('notes')
                     ->limit(30)
-                    ->tooltip(fn($state) => $state),
+                    ->tooltip(fn ($state) => $state),
                 SelectColumn::make('lead_status_id')
                     ->label('Status')
                     ->options(
@@ -44,7 +44,7 @@ class LeadsTable
                     ->date('M d, Y')
                     ->placeholder('None yet')
                     ->badge()
-                    ->color(fn($state) => $state ? 'primary' : 'gray')
+                    ->color(fn ($state) => $state ? 'primary' : 'gray')
                     ->sortable(),
                 TextColumn::make('followups_count')
                     ->counts('followups')

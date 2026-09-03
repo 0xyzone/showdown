@@ -27,6 +27,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
+use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 
 class MaidanPanelProvider extends PanelProvider
 {
@@ -113,6 +114,9 @@ class MaidanPanelProvider extends PanelProvider
                     ->customProfileComponents([
                         UserInformationForm::class,
                     ]),
+                FilamentFullCalendarPlugin::make()
+                    ->selectable()
+                    ->editable(),
             ]);
     }
 }

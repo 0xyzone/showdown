@@ -15,6 +15,7 @@
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
         "maatwebsite/excel": "^4.0",
+        "saade/filament-fullcalendar": "^4.0@beta",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "zvizvi/user-fields": "^0.0.7"
     },
