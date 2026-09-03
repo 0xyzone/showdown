@@ -339,18 +339,18 @@ class CampaignCalendarWidget extends FullCalendarWidget
                 // 1. Campaign duration banner pill
                 if (props.type === 'campaign') {
                     const el = document.createElement('div');
-                    el.className = 'flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-white leading-tight w-full truncate';
+                    el.className = 'flex items-center gap-1.5 px-2 text-[11px] font-semibold text-white leading-tight w-full h-[24px] truncate';
                     el.innerHTML = `
-                        <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/20 text-[10px] shrink-0 font-mono">🎯</span>
+                        <span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-white/20 text-[9px] shrink-0 font-mono">🎯</span>
                         <span class="truncate font-semibold">${arg.event.title.replace('🎯 ', '')}</span>
-                        ${props.budget ? `<span class="ml-auto text-[10px] font-mono px-1.5 py-0.2 bg-black/20 rounded-md shrink-0 opacity-90 hidden sm:inline-block">${props.budget}</span>` : ''}
+                        ${props.budget ? `<span class="ml-auto text-[9px] font-mono px-1.5 py-0.2 bg-black/25 rounded shrink-0 opacity-90 hidden sm:inline-block">${props.budget}</span>` : ''}
                     `;
                     return { domNodes: [el] };
                 }
 
-                // 2. Deliverable item pill
+                // 2. Deliverable item pill - compact single-line micro-pill (uniform 24px height)
                 const el = document.createElement('div');
-                el.className = 'deliverable-pill-content flex flex-col gap-0.5 px-2 py-1.5 text-xs w-full leading-tight';
+                el.className = 'deliverable-pill-content flex items-center gap-1.5 px-2 text-[11px] w-full h-[24px] leading-tight truncate';
 
                 const platformBadges = {
                     'instagram': { bg: '#fce7f3', text: '#be185d', icon: '📷', label: 'IG' },
@@ -365,35 +365,27 @@ class CampaignCalendarWidget extends FullCalendarWidget
                 };
 
                 const keys = (props.platforms && props.platforms.length > 0) ? props.platforms : [props.platform_key || 'other'];
-                const badgesHtml = keys.slice(0, 2).map(k => {
+                const badgesHtml = keys.slice(0, 1).map(k => {
                     const p = platformBadges[k] || { bg: '#f3f4f6', text: '#4b5563', icon: '📢', label: k };
-                    return `<span class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded-md shrink-0 flex items-center gap-0.5" style="background-color: ${p.bg}; color: ${p.text};">
+                    return `<span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded shrink-0 flex items-center gap-0.5" style="background-color: ${p.bg}; color: ${p.text};">
                         <span>${p.icon}</span>
                         <span>${p.label}</span>
                     </span>`;
-                }).join('') + (keys.length > 2 ? `<span class="text-[9px] font-bold px-1 py-0.2 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 shrink-0">+${keys.length - 2}</span>` : '');
+                }).join('') + (keys.length > 1 ? `<span class="text-[9px] font-bold px-1 py-0.2 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 shrink-0">+${keys.length - 1}</span>` : '');
 
                 const timeStr = props.time_str || '';
                 const titleStr = props.raw_title || arg.event.title;
                 const statusDotColor = props.status_color || '#10b981';
 
                 el.innerHTML = `
-                    <div class="flex items-center gap-1.5 w-full flex-wrap sm:flex-nowrap">
-                        <span class="w-2 h-2 rounded-full shrink-0" style="background-color: ${statusDotColor}; box-shadow: 0 0 0 1.5px rgba(255,255,255,0.8);"></span>
-                        <div class="flex items-center gap-1 flex-wrap shrink-0">
-                            ${badgesHtml}
-                        </div>
-                        ${timeStr ? `<span class="text-[10px] text-gray-500 dark:text-gray-400 font-mono shrink-0 ml-auto">${timeStr}</span>` : ''}
+                    <span class="w-2 h-2 rounded-full shrink-0" style="background-color: ${statusDotColor}; box-shadow: 0 0 0 1px rgba(255,255,255,0.4);"></span>
+                    <div class="flex items-center gap-1 shrink-0">
+                        ${badgesHtml}
                     </div>
-                    <div class="deliverable-title font-semibold text-gray-900 dark:text-gray-100 truncate w-full mt-1 text-[11px] leading-snug">
+                    <span class="deliverable-title font-semibold text-gray-900 dark:text-gray-100 truncate text-[11px]">
                         ${titleStr}
-                    </div>
-                    ${props.assignee ? `
-                        <div class="flex items-center gap-1 text-[9px] text-gray-500 dark:text-gray-400 truncate opacity-90 mt-0.5">
-                            <span class="truncate">👤 ${props.assignee}</span>
-                            ${props.creative_type ? `<span class="text-gray-300 dark:text-gray-600">•</span><span class="truncate">${props.creative_type}</span>` : ''}
-                        </div>
-                    ` : ''}
+                    </span>
+                    ${timeStr ? `<span class="text-[9px] text-gray-400 dark:text-gray-500 font-mono shrink-0 ml-auto hidden sm:inline-block">${timeStr}</span>` : ''}
                 `;
 
                 return { domNodes: [el] };

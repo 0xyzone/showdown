@@ -97,7 +97,7 @@
         }
 
         /* ===================================================================
-           2. 3D VOLUMETRIC BOXED CALENDAR CELLS (NOT FLAT 2D)
+           2. 3D VOLUMETRIC SQUARE BOXED CALENDAR CELLS (SQUARE NOT RECTANGLE)
            =================================================================== */
         /* Day Grid Rows Spacing */
         .filament-fullcalendar .fc-daygrid-body table {
@@ -105,18 +105,31 @@
             border-collapse: separate !important;
         }
 
-        /* Each 3D Box Cell */
+        /* Each 3D Box Cell: Force 1:1 True Square Aspect Ratio */
         .filament-fullcalendar .fc-daygrid-day {
             background: transparent !important;
             border: none !important;
+            aspect-ratio: 1 / 1 !important;
+            vertical-align: top !important;
+            position: static !important;
+            overflow: visible !important;
         }
 
         .filament-fullcalendar .fc-daygrid-day-frame {
             position: relative !important;
-            min-height: 125px !important;
-            padding: 8px !important;
+            aspect-ratio: 1 / 1 !important;
+            width: 100% !important;
+            min-height: 120px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-sizing: border-box !important;
+            padding: 6px 8px !important;
             border-radius: 1.25rem !important;
-            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            overflow: visible !important;
+            z-index: auto !important;
+            isolation: auto !important;
+            transform: none !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
             
             /* Light Mode 3D Box: Layered bevel & drop shadow */
             background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
@@ -139,26 +152,79 @@
                 inset 0 -2px 0 rgba(0, 0, 0, 0.4) !important;
         }
 
-        /* 3D Hover Lift */
+        /* 3D Hover Effect on Days:
+           CRITICAL: z-index remains auto so day boxes NEVER create an isolated stacking context
+           that traps or covers multi-day spanning bars or adjacent pills! */
         .filament-fullcalendar .fc-daygrid-day-frame:hover {
-            transform: translateY(-5px) scale(1.015) !important;
-            z-index: 25 !important;
-            border-color: rgba(99, 102, 241, 0.7) !important;
+            z-index: auto !important;
+            transform: none !important;
+            border-color: rgba(99, 102, 241, 0.8) !important;
             box-shadow: 
-                0 20px 30px -6px rgba(79, 70, 229, 0.2),
-                0 8px 12px -2px rgba(0, 0, 0, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+                0 0 0 1.5px rgba(99, 102, 241, 0.6),
+                0 10px 22px -3px rgba(99, 102, 241, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 1),
+                inset 0 -2px 0 rgba(99, 102, 241, 0.15) !important;
         }
 
         html.dark .filament-fullcalendar .fc-daygrid-day-frame:hover {
-            transform: translateY(-5px) scale(1.015) !important;
-            z-index: 25 !important;
-            background: linear-gradient(180deg, #2c2c34 0%, #1e1e24 100%) !important;
+            z-index: auto !important;
+            transform: none !important;
+            background: linear-gradient(180deg, #2a2a32 0%, #1d1d23 100%) !important;
             border-color: #818cf8 !important;
             box-shadow: 
-                0 22px 35px -6px rgba(0, 0, 0, 0.85),
-                0 8px 20px -2px rgba(99, 102, 241, 0.35),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+                0 0 0 1.5px #818cf8,
+                0 12px 28px -4px rgba(99, 102, 241, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                inset 0 -2px 0 rgba(99, 102, 241, 0.3) !important;
+        }
+
+        /* Event Harnesses and Pills: Elevated above day boxes with shared relative coordinate space */
+        .filament-fullcalendar .fc-daygrid-body {
+            position: relative !important;
+            z-index: 10 !important;
+        }
+
+        .filament-fullcalendar .fc-daygrid-day-events {
+            position: relative !important;
+            min-height: 2em !important;
+            margin-top: 0 !important;
+            overflow: visible !important;
+            z-index: auto !important;
+        }
+
+        /* ELIMINATE GHOST SPACING: FullCalendar harness pseudo elements add 32px of ghost height */
+        .filament-fullcalendar .fc-daygrid-event-harness::before,
+        .filament-fullcalendar .fc-daygrid-event-harness::after {
+            display: none !important;
+            content: none !important;
+            height: 0 !important;
+            line-height: 0 !important;
+            font-size: 0 !important;
+        }
+
+        .filament-fullcalendar .fc-daygrid-event-harness {
+            position: relative !important;
+            z-index: 25 !important;
+            pointer-events: auto !important;
+        }
+
+        .filament-fullcalendar .fc-daygrid-event-harness-abs {
+            position: absolute !important;
+            z-index: 20 !important;
+            pointer-events: auto !important;
+        }
+
+        .filament-fullcalendar .fc-event {
+            position: relative !important;
+            z-index: 30 !important;
+            border: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 0 3px 0 !important;
+            box-shadow: none !important;
+            display: block !important;
+            height: 24px !important;
+            pointer-events: auto !important;
         }
 
         /* Today's Special 3D Box */
@@ -178,40 +244,58 @@
                 inset 0 0 24px rgba(99, 102, 241, 0.18) !important;
         }
 
-        /* Day Numbers inside 3D boxes */
+        /* Day Numbers inside 3D boxes: Bold, High-contrast and Unobstructed */
         .filament-fullcalendar .fc-daygrid-day-top {
             display: flex !important;
             justify-content: flex-end !important;
-            padding: 2px 4px 6px 4px !important;
+            align-items: center !important;
+            padding: 2px 6px 4px 6px !important;
+            min-height: 28px !important;
+            position: relative !important;
+            z-index: 5 !important;
         }
 
         .filament-fullcalendar .fc-daygrid-day-number {
-            font-size: 0.85rem !important;
+            font-size: 0.95rem !important;
             font-weight: 800 !important;
-            color: #475569 !important;
-            width: 28px !important;
-            height: 28px !important;
+            color: #0f172a !important;
+            min-width: 26px !important;
+            height: 26px !important;
             border-radius: 9999px !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
+            padding: 0 4px !important;
+            letter-spacing: -0.02em !important;
             transition: all 0.2s ease !important;
         }
 
         html.dark .filament-fullcalendar .fc-daygrid-day-number {
-            color: #cbd5e1 !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9) !important;
         }
 
         .filament-fullcalendar .fc-day-today .fc-daygrid-day-number {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
             color: #ffffff !important;
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.45) !important;
+            box-shadow: 0 3px 10px rgba(99, 102, 241, 0.6) !important;
         }
 
-        /* Out-of-month dimmed 3D box */
+        /* Out-of-month dimmed 3D box: DO NOT set opacity on day-frame as it forms an isolated stacking context */
         .filament-fullcalendar .fc-day-other .fc-daygrid-day-frame {
-            opacity: 0.35 !important;
             box-shadow: none !important;
+            background: rgba(248, 250, 252, 0.45) !important;
+        }
+
+        html.dark .filament-fullcalendar .fc-day-other .fc-daygrid-day-frame {
+            background: rgba(18, 18, 22, 0.45) !important;
+            box-shadow: none !important;
+            border-color: rgba(255, 255, 255, 0.03) !important;
+        }
+
+        .filament-fullcalendar .fc-day-other .fc-daygrid-day-top {
+            opacity: 0.35 !important;
         }
 
         /* ===================================================================
@@ -309,21 +393,28 @@
             border: none !important;
             background: transparent !important;
             padding: 0 !important;
-            margin-bottom: 5px !important;
+            margin: 0 0 3px 0 !important;
             box-shadow: none !important;
+            display: block !important;
+            height: 24px !important;
         }
 
         /* Spanning Campaign Bars: 3D Gradient Bar */
         .filament-fullcalendar .modern-campaign-pill {
             background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
-            border-radius: 0.75rem !important;
+            border-radius: 0.5rem !important;
             border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            box-shadow: 0 4px 10px -2px rgba(37, 99, 235, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
-            margin-bottom: 5px !important;
+            box-shadow: 0 2px 6px -1px rgba(37, 99, 235, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+            height: 24px !important;
+            min-height: 24px !important;
+            line-height: 24px !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
 
         .filament-fullcalendar .modern-campaign-pill:hover {
+            z-index: 60 !important;
             transform: translateY(-2px) scale(1.02) !important;
             box-shadow: 0 8px 16px -2px rgba(37, 99, 235, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
             filter: brightness(1.1) !important;
@@ -333,29 +424,41 @@
         .filament-fullcalendar .modern-deliverable-pill {
             background: #ffffff !important;
             border: 1px solid rgba(226, 232, 240, 0.95) !important;
-            border-radius: 0.75rem !important;
-            box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 1) !important;
-            margin-bottom: 5px !important;
+            border-radius: 0.5rem !important;
+            box-shadow: 0 2px 5px -1px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+            height: 24px !important;
+            min-height: 24px !important;
+            line-height: 24px !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
 
         html.dark .filament-fullcalendar .modern-deliverable-pill {
-            background: #2a2a30 !important;
-            border: 1px solid rgba(255, 255, 255, 0.09) !important;
-            box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+            background: #202026 !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .filament-fullcalendar .fc-event-main {
+            padding: 0 !important;
+            line-height: inherit !important;
+            height: 100% !important;
         }
 
         .filament-fullcalendar .modern-deliverable-pill:hover {
+            z-index: 60 !important;
             transform: translateY(-2px) scale(1.02) !important;
             border-color: #818cf8 !important;
-            box-shadow: 0 10px 20px -3px rgba(99, 102, 241, 0.25), inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+            box-shadow: 0 8px 16px -2px rgba(99, 102, 241, 0.3), inset 0 1px 0 rgba(255, 255, 255, 1) !important;
         }
 
         html.dark .filament-fullcalendar .modern-deliverable-pill:hover {
+            z-index: 60 !important;
             transform: translateY(-2px) scale(1.02) !important;
             border-color: #a5b4fc !important;
-            background: #32323a !important;
-            box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.8), 0 4px 10px -2px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+            background: #282832 !important;
+            box-shadow: 0 8px 20px -2px rgba(0, 0, 0, 0.7), 0 2px 8px -1px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
         }
 
         html.dark .deliverable-pill-content .deliverable-title {
