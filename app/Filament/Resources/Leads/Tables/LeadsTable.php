@@ -18,6 +18,7 @@ class LeadsTable
     {
         return $table
             ->columns([
+                TextColumn::make('id'),
                 TextColumn::make('company_name')
                     ->label('Company')
                     ->searchable()
