@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Leads\Schemas;
 
+use App\Models\LeadStatus;
+use App\Models\LeadType;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -36,6 +38,9 @@ class LeadForm
                                             Select::make('lead_type_id')
                                                 ->label('Lead Type')
                                                 ->relationship('lead_type', 'name')
+                                                ->default(function () {
+                                                    return LeadType::where('is_default', true)->first()->id;
+                                                })
                                                 ->preload()
                                                 ->searchable()
                                                 ->createOptionForm([
@@ -46,6 +51,9 @@ class LeadForm
                                             Select::make('lead_status_id')
                                                 ->label('Status')
                                                 ->relationship('lead_status', 'name')
+                                                ->default(function () {
+                                                    return LeadStatus::where('is_default', true)->first()->id;
+                                                })
                                                 ->preload()
                                                 ->searchable()
                                                 ->createOptionForm([
